@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="兔子起">
+<meta name="theme-color" content="#3f9b3a">
+<title>兔子起 助手</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;position:fixed;width:100%}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(#bfe6ff,#e8f7ff 40%,#7fcf6a 40.1%,#3f9b3a);color:#234}
+#app{height:100%;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 10px env(safe-area-inset-bottom);gap:8px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:8px}
+.btn{border:0;border-radius:16px;background:#fff;color:#2a5;font-size:18px;font-weight:700;min-height:48px;padding:0 16px;box-shadow:0 3px 0 rgba(0,0,0,.18);cursor:pointer}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.18)}
+.btn.warn{color:#c33}.btn:disabled{opacity:.4}
+.btn.sq{min-width:48px;padding:0;font-size:22px}
+#count{background:#fff;border-radius:16px;padding:6px 14px;font-weight:800;font-size:18px;text-align:center;line-height:1.2;box-shadow:0 3px 0 rgba(0,0,0,.18)}
+#count small{display:block;font-size:12px;color:#789;font-weight:600}
+#players{display:flex;gap:8px;justify-content:center;align-items:center;min-height:56px}
+.pl{width:48px;height:56px;border-radius:14px;background:rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center;transition:.2s;border:3px solid transparent}
+.pl.on{background:#fff;border-color:#fa0;transform:scale(1.18);box-shadow:0 4px 10px rgba(0,0,0,.25)}
+.pl svg{width:34px;height:42px}
+#turn{font-size:18px;font-weight:800;text-align:center;min-height:24px;color:#134}
+#stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;perspective:1200px}
+#card{height:100%;max-height:560px;aspect-ratio:3/4;max-width:100%;position:relative;cursor:pointer;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.3,1.3,.5,1)}
+#card.back{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:6%/5%;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.35);border:5px solid #fff;background:#fff}
+.face.bk{transform:rotateY(180deg);background:repeating-linear-gradient(45deg,#ff9a3c 0 14px,#ffb25e 14px 28px);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center}
+.bk .t{font-size:clamp(34px,9vw,56px);font-weight:900;text-shadow:0 3px 0 rgba(0,0,0,.25)}
+.bk .s{font-size:clamp(16px,4vw,24px);margin-top:10px;font-weight:700}
+.bk svg{width:40%}
+.face.fr svg.art{width:100%;height:100%;display:block}
+#card.shake{animation:sh .6s}
+@keyframes sh{0%,100%{rotate:0}25%{rotate:-4deg}75%{rotate:4deg}}
+#label{text-align:center;font-size:clamp(36px,9vw,60px);font-weight:900;color:#a31;text-shadow:0 2px 0 #fff;min-height:1.2em;line-height:1.2}
+#hist{display:flex;gap:6px;overflow:hidden;min-height:62px;align-items:center;justify-content:flex-start;flex-direction:row-reverse;direction:ltr}
+#hist .h{flex:none;width:44px;height:58px;border-radius:7px;border:2px solid #fff;overflow:hidden;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.3);opacity:.9}
+#hist .h svg{width:100%;height:100%;display:block}
+#hist .h:first-child{opacity:1;outline:3px solid #fa0}
+.row{display:flex;gap:8px;justify-content:center;padding-bottom:8px}
+.row .btn{flex:1;max-width:220px}
+#toast{position:fixed;left:50%;top:18%;transform:translate(-50%,-20px);background:#234;color:#fff;padding:14px 22px;border-radius:18px;font-size:22px;font-weight:800;opacity:0;pointer-events:none;transition:.3s;z-index:9;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:10}
+#modal.show{display:flex}
+#box{background:#fff;border-radius:22px;padding:24px;width:min(86vw,380px);text-align:center}
+#box h2{margin:0 0 6px;font-size:26px}#box p{margin:6px 0 16px;font-size:18px;color:#456}
+#box .row .btn{background:#eef;}
+.np{display:flex;gap:6px;justify-content:center;align-items:center;margin:8px 0;font-size:18px;font-weight:700}
+.np .btn{min-height:44px}
+@media (orientation:landscape) and (max-height:560px){
+ #app{display:grid;grid-template-columns:1fr 1.1fr 1fr;grid-template-rows:auto 1fr auto;gap:6px 14px}
+ .bar{grid-column:1/4}#players{grid-column:1;grid-row:2;flex-wrap:wrap;align-content:center}
+ #turn{display:none}
+ #stage{grid-column:2;grid-row:2}#label{display:none}
+ #hist{grid-column:3;grid-row:2;flex-wrap:wrap-reverse;align-content:center;flex-direction:row}
+ .row{grid-column:1/4;padding-bottom:4px}
+}
+
+.view{position:fixed;inset:0;display:none}
+.view.on{display:block}
+#dtoast{position:fixed;left:50%;top:18%;transform:translate(-50%,-20px);background:#234;color:#fff;padding:14px 22px;border-radius:18px;font-size:22px;font-weight:800;opacity:0;pointer-events:none;transition:.3s;z-index:9;text-align:center}
+#dtoast.show{opacity:1;transform:translate(-50%,0)}
+/* home */
+#v-home{padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom);overflow:hidden}
+.hub{height:100%;max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:16px;padding:16px 0}
+.hub h1{margin:0;text-align:center;font-size:clamp(34px,8vw,64px);font-weight:900;color:#a31;text-shadow:0 3px 0 #fff;line-height:1.15}
+.hub h1 small{display:block;font-size:.4em;color:#134;text-shadow:none;font-weight:700;margin-top:4px}
+.tiles{flex:1;min-height:0;display:flex;flex-direction:column;gap:18px}
+.tile{flex:1;min-height:0;border:0;border-radius:28px;background:#fff;box-shadow:0 6px 0 rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;gap:5vmin;cursor:pointer;color:#234;font-family:inherit;text-decoration:none;padding:12px}
+.tile:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.2)}
+.tile svg{height:min(100%,40vmin);width:auto;max-width:40%;flex:none}
+.tile b{font-size:clamp(34px,8vw,60px);font-weight:900;color:#2a5;display:block}
+.tile span{font-size:clamp(16px,3.4vw,24px);color:#789;font-weight:700;display:block;margin-top:4px}
+.tile.d b{color:#d33}
+@media (orientation:landscape){.tiles{flex-direction:row}.hub{max-width:1100px}.tile{flex-direction:column;text-align:center}.tile svg{height:auto;width:auto;max-width:60%;max-height:55%}}
+@media (orientation:landscape) and (max-height:500px){.hub{gap:6px;padding:8px 0}.hub h1{font-size:30px}.hub h1 small{display:none}.tile{flex-direction:row}.tile svg{max-height:100%;max-width:35%}.tile b{font-size:34px}.tile span{font-size:15px}}
+/* dice */
+#v-dice{display:none}
+#v-dice.on{display:block}
+#dapp{height:100%;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 10px env(safe-area-inset-bottom);gap:8px}
+#dapp .grp{display:flex;gap:8px}
+#dplayers{display:flex;gap:8px;justify-content:center;align-items:center;min-height:56px}
+#dplayers .pl{cursor:pointer}
+#dturn{font-size:18px;font-weight:800;text-align:center;min-height:24px;color:#134}
+#dstage{flex:1;min-height:0;position:relative;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:var(--gap,16px);flex-wrap:nowrap}
+.die{width:var(--ds,120px);height:var(--ds,120px);flex:none;filter:drop-shadow(0 8px 6px rgba(0,0,0,.35))}
+.die svg{width:100%;height:100%;display:block}
+.die.roll{animation:tumble .42s linear infinite}
+@keyframes tumble{0%{transform:translateY(0) rotate(0)}25%{transform:translateY(-14%) rotate(95deg) scale(1.06)}50%{transform:translateY(0) rotate(190deg)}75%{transform:translateY(-10%) rotate(275deg) scale(1.04)}100%{transform:translateY(0) rotate(360deg)}}
+.die.land{animation:land .35s ease-out}
+@keyframes land{0%{transform:scale(1.2) rotate(-8deg)}60%{transform:scale(.95) rotate(3deg)}100%{transform:none}}
+#dtotal{text-align:center;font-size:clamp(36px,9vw,60px);font-weight:900;color:#a31;text-shadow:0 2px 0 #fff;min-height:1.2em;line-height:1.2}
+#dhist{display:flex;gap:6px;overflow:hidden;min-height:58px;align-items:center;flex-direction:row-reverse;justify-content:flex-end;direction:ltr}
+#dhist .h{flex:none;min-width:48px;height:54px;padding:0 8px;border-radius:12px;border:2px solid #fff;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.3);opacity:.9;text-align:center;font-weight:900;font-size:22px;line-height:1.05;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#a31}
+#dhist .h small{font-size:11px;color:#789;font-weight:700;white-space:nowrap}
+#dhist .h:first-child{opacity:1;outline:3px solid #fa0}
+.cnt{display:flex;gap:6px;align-items:center}
+.cnt .btn.on{background:#fa0;color:#fff}
+.btn.big{font-size:26px;min-height:60px;background:#f47a1f;color:#fff}
+#dapp .row .btn{max-width:260px}
+@media (orientation:landscape) and (max-height:560px){
+ #dapp{display:grid;grid-template-columns:1fr 1.6fr 1fr;grid-template-rows:auto 1fr auto;gap:6px 14px}
+ #dapp .bar{grid-column:1/4}#dplayers{grid-column:1;grid-row:2;flex-wrap:wrap;align-content:center}
+ #dturn{display:none}#dstage{grid-column:2;grid-row:2}
+ #dright{grid-column:3;grid-row:2;display:flex;flex-direction:column;justify-content:center;gap:6px}
+ #dapp .row{grid-column:1/4;padding-bottom:4px}
+ #dhist{flex-wrap:wrap-reverse;flex-direction:row;align-content:center}
+ #dtotal{font-size:44px}
+}
+@media (orientation:landscape) and (min-height:561px){#dright{display:contents}}
+</style></head><body>
+<div class="view" id="v-home"><div class="hub">
+ <h1>🥕 兔子起 助手<small>选一个工具开始</small></h1>
+ <div class="tiles">
+  <a class="tile" href="#/cards"><svg viewBox="0 0 60 80"><use href="#carrotIcon"/></svg><div><b>抽牌</b><span>电子牌堆 · 自动洗牌</span></div></a>
+  <a class="tile d" href="#/dice"><svg viewBox="0 0 100 100"><g transform="rotate(-12 50 50)"><rect x="12" y="12" width="76" height="76" rx="16" fill="#fff" stroke="#d9dfe6" stroke-width="3"/><g fill="#234"><circle cx="30" cy="30" r="7"/><circle cx="70" cy="30" r="7"/><circle cx="50" cy="50" r="7" fill="#d33"/><circle cx="30" cy="70" r="7"/><circle cx="70" cy="70" r="7"/></g></g></svg><div><b>骰子</b><span>1–3 颗 · 摇一摇</span></div></a>
+ </div></div></div>
+<div class="view" id="v-cards"><div id="app">
+ <div class="bar">
+  <div style="display:flex;gap:8px"><a class="btn sq nav" href="#/" aria-label="首页" style="display:flex;align-items:center;justify-content:center;text-decoration:none">🏠</a><button class="btn sq" id="bNew" aria-label="新游戏">🔄</button></div>
+  <div id="count"><span id="left">0</span> 张<small>牌堆剩余</small></div>
+  <div style="display:flex;gap:8px"><button class="btn sq" id="bSnd">🔊</button><button class="btn sq" id="bSet">👥</button><a class="btn sq nav" href="#/dice" aria-label="骰子" style="display:flex;align-items:center;justify-content:center;text-decoration:none">🎲</a></div>
+ </div>
+ <div id="players"></div>
+ <div id="turn"></div>
+ <div id="stage"><div id="card" class="back">
+   <div class="face fr" id="front"></div>
+   <div class="face bk"><svg viewBox="0 0 60 80"><use href="#carrotIcon"/></svg><div class="t">点我抽牌</div><div class="s">TAP TO DRAW</div></div>
+ </div></div>
+ <div id="label"></div>
+ <div id="hist"></div>
+ <div class="row"><button class="btn" id="bUndo">↩️ 撤销</button><button class="btn" id="bNext">下一位 ➜</button></div>
+</div>
+</div>
+<div id="toast"></div>
+<div id="modal"><div id="box"></div></div>
+<div class="view" id="v-dice"><div id="dapp">
+ <div class="bar">
+  <div class="grp"><a class="btn sq" href="#/" aria-label="首页" style="display:flex;align-items:center;justify-content:center;text-decoration:none">🏠</a><a class="btn sq" href="#/cards" aria-label="抽牌" style="display:flex;align-items:center;justify-content:center;text-decoration:none">🃏</a></div>
+  <div class="cnt" id="dcnt"><button class="btn sq" data-n="1">1</button><button class="btn sq" data-n="2">2</button><button class="btn sq" data-n="3">3</button></div>
+  <div class="grp"><button class="btn sq" id="dShake" aria-label="摇一摇">📳</button><button class="btn sq" id="dSnd">🔊</button></div>
+ </div>
+ <div id="dplayers"></div>
+ <div id="dturn"></div>
+ <div id="dstage"></div>
+ <div id="dright"><div id="dtotal"></div><div id="dhist"></div></div>
+ <div class="row"><button class="btn big" id="dRoll">🎲 掷骰子</button><button class="btn" id="dNext">下一位 ➜</button></div>
+</div></div>
+<div id="dtoast"></div>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+ <g id="carrotIcon"><path d="M30 22C16 24 10 40 28 76C30 78 32 78 34 76C50 40 44 24 30 22Z" fill="#f47a1f" stroke="#a33d0a" stroke-width="2"/><path d="M30 22 22 8M30 22 30 4M30 22 38 8" stroke="#2d8a2d" stroke-width="5" stroke-linecap="round"/></g>
+ <g id="coin"><ellipse cx="0" cy="0" rx="17" ry="11" fill="#f2a63a" stroke="#a8641a" stroke-width="3"/><ellipse cx="0" cy="0" rx="10" ry="5.5" fill="#fbd27a"/></g>
+ <!-- rabbit poses -->
+ <g id="rb1"><!-- upright, pointing -->
+  <ellipse cx="0" cy="62" rx="26" ry="6" fill="#0003"/>
+  <ellipse cx="-12" cy="58" rx="13" ry="6" fill="#999" stroke="#555" stroke-width="2"/><ellipse cx="12" cy="58" rx="13" ry="6" fill="#999" stroke="#555" stroke-width="2"/>
+  <path d="M-18 55C-26 30-18 8 0 8C18 8 26 30 18 55Z" fill="#a9a9ad" stroke="#555" stroke-width="2.5"/><ellipse cx="0" cy="34" rx="11" ry="20" fill="#f4f4f4"/>
+  <path d="M20 26L48 20" stroke="#a9a9ad" stroke-width="9" stroke-linecap="round"/><path d="M-18 28Q-26 38-20 46" stroke="#a9a9ad" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <g transform="translate(0,-4)"><path d="M-12-10C-22-60-12-66-8-50L-4-14ZM12-10C20-60 36-60 26-34L8-12Z" fill="#a9a9ad" stroke="#555" stroke-width="2.5"/><path d="M-10-14C-16-48-12-54-9-44L-6-16Z M14-14C20-44 28-48 24-36Z" fill="#f2a9b5"/>
+  <ellipse cx="0" cy="2" rx="22" ry="19" fill="#b4b4b8" stroke="#555" stroke-width="2.5"/><ellipse cx="0" cy="10" rx="13" ry="9" fill="#fff"/><circle cx="-8" cy="-2" r="5" fill="#fff" stroke="#555"/><circle cx="8" cy="-2" r="5" fill="#fff" stroke="#555"/><circle cx="-7" cy="-1" r="2.2" fill="#222"/><circle cx="9" cy="-1" r="2.2" fill="#222"/><ellipse cx="0" cy="6" rx="3" ry="2" fill="#e77"/><path d="M-5 13Q0 17 5 13" stroke="#555" fill="none" stroke-width="1.8"/><rect x="-2.5" y="14" width="5" height="5" rx="1" fill="#fff" stroke="#555" stroke-width="1"/></g>
+ </g>
+ <g id="rb2"><!-- wiggly stretched body -->
+  <ellipse cx="0" cy="64" rx="30" ry="6" fill="#0003"/>
+  <path d="M-22 58C-30 46 0 46-4 36C-10 26 18 28 8 14" fill="none" stroke="#555" stroke-width="26" stroke-linecap="round"/>
+  <path d="M-22 58C-30 46 0 46-4 36C-10 26 18 28 8 14" fill="none" stroke="#a9a9ad" stroke-width="22" stroke-linecap="round"/>
+  <path d="M-20 56C-26 48 0 48-3 38" fill="none" stroke="#f4f4f4" stroke-width="8" stroke-linecap="round"/>
+  <ellipse cx="-24" cy="60" rx="12" ry="5" fill="#999" stroke="#555" stroke-width="2"/><ellipse cx="14" cy="58" rx="10" ry="5" fill="#999" stroke="#555" stroke-width="2"/>
+  <g transform="translate(10,2) rotate(12)"><path d="M-12-10C-22-60-12-66-8-50L-4-14ZM12-10C20-60 36-60 26-34L8-12Z" fill="#a9a9ad" stroke="#555" stroke-width="2.5"/><path d="M-10-14C-16-48-12-54-9-44L-6-16Z M14-14C20-44 28-48 24-36Z" fill="#f2a9b5"/>
+  <ellipse cx="0" cy="2" rx="22" ry="19" fill="#b4b4b8" stroke="#555" stroke-width="2.5"/><ellipse cx="0" cy="10" rx="13" ry="9" fill="#fff"/><circle cx="-8" cy="-2" r="5" fill="#fff" stroke="#555"/><circle cx="8" cy="-2" r="5" fill="#fff" stroke="#555"/><circle cx="-6" cy="-1" r="2.2" fill="#222"/><circle cx="10" cy="-1" r="2.2" fill="#222"/><ellipse cx="0" cy="6" rx="3" ry="2" fill="#e77"/><path d="M-5 13Q0 17 5 13" stroke="#555" fill="none" stroke-width="1.8"/></g>
+  <path d="M30 6l8-8M36 14l10-6" stroke="#789" stroke-width="2" stroke-linecap="round"/>
+ </g>
+ <g id="rb3"><!-- leaping, crouched, speed lines -->
+  <ellipse cx="0" cy="66" rx="30" ry="5" fill="#0003"/>
+  <path d="M-34 8l14 4M-38 24l16 2M-34 40l14-3" stroke="#789" stroke-width="2.5" stroke-linecap="round"/>
+  <ellipse cx="2" cy="40" rx="26" ry="20" fill="#a9a9ad" stroke="#555" stroke-width="2.5" transform="rotate(-18 2 40)"/><ellipse cx="6" cy="44" rx="12" ry="11" fill="#f4f4f4"/>
+  <ellipse cx="-14" cy="56" rx="15" ry="6" fill="#999" stroke="#555" stroke-width="2"/><ellipse cx="22" cy="54" rx="13" ry="5" fill="#999" stroke="#555" stroke-width="2"/>
+  <g transform="translate(22,6) rotate(-35)"><path d="M-12-10C-22-60-12-66-8-50L-4-14ZM12-10C20-60 36-60 26-34L8-12Z" fill="#a9a9ad" stroke="#555" stroke-width="2.5"/><path d="M-10-14C-16-48-12-54-9-44L-6-16Z" fill="#f2a9b5"/>
+  <ellipse cx="0" cy="2" rx="22" ry="19" fill="#b4b4b8" stroke="#555" stroke-width="2.5"/><ellipse cx="0" cy="10" rx="13" ry="9" fill="#fff"/><circle cx="-8" cy="-2" r="5" fill="#fff" stroke="#555"/><circle cx="8" cy="-2" r="5" fill="#fff" stroke="#555"/><circle cx="-6" cy="0" r="2.2" fill="#222"/><circle cx="10" cy="0" r="2.2" fill="#222"/><ellipse cx="0" cy="6" rx="3" ry="2" fill="#e77"/><path d="M-5 14Q0 11 5 14" stroke="#555" fill="none" stroke-width="1.8"/></g>
+ </g>
+ <g id="bunnyTok"><ellipse cx="0" cy="26" rx="12" ry="5" fill="#0003"/><path d="M-10 24C-12 8-6 0 0 0C6 0 12 8 10 24Z" fill="currentColor" stroke="#0004" stroke-width="1.5"/><path d="M-7 4C-12-14-6-18-3-8ZM7 4C12-14 6-18 3-8Z" fill="currentColor" stroke="#0004" stroke-width="1.5"/><circle cx="-3" cy="9" r="1.4" fill="#222"/><circle cx="3" cy="9" r="1.4" fill="#222"/></g>
+</defs></svg>
+
+<script>
+(function(){
+'use strict';
+var COMP={1:8,2:6,3:1,R:4}; // from photo: 8x1步, 6x2步, 1x3步, 4x旋转 = 19
+var COLORS=[['粉','#ff5fa8'],['紫','#8e4fd0'],['黄','#f5c518'],['青','#18c4c4'],['橙','#ff8a1f'],['蓝','#3a7bff']];
+var KEY='rabbitCards.v1';
+var $=function(i){return document.getElementById(i)};
+
+function cardSVG(t){
+ var s='<svg class="art" viewBox="0 0 150 200" preserveAspectRatio="xMidYMid meet">';
+ if(t==='R'){
+  s+='<rect width="150" height="200" fill="#fff"/>';
+  s+='<g fill="none" stroke="#9aa" stroke-width="3" stroke-linecap="round"><ellipse cx="75" cy="70" rx="48" ry="9"/><ellipse cx="75" cy="100" rx="52" ry="10"/><ellipse cx="75" cy="130" rx="46" ry="9"/></g>';
+  s+='<g transform="translate(75 98) scale(1.7) translate(-30 -40)"><path d="M30 22C14 24 8 40 27 76C30 79 33 79 35 76C52 40 46 24 30 22Z" fill="#f47a1f" stroke="#8a3208" stroke-width="2.2"/><path d="M30 22 21 8M30 22 30 3M30 22 39 8" stroke="#2d8a2d" stroke-width="6" stroke-linecap="round"/><circle cx="24" cy="38" r="5" fill="#fff" stroke="#522" stroke-width="1.2"/><circle cx="36" cy="38" r="5" fill="#fff" stroke="#522" stroke-width="1.2"/><circle cx="25" cy="39" r="2" fill="#222"/><circle cx="37" cy="39" r="2" fill="#222"/><path d="M22 47Q30 55 38 47" stroke="#522" stroke-width="1.8" fill="#a22"/></g>';
+  s+='<path d="M118 160H46" stroke="#222" stroke-width="12" stroke-linecap="round"/><path d="M34 160l20-14v28z" fill="#222"/><text x="85" y="166" font-size="17" font-weight="900" fill="#fff" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif">旋转</text>';
+  return s+'</svg>';
+ }
+ var n=+t;
+ s+='<defs><linearGradient id="sky'+n+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6fb4e8"/><stop offset="1" stop-color="#eaf6ff"/></linearGradient></defs>';
+ s+='<rect width="150" height="200" fill="#fff"/><rect width="150" height="120" fill="url(#sky'+n+')"/><ellipse cx="40" cy="60" rx="30" ry="9" fill="#fff" opacity=".7"/><ellipse cx="110" cy="40" rx="24" ry="7" fill="#fff" opacity=".7"/>';
+ s+='<path d="M0 100Q70 80 150 105V200H0Z" fill="#4aa83a"/><path d="M0 130Q80 105 150 140V200H0Z" fill="#2f8a2a"/>';
+ s+='<rect y="168" width="150" height="32" fill="#fff"/>';
+ s+='<g transform="translate(75 102) scale(1.05)"><use href="#rb'+n+'"/></g>';
+ var xs=n===1?[75]:n===2?[55,95]:[35,75,115];
+ xs.forEach(function(x){s+='<g transform="translate('+x+' 184) scale(.9)"><use href="#coin"/></g>'});
+ return s+'</svg>';
+}
+function label(t){return t==='R'?'旋转胡萝卜!':'走 '+t+' 步'}
+
+var st; // {deck:[],disc:[],cur:null,players:3,turn:0,sound:true,hist:[] }
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function fullDeck(){var d=[];for(var k in COMP)for(var i=0;i<COMP[k];i++)d.push(k);return shuffle(d)}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+function load(){try{var s=JSON.parse(localStorage.getItem(KEY));if(s&&s.deck&&s.disc)return s}catch(e){}return null}
+function fresh(keep){st={deck:fullDeck(),disc:[],cur:null,players:keep?keep.players:3,turn:0,sound:keep?keep.sound:true,undo:null,adv:false}}
+
+var ac;
+function beep(f,d,delay){if(!st.sound)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();var o=ac.createOscillator(),g=ac.createGain();o.type='triangle';o.frequency.value=f;var t=ac.currentTime+(delay||0);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.25,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d+.02)}catch(e){}}
+function vib(p){try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
+var tt;function toast(m){var e=$('toast');e.textContent=m;e.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){e.classList.remove('show')},1800)}
+
+function render(){
+ $('left').textContent=st.deck.length;
+ $('bSnd').textContent=st.sound?'🔊':'🔇';
+ var p=$('players');p.innerHTML='';
+ for(var i=0;i<st.players;i++){var d=document.createElement('div');d.className='pl'+(i===st.turn?' on':'');d.style.color=COLORS[i][1];d.innerHTML='<svg viewBox="-16 -22 32 54"><use href="#bunnyTok"/></svg>';(function(i){d.onclick=function(){st.turn=i;save();render()}})(i);p.appendChild(d)}
+ $('turn').textContent='轮到 '+COLORS[st.turn][0]+'色兔子';
+ $('turn').style.color=COLORS[st.turn][1];
+ var c=$('card');
+ if(st.cur){$('front').innerHTML=cardSVG(st.cur);c.classList.remove('back');$('label').textContent=label(st.cur)}
+ else{c.classList.add('back');$('label').textContent=''}
+ var h=$('hist');h.innerHTML='';
+ st.disc.slice(-12).reverse().forEach(function(t){var e=document.createElement('div');e.className='h';e.innerHTML=cardSVG(t);h.appendChild(e)});
+ // fix duplicate gradient ids harmless
+ $('bUndo').disabled=!st.undo;
+ $('bNext').textContent=st.players>1?'下一位 ➜':'—';
+ $('bNext').disabled=st.players<2;
+}
+
+var busy=false;
+function draw(){
+ if(busy)return;busy=true;
+ var snap=JSON.stringify({deck:st.deck,disc:st.disc,cur:st.cur,turn:st.turn,adv:st.adv});
+ var reshuffled=false;
+ if(st.adv&&st.players>1){st.turn=(st.turn+1)%st.players}
+ st.adv=true;
+ if(st.deck.length===0){
+  if(st.cur){st.disc.push(st.cur);st.cur=null}
+  st.deck=shuffle(st.disc);st.disc=[];reshuffled=true;
+ }
+ var prev=st.cur;
+ if(prev){st.disc.push(prev)}
+ var next=st.deck.pop();
+ // flip animation: flip to back if showing, then show new
+ var c=$('card');
+ var doShow=function(){
+  st.cur=next;st.undo=snap;
+  $('front').innerHTML=cardSVG(next);
+  $('label').textContent=label(next);
+  $('left').textContent=st.deck.length;
+  c.classList.remove('back');
+  if(next==='R'){beep(520,.12);beep(780,.12,.12);beep(1040,.2,.24);vib([60,40,60,40,120])}
+  else{for(var i=0;i<+next;i++)beep(440+i*120,.1,i*.13);vib(40)}
+  if(reshuffled)toast('🔀 牌堆抽完了,已自动重新洗牌');
+  save();render();setTimeout(function(){busy=false},500);
+ };
+ save();
+ if(prev){c.classList.add('back');setTimeout(doShow,300)}else doShow();
+ render_hist_only();
+}
+function render_hist_only(){var h=$('hist');h.innerHTML='';st.disc.slice(-12).reverse().forEach(function(t){var e=document.createElement('div');e.className='h';e.innerHTML=cardSVG(t);h.appendChild(e)})}
+function nextPlayer(){st.turn=(st.turn+1)%st.players;st.adv=false;save();render()}
+function undo(){
+ if(!st.undo)return;var u=JSON.parse(st.undo);st.deck=u.deck;st.disc=u.disc;st.cur=u.cur;st.turn=u.turn;st.adv=u.adv;st.undo=null;save();render();toast('已撤销上一张')}
+
+function modal(html,cb){var m=$('modal');$('box').innerHTML=html;m.classList.add('show');return m}
+function closeModal(){$('modal').classList.remove('show')}
+function confirmNew(){
+ modal('<h2>重新开始?</h2><p>牌会全部收回并重新洗牌。</p><div class="row"><button class="btn" id="mNo">取消</button><button class="btn warn" id="mYes">重新洗牌</button></div>');
+ $('mNo').onclick=closeModal;$('mYes').onclick=function(){fresh(st);save();closeModal();render();toast('🔀 已重新洗牌,共 '+st.deck.length+' 张')};
+}
+function settings(){
+ modal('<h2>玩家人数</h2><div class="np"><button class="btn sq" id="mMin">−</button><span id="mN" style="font-size:34px;min-width:50px">'+st.players+'</span><button class="btn sq" id="mPlus">+</button></div><p>2–6 人(1 = 不显示轮次)</p><div class="row"><button class="btn" id="mOk">好了</button></div>');
+ $('mMin').onclick=function(){if(st.players>1){st.players--;$('mN').textContent=st.players;if(st.turn>=st.players)st.turn=0;save();render()}};
+ $('mPlus').onclick=function(){if(st.players<6){st.players++;$('mN').textContent=st.players;save();render()}};
+ $('mOk').onclick=closeModal;
+}
+
+st=load()||(fresh(),st);
+$('card').addEventListener('click',draw);
+$('bNext').onclick=nextPlayer;$('bUndo').onclick=undo;$('bNew').onclick=confirmNew;$('bSet').onclick=settings;
+$('bSnd').onclick=function(){st.sound=!st.sound;save();render();if(st.sound)beep(660,.1)};
+$('modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
+document.addEventListener('touchmove',function(e){e.preventDefault()},{passive:false});
+document.addEventListener('gesturestart',function(e){e.preventDefault()});
+document.addEventListener('contextmenu',function(e){e.preventDefault()});
+window.__rc={state:function(){return st},draw:draw,COMP:COMP,reload:function(){var x=load();if(x){st=x;closeModal();render()}}};
+render();
+})();
+</script>
+<script>
+(function(){
+'use strict';
+var $=function(i){return document.getElementById(i)};
+var CK='rabbitCards.v1',DK='rabbitDice.v1';
+var COLORS=[['粉','#ff5fa8'],['紫','#8e4fd0'],['黄','#f5c518'],['青','#18c4c4'],['橙','#ff8a1f'],['蓝','#3a7bff']];
+// ---- routing
+var views={'':'v-home','cards':'v-cards','dice':'v-dice'};
+function route(){
+ var r=(location.hash||'').replace(/^#\/?/,'');if(!(r in views))r='';
+ for(var k in views)$(views[k]).classList.toggle('on',k===r);
+ document.body.setAttribute('data-route',r);
+ if(r==='cards'&&window.__rc)window.__rc.reload();
+ if(r==='dice'){loadShared();layout();renderAll()}
+ try{document.title=r==='cards'?'兔子起 抽牌':r==='dice'?'兔子起 骰子':'兔子起 助手'}catch(e){}
+}
+window.addEventListener('hashchange',route);
+// ---- shared state with card page (players/turn/sound live in its localStorage)
+var shared={players:3,turn:0,sound:true};
+function readCards(){try{return JSON.parse(localStorage.getItem(CK))}catch(e){return null}}
+function loadShared(){var c=readCards();if(c){shared.players=c.players||1;shared.turn=c.turn||0;shared.sound=c.sound!==false}else{shared={players:3,turn:0,sound:true}}}
+function writeShared(patch){var c=readCards();if(!c)return;for(var k in patch)c[k]=patch[k];try{localStorage.setItem(CK,JSON.stringify(c))}catch(e){}}
+// ---- dice state
+var D={n:1,hist:[],vals:[1]};
+try{var x=JSON.parse(localStorage.getItem(DK));if(x&&x.n>=1&&x.n<=3){D.n=x.n;D.hist=(x.hist||[]).slice(0,10);D.vals=(x.vals||[]).slice(0,x.n);}}catch(e){}
+while(D.vals.length<D.n)D.vals.push(1);
+function save(){try{localStorage.setItem(DK,JSON.stringify(D))}catch(e){}}
+// ---- fair random: unbiased d6 via rejection sampling on uint32
+function rnd6(){
+ var buf=new Uint32Array(1),lim=Math.floor(4294967296/6)*6;
+ do{crypto.getRandomValues(buf)}while(buf[0]>=lim);
+ return buf[0]%6+1;
+}
+// ---- art
+var PIPS={1:[[50,50]],2:[[30,30],[70,70]],3:[[30,30],[50,50],[70,70]],4:[[30,30],[70,30],[30,70],[70,70]],5:[[30,30],[70,30],[50,50],[30,70],[70,70]],6:[[30,28],[70,28],[30,50],[70,50],[30,72],[70,72]]};
+function dieSVG(v){
+ var s='<svg viewBox="0 0 100 100"><rect x="5" y="5" width="90" height="90" rx="18" fill="#fff" stroke="#d3dae2" stroke-width="3"/><rect x="9" y="9" width="82" height="82" rx="14" fill="none" stroke="#eef2f6" stroke-width="3"/>';
+ PIPS[v].forEach(function(p){var red=v===1;s+='<circle cx="'+p[0]+'" cy="'+(p[1]+1.5)+'" r="8.5" fill="#0002"/><circle cx="'+p[0]+'" cy="'+p[1]+'" r="8.5" fill="'+(red?'#e03a3a':'#233')+'"/><circle cx="'+(p[0]-2.5)+'" cy="'+(p[1]-2.5)+'" r="2.5" fill="#fff" opacity=".35"/>'});
+ return s+'</svg>';
+}
+// ---- sound / vib
+var ac;
+function beep(f,d,delay){if(!shared.sound)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();var o=ac.createOscillator(),g=ac.createGain();o.type='triangle';o.frequency.value=f;var t=ac.currentTime+(delay||0);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.2,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d+.02)}catch(e){}}
+function vib(p){try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
+var tt;function toast(m){var e=$('dtoast');e.textContent=m;e.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){e.classList.remove('show')},1800)}
+// ---- layout dice to fit stage
+function layout(){
+ var st=$('dstage');if(!st.offsetWidth)return;
+ var w=st.clientWidth,h=st.clientHeight,n=D.n,gap=Math.max(10,Math.min(w,h)*.06),best=0,col=false;
+ var a=Math.min((w-gap*(n-1))/n,h), b=Math.min(w,(h-gap*(n-1))/n);
+ if(a>=b){best=a;col=false}else{best=b;col=true}
+ best=Math.max(40,Math.min(best-8,240));
+ st.style.setProperty('--ds',best+'px');st.style.setProperty('--gap',gap+'px');st.style.flexDirection=col?'column':'row';
+}
+window.addEventListener('resize',layout);window.addEventListener('orientationchange',function(){setTimeout(layout,200)});
+if(window.ResizeObserver)new ResizeObserver(layout).observe($('dstage'));
+// ---- render
+function renderDice(){
+ var st=$('dstage');st.innerHTML='';
+ for(var i=0;i<D.n;i++){var d=document.createElement('div');d.className='die';d.innerHTML=dieSVG(D.vals[i]);st.appendChild(d)}
+ layout();
+}
+function renderAll(){
+ var bs=$('dcnt').children;for(var i=0;i<bs.length;i++)bs[i].classList.toggle('on',+bs[i].getAttribute('data-n')===D.n);
+ $('dSnd').textContent=shared.sound?'🔊':'🔇';
+ var p=$('dplayers');p.innerHTML='';
+ var multi=shared.players>1;
+ p.style.display=multi?'flex':'none';$('dturn').style.display=multi?'':'none';$('dNext').style.display=multi?'':'none';
+ if(multi){
+  for(var i=0;i<shared.players;i++){var e=document.createElement('div');e.className='pl'+(i===shared.turn?' on':'');e.style.color=COLORS[i][1];e.innerHTML='<svg viewBox="-16 -22 32 54"><use href="#bunnyTok"/></svg>';(function(i){e.onclick=function(ev){ev.stopPropagation();shared.turn=i;writeShared({turn:i,adv:false});renderAll()}})(i);p.appendChild(e)}
+  $('dturn').textContent='轮到 '+COLORS[shared.turn][0]+'色兔子';$('dturn').style.color=COLORS[shared.turn][1];
+ }
+ renderDice();
+ var sum=D.vals.reduce(function(a,b){return a+b},0);
+ $('dtotal').textContent=rolled?(D.n>1?'合计 '+sum:'点数 '+sum):'';
+ var h=$('dhist');h.innerHTML='';
+ D.hist.forEach(function(r){var e=document.createElement('div');e.className='h';var t=r.reduce(function(a,b){return a+b},0);e.innerHTML=r.length>1?t+'<small>'+r.join('+')+'</small>':t;h.appendChild(e)});
+}
+var rolled=false,rolling=false;
+function roll(){
+ if(rolling)return;rolling=true;rolled=false;
+ var res=[];for(var i=0;i<D.n;i++)res.push(rnd6());
+ var nodes=$('dstage').children,timers=[];
+ $('dtotal').textContent='…';
+ for(var i=0;i<nodes.length;i++)nodes[i].classList.add('roll');
+ vib(30);
+ var tick=0;
+ var iv=setInterval(function(){tick++;for(var i=0;i<nodes.length;i++){if(nodes[i].getAttribute('data-done'))continue;nodes[i].innerHTML=dieSVG(rnd6vis())}if(tick%2===0)beep(300+Math.random()*200,.04)},75);
+ function stop(i){nodes[i].setAttribute('data-done',1);nodes[i].classList.remove('roll');nodes[i].innerHTML=dieSVG(res[i]);nodes[i].classList.add('land');beep(220,.12);vib(20)}
+ for(var i=0;i<D.n;i++)(function(i){timers.push(setTimeout(function(){stop(i)},650+i*260))})(i);
+ setTimeout(function(){
+  clearInterval(iv);
+  D.vals=res;D.hist.unshift(res.slice());D.hist=D.hist.slice(0,10);save();
+  rolled=true;rolling=false;renderAll();
+  var sum=res.reduce(function(a,b){return a+b},0);
+  if(D.n>1){beep(660,.1);beep(880,.15,.1)}
+  vib([40,30,40]);
+  window.__dice.last=res.slice();
+ },650+(D.n-1)*260+380);
+}
+function rnd6vis(){return Math.floor(Math.random()*6)+1}
+function nextPlayer(){loadShared();shared.turn=(shared.turn+1)%shared.players;writeShared({turn:shared.turn,adv:false});renderAll()}
+// ---- shake
+var shakeOn=false,lastShake=0;
+function onMotion(e){
+ var a=e.accelerationIncludingGravity||e.acceleration;if(!a)return;
+ var m=Math.sqrt((a.x||0)*(a.x||0)+(a.y||0)*(a.y||0)+(a.z||0)*(a.z||0));
+ var now=Date.now();
+ if(m>28&&now-lastShake>1200&&document.body.getAttribute('data-route')==='dice'){lastShake=now;roll()}
+}
+function setShake(on){
+ shakeOn=on;$('dShake').classList.toggle('on',on);$('dShake').style.background=on?'#fa0':'';
+ if(on)window.addEventListener('devicemotion',onMotion);else window.removeEventListener('devicemotion',onMotion);
+}
+$('dShake').onclick=function(){
+ if(shakeOn){setShake(false);toast('已关闭摇一摇');return}
+ if(typeof DeviceMotionEvent==='undefined'){toast('此设备不支持摇一摇,请点屏幕掷骰');return}
+ if(typeof DeviceMotionEvent.requestPermission==='function'){
+  DeviceMotionEvent.requestPermission().then(function(r){if(r==='granted'){setShake(true);toast('📳 摇一摇已开启')}else toast('未授权摇一摇,请点屏幕掷骰')}).catch(function(){toast('无法开启摇一摇,请点屏幕掷骰')});
+ }else{setShake(true);toast('📳 摇一摇已开启(若无反应请点屏幕)')}
+};
+// ---- wiring
+$('dcnt').addEventListener('click',function(e){var n=+e.target.getAttribute('data-n');if(!n||rolling)return;D.n=n;while(D.vals.length<n)D.vals.push(1);D.vals=D.vals.slice(0,n);rolled=false;save();renderAll()});
+$('dstage').addEventListener('click',roll);$('dRoll').onclick=roll;$('dNext').onclick=nextPlayer;
+$('dSnd').onclick=function(){loadShared();shared.sound=!shared.sound;writeShared({sound:shared.sound});renderAll();if(shared.sound)beep(660,.1)};
+window.__dice={rnd6:rnd6,roll:roll,state:function(){return D},last:null,route:route};
+loadShared();route();
+})();
+</script>
+</body></html>
