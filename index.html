@@ -9,7 +9,7 @@
 <meta name="application-name" content="游戏中心">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#ffb3d9">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23d6efff'/%3E%3Cpath d='M26 58c0-5 2-9 7-10 3-1 6-1 9-1h16c3 0 6 0 9 1 5 1 7 5 7 10 0 6 1 12 2 17 1 8-3 11-7 11-7 0-8-5-9-9-1-4-4-6-8-6s-7 2-8 6c-1 4-2 9-9 9-4 0-8-3-7-11 1-5 2-11 2-17Z' fill='%23fff' stroke='%233b3f4a' stroke-width='2.5' stroke-linejoin='round'/%3E%3Crect x='38' y='46' width='5' height='11' rx='2' fill='%233a7bff'/%3E%3Crect x='34' y='49' width='12' height='5' rx='2' fill='%233a7bff'/%3E%3Ccircle cx='63' cy='48' r='3' fill='%233fd489'/%3E%3Ccircle cx='58' cy='54' r='3' fill='%23ffcf3f'/%3E%3Ccircle cx='68' cy='54' r='3' fill='%23ff5b5b'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23ff6fae'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle'%3E%F0%9F%90%B0%3C/text%3E%3C/svg%3E">
 <title>游戏中心</title>
 <!-- 离线说明: 这是单文件应用, 没有外部依赖。若托管到网址并想"添加到主屏幕后完全离线", 需另加一个 sw.js (Service Worker) 缓存 index.html;
      单文件本身无法注册 Service Worker。本地打开(Documents 等 App)时无需 Service Worker。 -->
@@ -855,6 +855,33 @@ html.ct-land #toast{top:var(--ctt,130px);bottom:auto;left:50%}
 .gm-china.land .sq.prop.sb .lmw,.gm-china.land .sq.prop.st .lmw{flex:0 0 48%;width:48%;height:100%}.gm-china.land .sq.prop.sb .nm,.gm-china.land .sq.prop.st .nm{flex:1;font-size:calc(var(--cw)*.3)}
 .gm-china.land .nb.dk{min-width:42px;padding:3px 4px 2px}.gm-china.land .ctdock{flex-wrap:nowrap;margin-top:auto}
 html.ct-land #toast{left:30%;max-width:46vw}
+/* ===== v14 文字完整显示 ===== */
+.sq .nm{line-height:1.32;overflow:hidden;text-overflow:clip}
+.sq.sp .nm{line-height:1.3}
+.sq.sp{gap:0}
+.sq.corner .si.c{width:calc(var(--cw)*.46);height:calc(var(--cw)*.46)}
+.sq.sp small{line-height:1.25;flex:none}
+.sq .strip b{line-height:1;display:block}
+.sq.sb .strip,.sq.st .strip{min-height:calc(var(--cw)*.24)}
+.gm-china.land .sq.corner{display:grid;grid-template-columns:auto auto;grid-template-rows:auto auto;align-content:center;justify-content:center;column-gap:4px;row-gap:1px}
+.gm-china.land .sq.corner .si.c{grid-row:1/3;width:calc(var(--cw)*.5);height:calc(var(--cw)*.5);align-self:center}
+.gm-china.land .sq.corner .nm{justify-self:start;align-self:end}
+.gm-china.land .sq.corner small{justify-self:start;align-self:start}
+.gm-china.land .sq.corner .nm:last-child{grid-row:1/3;align-self:center}
+.gm-china:not(.land) .sq.corner .si.c{width:calc(var(--cw)*.36);height:calc(var(--cw)*.36)}
+.gm-china:not(.land) .sq.corner .nm{font-size:calc(var(--cw)*.2)}
+.gm-china:not(.land) .sq.corner small{font-size:calc(var(--cw)*.18)}
+.sq .sb{min-height:0;overflow:hidden}.sq .lmw{min-height:0}
+html.ct-land #toast{left:var(--ctx,70%);max-width:var(--ctxw,40vw);top:calc(var(--ctt,130px) - 4px)}
+.gm-china.land .sq.corner{grid-template-columns:auto minmax(0,1fr);justify-content:stretch;padding:0 4px}.gm-china.land .sq.corner .nm{max-width:100%;width:auto}
+/* v14 横屏:宽弹窗双列,减少弹窗内滚动 */
+html.ct-land #box.deedm.ed,html.ct-land #box.assm{width:min(94vw,760px);padding:14px 18px}
+html.ct-land .deedc.ed .dbd{display:grid;grid-template-columns:1fr 1fr;column-gap:16px}
+html.ct-land .deedc.ed .dbd .dnote{grid-column:1/-1}
+html.ct-land #box.assm .alist{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+html.ct-land #box.assm .alist>*{margin:0}
+html.ct-land #box.assm h2{margin:0 0 4px}html.ct-land #box.assm .stks{margin:2px 0}html.ct-land #box.assm .anote{margin:2px 0}
+#toast .ti.star{position:static;width:28px;height:28px;animation:none}
 </style>
 <script>
 (function(){
@@ -892,6 +919,24 @@ var Store=GC.Store={
  }
 };
 Store.migrate();
+/* ================= Voice (v14): 离线语音 Web Speech API ================= */
+GC.Voice=(function(){
+ var ss=window.speechSynthesis,unlocked=false,vz=null,last=0,q=0;
+ /* tok: 0 小狗 1 小狮子 2 不不奥特曼 3 哎呀公主 4 温柔喷火龙 5 猪肉战神 */
+ var PR={0:[1.45,1.15],1:[1.25,1.1],2:[1.3,1.25],3:[1.85,1.05],4:[1.1,.85],5:[.55,.95],n:[1,1.1]};
+ function pickVoice(){if(!ss)return null;var v=ss.getVoices()||[];vz=v.filter(function(x){return /zh[-_]CN/i.test(x.lang)})[0]||v.filter(function(x){return /^zh/i.test(x.lang)&&!/HK|TW/i.test(x.lang)})[0]||v.filter(function(x){return /^zh/i.test(x.lang)})[0]||null;return vz}
+ if(ss){pickVoice();try{ss.addEventListener('voiceschanged',pickVoice)}catch(e){}}
+ function on(){return !!ss&&GC.Sound&&GC.Sound.on&&GC.Sound.cfg.voice!==false}
+ function unlock(){if(unlocked||!ss)return;unlocked=true;try{var u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang='zh-CN';ss.speak(u)}catch(e){}}
+ ['pointerdown','touchend','click'].forEach(function(t){document.addEventListener(t,unlock,{capture:true,passive:true})});
+ function say(txt,tok,opt){
+  if(!on()||!txt)return;opt=opt||{};
+  var now=Date.now();if(txt===say.lt&&now-last<2500)return;say.lt=txt;if(opt.low&&ss.speaking&&now-last<1500)return;
+  try{if(opt.queue&&q<2&&ss.speaking){}else{ss.cancel();q=0}var t=String(txt).replace(/[¥]/g,'').replace(/[…~]+/g,',').replace(/[!！]+/g,'!'),u=new SpeechSynthesisUtterance(t),pr=PR[tok]||PR.n;
+   u.lang='zh-CN';if(vz||pickVoice())u.voice=vz;u.pitch=pr[0];u.rate=pr[1];u.volume=1;q++;u.onend=u.onerror=function(){q=Math.max(0,q-1)};last=now;ss.speak(u)}catch(e){}
+ }
+ return{say:say,cancel:function(){try{ss&&ss.cancel()}catch(e){}},get on(){return on()},get supported(){return !!ss},unlock:unlock};
+})();
 /* ================= Sound / vibration ================= */
 var ac;
 var Sound=GC.Sound={
@@ -1241,20 +1286,20 @@ function route(){
 window.addEventListener('hashchange',route);
 $('nHome').onclick=function(){Sound.tap();if(backFn)backFn();else location.hash='#/'};
 function syncSnd(){var b=$('nSnd');b.innerHTML=(Sound.on?UI.ICO.snd:UI.ICO.mute)+'<span>'+(Sound.on?'声音':'静音')+'</span>';b.classList.toggle('off',!Sound.on)}
-$('nSnd').onclick=function(){Sound.cfg.sound=!Sound.on;Sound.save();syncSnd();if(Sound.on)Sound.pop();UI.toast(Sound.on?'声音已开启':'已静音',1200,Sound.on?'snd':'mute')};
+$('nSnd').onclick=function(){Sound.cfg.sound=!Sound.on;Sound.save();if(!Sound.on&&GC.Voice)GC.Voice.cancel();syncSnd();if(Sound.on)Sound.pop();UI.toast(Sound.on?'声音已开启':'已静音',1200,Sound.on?'snd':'mute')};
 $('nSet').innerHTML=UI.ICO.gear+'<span>设置</span>';
 setBack(null);syncSnd();
 function dl(name,text){try{var b=new Blob([text],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500);return true}catch(e){return false}}
 function settings(){
  var b=UI.modal('<div class="dlgic">'+UI.ICO.gear+'</div><h2>设置与进度</h2>'+
   '<div class="tg"><span>声音</span><button class="btn" id="sS">'+(Sound.on?'开':'关')+'</button></div>'+
-  '<div class="tg"><span>震动</span><button class="btn" id="sV">'+(Sound.cfg.vib!==false?'开':'关')+'</button></div>'+
+  '<div class="tg"><span>角色语音</span><button class="btn" id="sVo">'+(Sound.cfg.voice!==false?'开':'关')+'</button></div>'+'<div class="tg"><span>震动</span><button class="btn" id="sV">'+(Sound.cfg.vib!==false?'开':'关')+'</button></div>'+
   '<div class="sec"><h3>备份 / 恢复全部进度</h3><div class="row"><button class="btn" id="sExp">导出文件</button><button class="btn" id="sCopy">复制</button></div>'+
   '<textarea id="sTxt" placeholder="导入:把备份内容粘贴到这里,或选择文件" spellcheck="false"></textarea>'+
   '<div class="row"><button class="btn" id="sFile">选文件</button><button class="btn warn" id="sImp">导入</button></div><input type="file" id="sPick" accept=".json,application/json,text/plain" style="display:none"></div>'+
   '<div class="row"><button class="btn pri" id="sOk">关闭</button></div>',{cls:'dlg'});
  $('sS').onclick=function(){Sound.cfg.sound=!Sound.on;Sound.save();syncSnd();this.textContent=Sound.on?'开':'关';Sound.pop()};
- $('sV').onclick=function(){Sound.cfg.vib=Sound.cfg.vib===false;Sound.save();this.textContent=Sound.cfg.vib!==false?'开':'关';Sound.vib(40)};
+ $('sVo').onclick=function(){Sound.cfg.voice=Sound.cfg.voice===false;Sound.save();this.textContent=Sound.cfg.voice!==false?'开':'关';if(Sound.cfg.voice!==false)GC.Voice.say('语音已开启');else GC.Voice.cancel()};$('sV').onclick=function(){Sound.cfg.vib=Sound.cfg.vib===false;Sound.save();this.textContent=Sound.cfg.vib!==false?'开':'关';Sound.vib(40)};
  $('sExp').onclick=function(){var t=Store.exportAll();$('sTxt').value=t;if(dl('game-center-backup.json',t))UI.toast('已导出;若没反应请用「复制」',1800,'check')};
  $('sCopy').onclick=function(){var t=Store.exportAll(),ta=$('sTxt');ta.value=t;ta.select();var ok=false;try{ok=document.execCommand('copy')}catch(e){}
   if(!ok&&navigator.clipboard){navigator.clipboard.writeText(t).then(function(){UI.toast('已复制',1500,'check')},function(){UI.toast('请长按文本框手动复制')});return}
@@ -2603,15 +2648,18 @@ var CT=(function(){
    var bw=W-8,bh=H-4,cx=bw/10,cy=bh/12;cw=Math.max(18,Math.floor(Math.min(cy*1.12,cx*.78)*10)/10);
    root.style.setProperty('--cw',cw+'px');b.style.width=bw+'px';b.style.height=bh+'px';
    if(sd){var L=4+cx*5.35,T=2+cy+8;sd.style.left=L+'px';sd.style.top=T+'px';sd.style.width=(4+cx*9-L-8)+'px';sd.style.height=(cy*10-16)+'px'}
-   var nav=document.getElementById('nav');de.style.setProperty('--ctt',((nav?nav.getBoundingClientRect().bottom:50)+cy+12)+'px');
+   var nav=document.getElementById('nav');de.style.setProperty('--ctx',(4+cx*7.17)+'px');de.style.setProperty('--ctxw',(cx*3.4)+'px');de.style.setProperty('--ctt',((nav?nav.getBoundingClientRect().bottom:50)+cy+12)+'px');
   }else{
    cw=Math.min((W-6)/10,(H*(H>=1000?.7:.62))/12);if(W>H*1.12)cw=Math.min((H-6)/12,(W*.58)/10);
    cw=Math.max(18,Math.floor(cw*10)/10);root.style.setProperty('--cw',cw+'px');b.style.width=cw*10+'px';b.style.height=cw*12+'px';
    if(sd)sd.style.left=sd.style.top=sd.style.width=sd.style.height='';
   }
   if(sd&&!sd.querySelector('#ctFold')){var fb=document.createElement('button');fb.id='ctFold';fb.className='ctfold';fb.textContent='收起';fb.onclick=function(){var f=root.classList.toggle('fold');fb.textContent=f?'玩家':'收起'};var ph=sd.querySelector('.ctph');ph&&ph.appendChild(fb)}
+  fitNames();
   if(!fit.bound){fit.bound=1;window.addEventListener('hashchange',function(){if(!/china/.test(location.hash))de.classList.remove('ct-land')})}
  }
+ /* v14: 名字过长时自动缩小字号,保证完整显示 */
+ function fitNames(){if(!root)return;Array.prototype.forEach.call(root.querySelectorAll('.sq .nm,.sq.sp small'),function(e){e.style.fontSize='';e.style.letterSpacing='';var w=e.clientWidth,sw=e.scrollWidth;if(w&&sw>w+.5){var f=parseFloat(getComputedStyle(e).fontSize);e.style.fontSize=Math.max(8,Math.floor(f*w/sw*10)/10-.2)+'px'}})}
  /* ---------- panels ---------- */
 
 
@@ -2794,7 +2842,7 @@ var CT=(function(){
  function sayEv(e){
   var p=P(e.pid);if(!p||!LN)return Promise.resolve();
   var txt=LN.pick(p.tok,e.type,function(n){return Dice.int(n)});if(!txt)return Promise.resolve();
-  showBubble(p,txt,e.type);
+  showBubble(p,txt,e.type);try{GC.Voice.say(txt,p.tok,{queue:1})}catch(x){}
   var sn=SND[e.type];if(sn&&Sound[sn])Sound[sn]();
   return wait(HOLD[e.type]||450);
  }
@@ -2996,6 +3044,7 @@ var CT=(function(){
   var p=P(pd.pid),short=Math.max(0,pd.amount-p.cash),toTxt=typeof pd.to==='number'?who(pd.to):'<div class="mwho bankw"><b>'+(pd.to==='pot'?'奖池':'银行')+'</b></div>';
   var hasFree=pd.reason==='rent'&&p.hand.some(function(c){return E.card(c).fx==='waive_one_rent'});
   var br='';
+  try{GC.Voice.say(pd.reason==='rent'?'支付观光费'+pd.amount+'元':pd.reason==='crash'?'楼市暴跌了,罚款'+pd.amount+'元':'要付'+pd.amount+'元',p.tok)}catch(x){}
   if(pd.reason==='rent'){var r=pd.rent,q=S.props[pd.name],ow=P(pd.to);br='<div class="rcard"><div class="rart">'+LM.svg(pd.name)+'<span class="rown">'+tkAv(ow.tok,34)+'</span></div><div class="rinf"><b>'+esc(pd.name)+'</b><span class="rowner">地主:'+esc(ow.name)+'</span><span class="rlv">'+lvSVG(r.lvl)+E.LVN[r.lvl]+'</span></div></div><div class="brk"><div>'+E.LVN[r.lvl]+' 观光费</div><div>'+Y(r.base)+'</div>'+(r.mult>1?'<div>同色系全部拥有 ×2</div><div>'+Y(r.amount)+'</div>':'')+'<div class="tot">应付合计</div><div class="tot">'+Y(pd.amount)+'</div></div><div class="cashba"><span>支付前<b>'+Y(p.cash)+'</b></span><i>➜</i><span class="'+(short?'neg':'')+'">支付后<b id="payAfter">'+Y(p.cash-pd.amount)+'</b></span></div>'}
   if(pd.reason!=='rent'){var ttl=String(pd.why).split(' · ')[0].replace(/\s*[−-]¥\d+$/,''),cc=E.DATA.chance.filter(function(c){return c.title===ttl})[0],crash=pd.reason==='crash';
    br='<div class="rcard pen"><div class="rart pic">'+(crash?'<svg viewBox="0 0 48 48"><path d="M6 40V22l8-6v24M16 40V12l9-6 8 6v28M35 40V24l7 5v11" fill="#c9d3e8" stroke="#5a6a8a" stroke-width="2"/><path d="M4 8l8 6 4-8 6 10 5-8 4 9 7-6" fill="none" stroke="#e0485e" stroke-width="3" stroke-linecap="round"/></svg>':'<svg viewBox="0 0 48 48"><rect x="8" y="9" width="32" height="30" rx="5" fill="#fff4c4" stroke="#e0a800" stroke-width="2.5"/><text x="24" y="33" text-anchor="middle" font-size="22" font-weight="900" fill="#e0485e">!</text></svg>')+'</div><div class="rinf"><b>'+esc(ttl)+'</b>'+(cc?'<span class="rowner">'+esc(cc.text)+'</span>':'<span class="rowner">'+(crash?'楼市暴跌,每个路过的人都要缴 ¥1000':'')+'</span>')+'</div></div><div class="brk"><div>'+(crash?'楼市暴跌 罚款':'应付')+'</div><div>'+Y(pd.amount)+'</div><div>付给</div><div>'+(typeof pd.to==='number'?esc(P(pd.to).name):pd.to==='pot'?'奖池':'银行')+'</div></div><div class="cashba"><span>支付前<b>'+Y(p.cash)+'</b></span><i>➜</i><span class="'+(short?'neg':'')+'">支付后<b>'+Y(p.cash-pd.amount)+'</b></span></div>'}
@@ -3014,6 +3063,7 @@ var CT=(function(){
  function mGain(pd){
   if(pd.kind==='start'){
    var gp=P(pd.pid),gf=E.finState(S,pd.pid),dg=gf&&gf.id==='danger';
+   try{GC.Voice.say((dg?'救命钱来啦,':'')+'领取'+pd.amount+'元',gp.tok)}catch(x){}
    var gh=who(pd.pid,dg?'救命钱来啦!':'走到起点')+'<div class="gold-coin">'+UI.ICO.coin+'<i></i><i></i><i></i></div><h2>'+esc(pd.why)+'</h2><div class="cashba"><span>领取前<b>'+Y(gp.cash)+'</b></span><i>➜</i><span class="pos">领取后<b>'+Y(gp.cash+pd.amount)+'</b></span></div><div class="row"><button class="btn pri big gold" id="gOk">领取 '+Y(pd.amount)+'</button></div>';
    UI.modal(gh,{cls:'sticky gainm'+(dg?' danger':'')});$('gOk').onclick=function(){closeThen(function(){act('ok')})};return}
   var h=who(pd.pid)+'<div class="gainic">'+UI.ICO.coin+'</div><h2>'+esc(pd.why)+'</h2><div class="bigamt up">+'+Y(pd.amount)+'</div><div class="row"><button class="btn pri" id="gOk">领取</button></div>';
@@ -3032,6 +3082,7 @@ var CT=(function(){
   function doFlip(){
    if(fc.classList.contains('f')||fc.getAttribute('data-b'))return;fc.setAttribute('data-b',1);
    var r=act('flip',null,{noAfter:true});if(!r.ok){fc.removeAttribute('data-b');return}
+   try{GC.Voice.say('机会卡,'+E.card(r.card).title,(P(pd.pid)||{}).tok)}catch(x){}
    $('ffront').innerHTML=cardFace(r.card);Sound.flip();Sound.vib(20);fc.classList.add('f');
    shownKey=pkey(S.pend);
    later(function(){$('chRow').innerHTML=chBtn(S.pend);bindCh()},UI.reduce()?0:650);
