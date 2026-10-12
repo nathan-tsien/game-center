@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <clipPath id="round">
+      <rect x="16" y="16" width="480" height="480" rx="104"/>
+    </clipPath>
+  </defs>
+
+  <!-- soft sky-blue backdrop -->
+  <rect x="16" y="16" width="480" height="480" rx="104" fill="#d6efff"/>
+
+  <!-- GameCenter-style colorful pinwheel -->
+  <g clip-path="url(#round)">
+    <g transform="rotate(22 256 256)">
+      <path d="M256,256 L506,256 A250,250 0 0 1 381,472.5 Z" fill="#ff5b5b"/>
+      <path d="M256,256 L381,472.5 A250,250 0 0 1 131,472.5 Z" fill="#ff9329"/>
+      <path d="M256,256 L131,472.5 A250,250 0 0 1 6,256 Z" fill="#f5c518"/>
+      <path d="M256,256 L6,256 A250,250 0 0 1 131,39.5 Z" fill="#4caf50"/>
+      <path d="M256,256 L131,39.5 A250,250 0 0 1 381,39.5 Z" fill="#3a7bff"/>
+      <path d="M256,256 L381,39.5 A250,250 0 0 1 506,256 Z" fill="#8e4fd0"/>
+    </g>
+  </g>
+
+  <!-- white cloud plate behind controller -->
+  <ellipse cx="256" cy="300" rx="192" ry="176" fill="#ffffff"/>
+
+  <!-- === cartoon game controller === -->
+  <!-- glossy body outline: starts top-left, sweeps over top, down the right,
+       around the right grip, across the two grips to the left, and back up -->
+  <path fill="#f5f6f9" stroke="#3b3f4a" stroke-width="9" stroke-linejoin="round" stroke-linecap="round"
+    d="M132,260
+       C132,242 140,234 152,234
+       C190,232 222,228 256,228
+       C290,228 322,232 360,234
+       C372,234 380,242 380,260
+       C380,274 383,286 384,300
+       C386,330 396,362 396,390
+       C396,422 380,438 360,438
+       C320,440 300,432 300,424
+       C292,404 288,392 286,388
+       C284,382 268,372 256,372
+       C244,372 228,382 226,388
+       C224,392 220,404 212,424
+       C212,432 192,440 152,438
+       C132,438 116,422 116,390
+       C116,362 126,330 128,300
+       C129,286 132,274 132,260 Z"/>
+
+  <!-- glossy highlight on the top-left face -->
+  <ellipse cx="196" cy="266" rx="56" ry="24" fill="#ffffff" opacity="0.5" transform="rotate(-16 196 266)"/>
+
+  <!-- D-pad (cross) on the left -->
+  <g fill="#3a7bff" stroke="#20243f" stroke-width="6" stroke-linejoin="round">
+    <rect x="190" y="264" width="32" height="58" rx="10"/>
+    <rect x="172" y="282" width="68" height="32" rx="10"/>
+  </g>
+  <!-- D-pad center dimple -->
+  <circle cx="206" cy="292" r="10" fill="#2c5fd0" stroke="#20243f" stroke-width="4"/>
+
+  <!-- face buttons (glossy candy dots) on the right -->
+  <g>
+    <circle cx="310" cy="266" r="17" fill="#3fd489" stroke="#20243f" stroke-width="6"/>
+    <circle cx="282" cy="292" r="17" fill="#4f86ff" stroke="#20243f" stroke-width="6"/>
+    <circle cx="310" cy="318" r="17" fill="#ffcf3f" stroke="#20243f" stroke-width="6"/>
+    <circle cx="338" cy="292" r="17" fill="#ff5b5b" stroke="#20243f" stroke-width="6"/>
+    <circle cx="306" cy="262" r="5" fill="#ffffff" opacity="0.7"/>
+    <circle cx="278" cy="288" r="5" fill="#ffffff" opacity="0.7"/>
+    <circle cx="306" cy="314" r="5" fill="#ffffff" opacity="0.7"/>
+    <circle cx="334" cy="288" r="5" fill="#ffffff" opacity="0.7"/>
+  </g>
+
+  <!-- analog thumbsticks -->
+  <g>
+    <circle cx="212" cy="352" r="14" fill="#cfd2da" stroke="#3b3f4a" stroke-width="5"/>
+    <circle cx="212" cy="352" r="8" fill="#e9ebf1" stroke="#8a8e99" stroke-width="3"/>
+    <circle cx="300" cy="352" r="14" fill="#cfd2da" stroke="#3b3f4a" stroke-width="5"/>
+    <circle cx="300" cy="352" r="8" fill="#e9ebf1" stroke="#8a8e99" stroke-width="3"/>
+  </g>
+
+  <!-- start / select pills -->
+  <rect x="234" y="358" width="16" height="8" rx="4" fill="#c9ccd4" stroke="#3b3f4a" stroke-width="3.5"/>
+  <rect x="262" y="358" width="16" height="8" rx="4" fill="#c9ccd4" stroke="#3b3f4a" stroke-width="3.5"/>
+</svg>
