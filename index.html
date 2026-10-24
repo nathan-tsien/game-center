@@ -439,8 +439,8 @@ body[data-route=home]{background:#9fe3ff}body[data-route=china]{background:#ffe9
 .stk.on{border-color:var(--pc);transform:scale(1.12)}
 /* tokens */
 #ctok{position:absolute;inset:0;pointer-events:none;z-index:6}
-.tok{position:absolute;width:calc(var(--cw)*.66);height:calc(var(--cw)*.66);transform:translate(calc(-50% + var(--cw)*var(--dx,0)),calc(-50% + var(--cw)*var(--dy,0)));transition:left .19s ease-out,top .19s ease-out;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
-.tok.sm{width:calc(var(--cw)*.5);height:calc(var(--cw)*.5)}
+.tok{position:absolute;width:calc(var(--cw)*1.35);height:calc(var(--cw)*1.35);transform:translate(calc(-50% + var(--cw)*var(--dx,0)),calc(-50% + var(--cw)*var(--dy,0)));transition:left .19s ease-out,top .19s ease-out;filter:drop-shadow(0 3px 2px rgba(0,0,0,.45))}
+.tok.sm{width:calc(var(--cw)*1.12);height:calc(var(--cw)*1.12)}
 .tok svg{width:100%;height:100%;overflow:visible}
 .tok.cur{animation:tokbob .9s ease-in-out infinite}
 .tok.cur svg{filter:drop-shadow(0 0 4px #ffd23f)}
@@ -985,7 +985,7 @@ html.ct-land #box.assm h2{margin:0 0 4px}html.ct-land #box.assm .stks{margin:2px
 .heremk.up{transform:translate(-50%,0) rotate(180deg);animation-name:mkbu}
 @keyframes mkb{to{transform:translate(-50%,-128%)}}
 @keyframes mkbu{to{transform:translate(-50%,28%) rotate(180deg)}}
-.tok.cur svg,.tok.cur img.tkimg{transform:scale(1.25);filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 calc(var(--cw)*.08) var(--hc)) drop-shadow(0 0 calc(var(--cw)*.04) var(--hc))}
+.tok.cur svg,.tok.cur img.tkimg{transform:scale(1.12);filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 calc(var(--cw)*.08) var(--hc)) drop-shadow(0 0 calc(var(--cw)*.04) var(--hc))}
 .tok.cur::before{content:"";position:absolute;inset:-18%;border-radius:50%;border:calc(var(--cw)*.05) solid var(--hc);background:color-mix(in srgb,var(--hc) 25%,transparent);animation:halo 1.2s ease-in-out infinite}
 @keyframes halo{50%{transform:scale(1.12);opacity:.65}}
 .tok.dim svg,.tok.dim img.tkimg{transform:scale(.86);opacity:.8}
@@ -1199,6 +1199,40 @@ html.gq-eco .moodfs{display:none!important}
 
 /* v29 moodfs larger — landscape iPad full-body readable */
 @media (orientation:landscape){.moodfs .mfs-port{width:min(48vw,560px);height:min(86vh,720px)}.moodfs .mfs-card{width:min(70vw,980px)}.moodfs .mfs-plate{font-size:clamp(30px,7vh,56px)}}
+
+/* v30: larger board tokens + mood chips (superseded by v31) */
+/* v31: avatar-first layout — big faces, iconified meta */
+.pc.av1{gap:4px}
+.pc.av1 .pcm{gap:8px;align-items:center}
+.pc.av1 .pci{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.pc.av1 .pn{font-size:13px;line-height:1.15}
+.pc.av1 .pn em{font-size:11px;padding:0 6px;border-radius:999px}
+.pc.av1 .cash{font-size:15px;display:inline-flex;align-items:center;gap:3px;line-height:1.1}
+.pc.av1 .cash .ci{font-style:normal;font-size:13px;line-height:1;filter:grayscale(.05)}
+.pc.av1 .pcb{gap:4px;min-height:0;margin-top:1px}
+.pc.av1 .np{font-size:12px;gap:0;color:#5a3ea0}
+.pc.av1 .nw{font-size:10px;margin-left:0}
+.pc.av1 .bd.icb,.pc.av1 .fsb.icb{font-size:12px;padding:2px 5px;letter-spacing:0}
+.pc.av1 .fsb.icb .crn{width:14px;height:14px}
+.pc.av1 .hand .hc{font-size:10px;padding:2px 5px}
+.pc .tkm.av{width:84px!important;height:84px!important}
+.pc.bust .tkm.av{filter:grayscale(.7);opacity:.85}
+.pc.fs-sleep::after{font-size:18px;right:8px;top:6px}
+.tok.fs-sleep::before{font-size:calc(var(--cw)*.4)}
+.tok.fs-rich::after,.tok.fs-tycoon::after{font-size:calc(var(--cw)*.34)}
+.tok.fs-danger::after{width:calc(var(--cw)*.36);height:calc(var(--cw)*.36);font-size:calc(var(--cw)*.26);line-height:calc(var(--cw)*.36)}
+.crnw{left:6px;top:-6px;width:26px;height:26px}
+.cwho{gap:8px;padding:4px 14px 4px 4px}
+.cwho .tkm{width:calc(var(--cw)*1.45)!important;height:calc(var(--cw)*1.45)!important}
+.cwho b{font-size:calc(var(--cw)*.38)}
+.gm-china.land .pc.av1{padding:6px 8px;border-radius:18px}
+.gm-china.land .pc .tkm.av{width:100px!important;height:100px!important}
+.gm-china.land .pc.av1 .pn{font-size:13px}
+.gm-china.land .pc.av1 .cash{font-size:15px}
+.gm-china.land .pc.av1 .pcb{gap:4px}
+.gm-china.land .cwho .tkm.av{width:calc(var(--cw)*1.55)!important;height:calc(var(--cw)*1.55)!important}
+.gm-china.land .ctp{gap:8px}
+.nx-in .tkm.av{width:80px!important;height:80px!important}
 /* ===== v21 arcade character intros ===== */
 .intro{position:fixed;inset:0;z-index:10000;overflow:hidden;font-family:var(--font);--k:1;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;contain:strict}
 .intro i,.intro b{font-style:normal}
@@ -3830,9 +3864,9 @@ var CT=(function(){
  var CROWN='<svg class="crn" viewBox="0 0 24 24"><path d="M3 18 2 7l5 4 5-7 5 7 5-4-1 11z" fill="#ffc400" stroke="#c98a00" stroke-width="1.4" stroke-linejoin="round"/><circle cx="12" cy="4" r="1.6" fill="#ff5fa8"/><circle cx="2.4" cy="7" r="1.3" fill="#ff5fa8"/><circle cx="21.6" cy="7" r="1.3" fill="#ff5fa8"/></svg>';
  function finBadge(f,all){
   if(!f)return '';
-  if(f.id==='danger')return '<i class="fsb d" title="'+esc(f.why)+'">快破产啦!</i>';
-  if(f.id==='tense')return '<i class="fsb t" title="'+esc(f.why)+'">手头紧</i>';
-  if(f.id==='rich'||f.id==='tycoon')return '<i class="fsb '+(f.id==='rich'?'r':'y')+'">'+CROWN+f.title+'</i>';
+  if(f.id==='danger')return all?'<i class="fsb d" title="'+esc(f.why)+'">快破产啦!</i>':'<i class="fsb d icb" title="快破产啦! '+esc(f.why)+'">⚠️</i>';
+  if(f.id==='tense')return all?'<i class="fsb t" title="'+esc(f.why)+'">手头紧</i>':'<i class="fsb t icb" title="手头紧 · '+esc(f.why)+'">😰</i>';
+  if(f.id==='rich'||f.id==='tycoon')return all?'<i class="fsb '+(f.id==='rich'?'r':'y')+'">'+CROWN+f.title+'</i>':'<i class="fsb '+(f.id==='rich'?'r':'y')+' icb" title="'+esc(f.title)+'">'+CROWN+'</i>';
   return all?'<i class="fsb n">状态正常</i>':'';
  }
  function finCls(f){return (fxOn()&&f)?' fs-'+f.id:''}
@@ -3929,8 +3963,12 @@ var CT=(function(){
  function crisisDone(){crisisOpen=false;UI.close();shownKey='';render();maybeAutoEnd()}
  function badges(p){
   var b='';
-  if(p.rest>0)b+='<i class="bd z">休息'+p.rest+'</i>';if(p.sleep>0)b+='<i class="bd z">睡'+p.sleep+'</i>';if(p.seal>0)b+='<i class="bd s">封'+p.seal+'</i>';
-  if(p.slow>0)b+='<i class="bd w">龟速'+p.slow+'</i>';if(p.rev>0)b+='<i class="bd w">倒走'+p.rev+'</i>';if(p.forced)b+='<i class="bd g">遥控'+p.forced+'</i>';
+  if(p.rest>0)b+='<i class="bd z icb" title="休息'+p.rest+'轮">💤'+p.rest+'</i>';
+  if(p.sleep>0)b+='<i class="bd z icb" title="睡着'+p.sleep+'轮">😴'+p.sleep+'</i>';
+  if(p.seal>0)b+='<i class="bd s icb" title="查封'+p.seal+'">🔒'+p.seal+'</i>';
+  if(p.slow>0)b+='<i class="bd w icb" title="龟速'+p.slow+'">🐢'+p.slow+'</i>';
+  if(p.rev>0)b+='<i class="bd w icb" title="倒走'+p.rev+'">↩'+p.rev+'</i>';
+  if(p.forced)b+='<i class="bd g icb" title="遥控骰子">🎮</i>';
   return b;
  }
  function outK(p){var l=E.busted(S).slice().reverse();return l.indexOf(p)+1}
@@ -3940,12 +3978,16 @@ var CT=(function(){
   var el=$q('#ctp'),h='';
   E.active(S).forEach(function(p){
    var np=E.ownedBy(S,p.id).length,cur=(p.id===S.turn&&S.phase==='play'),fin=E.finState(S,p.id);
-   h+='<div class="pc'+(cur?' cur':'')+finCls(fin)+(p.rest>0||p.sleep>0?' fs-sleep':'')+'" data-pid="'+p.id+'" style="--pc:'+TKC[p.tok]+'"><div class="pcm">'+(fxOn()&&fin&&(fin.id==='rich'||fin.id==='tycoon')?'<span class="crnw">'+CROWN+'</span>':'')+tkAv(p.tok,40,'av',persistMood(p))+'<div class="pci"><div class="pn">'+esc(p.name)+(cur?'<em>轮到TA</em>':'')+'</div><div class="cash" data-c="'+p.id+'">'+Y(cashShown[p.id]!=null?cashShown[p.id]:p.cash)+'</div></div></div>'+
-    '<div class="pcb"><span class="np" title="地产">'+lvSVG(0)+'<svg class="hs2" viewBox="-12 -12 24 24"><use href="#houseG"/></svg>'+np+'</span><span class="nw" title="净资产">≈'+fmtW(E.netWorth(S,p.id).total)+'</span>'+finBadge(fin)+badges(p)+loanBadges(p)+'</div>'+
+   /* v31: avatar-first card — big face + iconified meta */
+   h+='<div class="pc av1'+(cur?' cur':'')+finCls(fin)+(p.rest>0||p.sleep>0?' fs-sleep':'')+'" data-pid="'+p.id+'" style="--pc:'+TKC[p.tok]+'">'+
+    '<div class="pcm">'+(fxOn()&&fin&&(fin.id==='rich'||fin.id==='tycoon')?'<span class="crnw">'+CROWN+'</span>':'')+tkAv(p.tok,100,'av',persistMood(p))+
+    '<div class="pci"><div class="pn">'+esc(p.name)+(cur?'<em title="轮到TA">▶</em>':'')+'</div>'+
+    '<div class="cash" data-c="'+p.id+'"><i class="ci" aria-hidden="true">💰</i>'+Y(cashShown[p.id]!=null?cashShown[p.id]:p.cash)+'</div>'+
+    '<div class="pcb"><span class="np" title="地产 '+np+' 处">🏠'+np+'</span><span class="nw" title="净资产">≈'+fmtW(E.netWorth(S,p.id).total)+'</span>'+finBadge(fin)+badges(p)+loanBadges(p)+'</div></div></div>'+
     '<div class="hand">'+p.hand.map(function(c){return '<button class="hc" data-pid="'+p.id+'" data-c="'+c+'">'+HOLDSHORT[c]+'</button>'}).join('')+'</div>'+(bubs[p.id]?'<div class="pbub still t-'+bubs[p.id].type+'">'+esc(bubs[p.id].txt)+'</div>':'')+'</div>';
   });
   E.busted(S).forEach(function(p){ // v17: bankrupt players stay visible (greyed, after active ones)
-   h+='<div class="pc bust" data-pid="'+p.id+'" style="--pc:'+TKC[p.tok]+'" aria-label="'+esc(p.name)+' 已破产"><div class="pcm">'+tkAv(p.tok,40,'av')+'<div class="pci"><div class="pn">'+esc(p.name)+'</div><div class="bustl"><i class="bkb">已破产</i><small>'+esc(outTxt(p))+'</small></div></div></div></div>';
+   h+='<div class="pc av1 bust" data-pid="'+p.id+'" style="--pc:'+TKC[p.tok]+'" aria-label="'+esc(p.name)+' 已破产"><div class="pcm">'+tkAv(p.tok,100,'av')+'<div class="pci"><div class="pn">'+esc(p.name)+'</div><div class="bustl"><i class="bkb">已破产</i><small>'+esc(outTxt(p))+'</small></div></div></div></div>';
   });
   el.innerHTML=h;
   Array.prototype.forEach.call(el.querySelectorAll('.pc'),function(c){c.onclick=function(e){if(e.target.closest('.hc'))return;if(e.target.closest('.pbub')){dismissBub(+c.getAttribute('data-pid'));return}assets(+c.getAttribute('data-pid'))}});
@@ -3981,7 +4023,7 @@ var CT=(function(){
     hint=RT[ei.reason]||RT.manual;btn='<button class="btn big" id="ctEnd">结束回合 ➜</button>'}
    if(ei.hints.indexOf('cards')>=0)hint+='<small>你还有手牌,需要时在自己回合点「使用」</small>'}
   else{hint='处理中…'}
-  h='<div class="cwho" style="--pc:'+TKC[p.tok]+'">'+tkAv(p.tok,40,'av',persistMood(p))+'<b>'+esc(p.name)+'</b></div><div class="cdie '+cls+'" id="ctDie" role="button" aria-label="骰子">'+(dv?Dice.svg(dv):qdie())+'</div><div class="chint'+(cls0?' '+cls0:'')+'">'+hint+'</div>'+btn;
+  h='<div class="cwho" style="--pc:'+TKC[p.tok]+'">'+tkAv(p.tok,96,'av',persistMood(p))+'<b>'+esc(p.name)+'</b></div><div class="cdie '+cls+'" id="ctDie" role="button" aria-label="骰子">'+(dv?Dice.svg(dv):qdie())+'</div><div class="chint'+(cls0?' '+cls0:'')+'">'+hint+'</div>'+btn;
   var hh=p.hand.filter(function(c){return !E.canUse(S,p,c)});
   if(p.hand.length)h+='<div class="chand">'+p.hand.map(function(c){var ok=!E.canUse(S,p,c);return '<button class="hc'+(ok?' ok':'')+'" data-pid="'+p.id+'" data-c="'+c+'">'+HOLDSHORT[c]+(ok?' · 可用':'')+'</button>'}).join('')+'</div>';
   el.innerHTML=h;
@@ -4127,7 +4169,7 @@ var CT=(function(){
   var pk=E.peekNext(S);if(!pk)return null;
   var q=P(pk.pid),sk=pk.skipped.map(function(x){return P(x.pid).name+x.why+'中'}).join('、');
   var el=document.createElement('div');el.className='ctnext';el.setAttribute('role','button');el.setAttribute('aria-label','下一位,点一下跳过');
-  el.innerHTML='<div class="nx-in" style="--pc:'+TKC[q.tok]+'">'+tkAv(q.tok,46,'av',persistMood(q))+'<div><small>下一位</small><b>'+esc(q.name)+'</b>'+(sk?'<em>'+esc(sk)+',跳过</em>':'')+'</div><span class="nx-go">▶</span></div>';
+  el.innerHTML='<div class="nx-in" style="--pc:'+TKC[q.tok]+'">'+tkAv(q.tok,80,'av',persistMood(q))+'<div><small>下一位</small><b>'+esc(q.name)+'</b>'+(sk?'<em>'+esc(sk)+',跳过</em>':'')+'</div><span class="nx-go">▶</span></div>';
   return el;
  }
  function maybeAutoEnd(){
@@ -4219,7 +4261,7 @@ var CT=(function(){
   case 'build':return mBuild(pd);case 'chance':return mChance(pd);case 'windfall':return mWind(pd);case 'pick':return mPick(pd);
   }
  }
- function who(pid,sfx){var p=P(pid);return '<div class="mwho" data-pid="'+pid+'" style="--pc:'+TKC[p.tok]+'">'+tkAv(p.tok,44,'av',persistMood(p))+'<b>'+esc(p.name)+'</b>'+(sfx?'<span>'+sfx+'</span>':'')+'</div>'}
+ function who(pid,sfx){var p=P(pid);return '<div class="mwho" data-pid="'+pid+'" style="--pc:'+TKC[p.tok]+'">'+tkAv(p.tok,52,'av',persistMood(p))+'<b>'+esc(p.name)+'</b>'+(sfx?'<span>'+sfx+'</span>':'')+'</div>'}
  function closeThen(f){UI.close();shownKey='';f()}
  function mBuy(pd){
   var p=P(pd.pid),afford=p.cash>=pd.price;
@@ -4530,7 +4572,7 @@ var CT=(function(){
   }
   draw();
  }
- function loanBadges(p){var w=E.netWorth(S,p.id),b='';if(w.owe)b+='<i class="bd ln">欠'+fmtW(w.owe)+'</i>';if(w.lent)b+='<i class="bd lt">借出'+fmtW(w.lent)+'</i>';return b}
+ function loanBadges(p){var w=E.netWorth(S,p.id),b='';if(w.owe)b+='<i class="bd ln icb" title="欠款 '+Y(w.owe)+'">💸'+fmtW(w.owe)+'</i>';if(w.lent)b+='<i class="bd lt icb" title="借出 '+Y(w.lent)+'">🤝'+fmtW(w.lent)+'</i>';return b}
  function loanSection(pid){var ls=E.loansOf(S,pid);if(!ls.length)return '';
   return '<h3 class="ah3">借款</h3><div class="alist loans">'+ls.map(function(l){var mine=l.to===pid,o=P(mine?l.from:l.to),od=l.st==='overdue',me=P(pid),can=mine&&me.cash>0;
    return '<div class="arow lnr'+(od?' od':'')+'"><div class="ar1">'+tkAv(o.tok,34,'av')+'<div class="ari"><b>'+(mine?'欠 '+esc(o.name)+' '+Y(l.owe):esc(o.name)+' 欠我 '+Y(l.owe))+'</b><small>'+(od?'<em class="bdm">已逾期</em> 轮到时自动还':'第 '+l.due+' 回合到期')+' · 借了 '+Y(l.amt)+(l.rate?' · 利息 '+l.rate+'%':' · 无利息')+'</small></div></div>'+
