@@ -249,30 +249,30 @@ function iconChev(x,y,ang,col){
 /* ---------- 机库 / 吉祥物 / 塔台 ---------- */
 function mascot(c,mood){
  var p=PAL[c],h='';
- h+='<ellipse cx="0" cy="62" rx="80" ry="9" fill="#000" opacity=".18"/>';
- h+='<path d="M-8 30L-10 50M50 28L52 46" stroke="#6a7480" stroke-width="5" stroke-linecap="round"/>';
- h+='<circle cx="-10" cy="52" r="9" fill="#2d2f3a"/><circle cx="-10" cy="52" r="3.6" fill="#c9d1da"/>';
- h+='<circle cx="52" cy="48" r="8.5" fill="#2d2f3a"/><circle cx="52" cy="48" r="3.4" fill="#c9d1da"/>';
- h+='<path d="M-6-16C4-34 16-52 30-62C40-68 52-64 47-53L24-12Z" fill="'+p.side+'"/>';
- h+='<path d="M-60-6C-68-28-78-48-86-60C-90-67-83-72-76-67C-60-56-44-36-34-14Z" fill="url(#f3bd'+c+')" stroke="'+p.side+'" stroke-width="2.4" stroke-linejoin="round"/>';
- h+=star(-68,-36,7.5,'#fff');
- h+='<ellipse cx="-80" cy="5" rx="22" ry="9" fill="'+p.side+'"/>';
- h+='<path d="M-92 6C-92-12-54-33 0-35C54-37 100-21 100 8C100 37 64 51 12 49C-44 47-92 26-92 6Z" fill="url(#f3bd'+c+')" stroke="'+p.deep+'" stroke-opacity=".35" stroke-width="2.2"/>';
- h+='<path d="M-86 14C-46 30 40 36 97 16C92 35 66 47 14 47C-38 46-76 32-86 14Z" fill="#fff" opacity=".94"/>';
- h+='<path d="M-64-6C-34-14 4-17 30-15" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none" opacity=".9"/>';
- h+='<ellipse cx="-4" cy="-25" rx="46" ry="6" fill="#fff" opacity=".55"/>';
- h+='<path d="M-14 12C-26 30-40 50-50 61C-56 68-47 74-37 69C-14 59 12 38 28 19Z" fill="url(#f3bd'+c+')" stroke="'+p.deep+'" stroke-opacity=".45" stroke-width="2.2" stroke-linejoin="round"/>';
- h+=star(-26,46,8,'#fff');
+ h+='<ellipse cx="6" cy="64" rx="72" ry="9" fill="#000" opacity=".18"/>';
+ h+='<path d="M-2 36L-4 54M50 34L52 50" stroke="#6a7480" stroke-width="5.5" stroke-linecap="round"/>';
+ h+='<circle cx="-4" cy="56" r="9.5" fill="#2d2f3a"/><circle cx="-4" cy="56" r="3.8" fill="#c9d1da"/>';
+ h+='<circle cx="52" cy="52" r="9" fill="#2d2f3a"/><circle cx="52" cy="52" r="3.6" fill="#c9d1da"/>';
+ h+='<path d="M2-24C12-42 24-58 36-66C46-72 57-67 51-56L30-20Z" fill="'+p.side+'"/>';
+ h+='<path d="M-42-14C-50-34-60-52-66-64C-70-72-62-76-55-71C-42-61-28-41-20-22Z" fill="url(#f3bd'+c+')" stroke="'+p.side+'" stroke-width="2.4" stroke-linejoin="round"/>';
+ h+=star(-50,-42,7.5,'#fff');
+ h+='<ellipse cx="-62" cy="4" rx="19" ry="8.5" fill="'+p.side+'"/>';
+ h+='<path d="M-72 4C-72-24-38-42 8-42C58-42 90-18 90 10C90 40 60 54 14 54C-30 54-72 34-72 4Z" fill="url(#f3bd'+c+')" stroke="'+p.deep+'" stroke-opacity=".35" stroke-width="2.2"/>';
+ h+='<path d="M-66 16C-30 33 42 39 88 18C82 40 58 52 14 52C-26 52-58 37-66 16Z" fill="#fff" opacity=".94"/>';
+ h+='<path d="M-50-10C-26-18 2-21 18-20" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none" opacity=".9"/>';
+ h+='<ellipse cx="2" cy="-32" rx="40" ry="6" fill="#fff" opacity=".55"/>';
+ h+='<path d="M-8 18C-18 34-30 52-38 62C-43 69-34 75-25 70C-4 59 16 41 28 24Z" fill="url(#f3bd'+c+')" stroke="'+p.deep+'" stroke-opacity=".45" stroke-width="2.2" stroke-linejoin="round"/>';
+ h+=star(-20,50,8,'#fff');
  /* face */
- var ex1=58,ex2=82,ey=-6;
- function eye(x,y){return '<ellipse cx="'+x+'" cy="'+y+'" rx="10.5" ry="13" fill="#fff" stroke="#2b2140" stroke-opacity=".25" stroke-width="1.5"/><circle cx="'+(x+2)+'" cy="'+(y+2)+'" r="6.6" fill="#2b2140"/><circle cx="'+(x+2.6)+'" cy="'+(y+2.6)+'" r="3.2" fill="#4a3a7a"/><circle cx="'+(x-0.4)+'" cy="'+(y-1.6)+'" r="2.5" fill="#fff"/>'}
- function shut(x,y){return '<path d="M'+(x-9)+' '+(y+2)+'Q'+x+' '+(y-9)+' '+(x+9)+' '+(y+2)+'" fill="none" stroke="#2b2140" stroke-width="3.6" stroke-linecap="round"/>'}
+ var ex1=42,ex2=72,ey=-6;
+ function eye(x,y){return '<ellipse cx="'+x+'" cy="'+y+'" rx="13" ry="16" fill="#fff" stroke="#2b2140" stroke-opacity=".25" stroke-width="1.6"/><circle cx="'+(x+2.5)+'" cy="'+(y+2.5)+'" r="8.4" fill="#2b2140"/><circle cx="'+(x+3.2)+'" cy="'+(y+3.4)+'" r="4.2" fill="#4a3a7a"/><circle cx="'+(x-0.6)+'" cy="'+(y-2)+'" r="3.2" fill="#fff"/><circle cx="'+(x+5.5)+'" cy="'+(y+6)+'" r="1.5" fill="#fff" opacity=".8"/>'}
+ function shut(x,y){return '<path d="M'+(x-11)+' '+(y+3)+'Q'+x+' '+(y-11)+' '+(x+11)+' '+(y+3)+'" fill="none" stroke="#2b2140" stroke-width="4" stroke-linecap="round"/>'}
  if(mood==='laugh'){h+=shut(ex1,ey)+shut(ex2,ey-2)}
  else if(mood==='wink'){h+=eye(ex1,ey)+shut(ex2,ey-2)}
  else{h+=eye(ex1,ey)+eye(ex2,ey-2)}
- h+='<ellipse cx="46" cy="16" rx="7.5" ry="4.5" fill="#ff7f98" opacity=".55"/><ellipse cx="93" cy="12" rx="5.5" ry="4" fill="#ff7f98" opacity=".55"/>';
- if(mood==='smile')h+='<path d="M60 18Q71 29 84 16" fill="none" stroke="#2b2140" stroke-width="3.4" stroke-linecap="round"/>';
- else h+='<path d="M59 16Q71 34 86 14Z" fill="#7a2338" stroke="#2b2140" stroke-width="2.6" stroke-linejoin="round"/><path d="M65 24Q72 30 79 23" fill="#ff8aa0"/>';
+ h+='<ellipse cx="28" cy="18" rx="8.5" ry="5" fill="#ff7f98" opacity=".6"/><ellipse cx="86" cy="14" rx="5.5" ry="4.2" fill="#ff7f98" opacity=".6"/>';
+ if(mood==='smile')h+='<path d="M46 22Q58 34 72 20" fill="none" stroke="#2b2140" stroke-width="3.8" stroke-linecap="round"/>';
+ else h+='<path d="M45 19Q58 40 75 17Z" fill="#7a2338" stroke="#2b2140" stroke-width="2.8" stroke-linejoin="round"/><path d="M52 28Q59 35 67 27" fill="#ff8aa0"/>';
  return h;
 }
 function tower(x,y,c,s,flip){
@@ -334,10 +334,10 @@ function hangar(pid,eco){
  }
  /* 塔台 + 风向袋 + 吉祥物 */
  var tx=hr.left?x+38:x+w-38;
- h+=tower(tx,y+hh*0.34,pid,0.62,!hr.left);
- h+=windsock(hr.left?x+78:x+w-78,y+hh*0.18,0.7,!hr.left);
- var mcx=hr.left?x+w*0.6:x+w*0.4;
- h+='<g transform="translate('+n(mcx)+','+n(y+hh*0.2)+') scale('+(hr.left?0.78:-0.78)+',0.78)">'+mascot(pid,MOODS[pid])+'</g>';
+ h+=tower(tx,y+hh*0.35,pid,0.66,!hr.left);
+ h+=windsock(hr.left?x+76:x+w-76,y+hh*0.17,0.7,!hr.left);
+ var mcx=hr.left?x+w*0.615:x+w*0.385;
+ h+='<g transform="translate('+n(mcx)+','+n(y+hh*0.2)+') scale('+(hr.left?0.92:-0.92)+',0.92)">'+mascot(pid,MOODS[pid])+'</g>';
  return h;
 }
 
@@ -478,12 +478,12 @@ function tokenSVG(pid){return '<svg class="fl-plane fl3d-tok" viewBox="0 0 112 1
 
 /* ---------- 整盘 ---------- */
 function boardSVG(opt){
- var eco=!!(opt&&opt.eco),h='<svg class="flplate fl3d-plate" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">';
+ var eco=!!(opt&&opt.eco),h='<svg xmlns="http://www.w3.org/2000/svg" class="flplate fl3d-plate" width="1000" height="1000" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">';
  h+=defs(eco);
  h+='<rect width="1000" height="1000" fill="url(#f3sea)"/>';
  h+=waves();
  /* 臂间水道小岛（每臂两侧） */
- var q,gi=0,base=[[431,222,24,62],[569,222,24,62]];
+ var q,gi=0,base=[[432,226,30,84],[568,226,30,84]];
  for(q=0;q<4;q++){
   base.forEach(function(g,j){
    var c=[g[0],g[1]],k;

@@ -3,7 +3,7 @@ var FLY=(function(){
 'use strict';
 var E=window.FLYE,Store=GC.Store,Sound=GC.Sound,UI=GC.UI,Dice=GC.Dice,Select=GC.Select;
 var TKN=E.TKN,TKC=['#2f80ed','#f2b705','#e53935','#ff4fa3','#1fae5b','#8e44ec'];
-var root,S,busy=false,selv=null,timers=[],ro=null,lastDie=6,cancel=null,fxLayer=null;
+var root,S,busy=false,selv=null,timers=[],ro=null,lastDie=6,cancel=null,fxLayer=null,plateURL=null;
 function $q(s){return root.querySelector(s)}
 function later(f,ms){var t=setTimeout(f,ms);timers.push(t);return t}
 function esc(s){return UI.esc(s)}
@@ -233,8 +233,12 @@ function buildPathGuides(){
 
 function buildIslandBoard(){
  var b=$q('#flb'),F=window.FLY3D,h='',i,cs=cellSizePct(),hs=homeSizePct();
+ var svg=F.boardSVG({eco:eco()});
  h+=F.tokenDefs();
- h+=F.boardSVG({eco:eco()});
+ /* 静态盘面作为图片栅格化一次：棋子移动不再重绘大面积 SVG 滤镜（iPad 省电） */
+ if(plateURL){try{URL.revokeObjectURL(plateURL)}catch(e){}plateURL=null}
+ try{plateURL=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}))}catch(e){plateURL=null}
+ h+=plateURL?'<img class="flplate fl3d-plate" src="'+plateURL+'" alt="" draggable="false">':svg;
  for(i=0;i<E.TRACK;i++){
   var p=ringPos(i),ent=E.ENTRY.indexOf(i),flyFor=E.FLY_FROM.indexOf(i),gateFor=E.HOME_GATE.indexOf(i);
   var cls='flc c'+E.cellColor(i)+(E.isSafe(i)&&ent<0?' safe':'')+(ent>=0?' entry e'+ent:'')+(flyFor>=0?' flypad f'+flyFor:'')+(gateFor>=0?' homegate g'+gateFor:'');
@@ -573,14 +577,14 @@ function pickPlane(plId){
 }
 function rulesModal(){
  UI.modal('<h2>飞行棋规则</h2><p style="text-align:left;line-height:1.5">'+
-  '<b style="color:#5a3ea0">★ 虚线横飞（最重要）</b><br>'+
-  '• 走到自己颜色的 <b>虚线垫</b>（✈）→ 沿虚线 <b>横飞 +12</b> 格<br>'+
-  '• 横飞路上能 <b>撞掉</b> 别人的飞机；起飞落到垫上 <b>不</b> 触发横飞<br><br>'+
+  '<b style="color:#5a3ea0">✈ 虚线横飞（最重要）</b><br>'+
+  '• 走到自己颜色的 <b>✈ 飞机格</b>（连着虚线航线）→ 沿虚线 <b>横飞 +12</b> 格<br>'+
+  '• 横飞路上能 <b>撞掉</b> 别人的飞机；起飞落到格上 <b>不</b> 触发横飞<br><br>'+
   '<b>其他规则</b><br>'+
   '• 掷到 <b>6</b> 才能起飞，并可再掷一次<br>'+
-  '• 落到自己颜色格子 → <b>同色跳跃</b>到下一同色格<br>'+
+  '• 落到自己颜色格子（彩色格，或中间小圆点是自己颜色）→ <b>同色跳跃</b>到下一同色格<br>'+
   '• 己方飞机可<b>叠机</b>；敌机落到叠机上 → 整叠回基地<br>'+
-  '• <b>安全区</b>不能被吃<br>'+
+  '• <b>★ 星星格</b>是安全区，不能被吃<br>'+
   '• 精确步数沿本色终点道进中心<br>'+
   '• 连掷三次 6 → 自家一架飞机回基地并换人</p>'+
   '<div class="row"><button class="btn pri" id="flRk">知道了</button></div>');
@@ -623,7 +627,7 @@ return{
   root=r;busy=false;selv=null;timers=[];fxLayer=null;load();
   /* v14：默认 3D 卡通海岛棋盘；setBoardStyle('print'|'plastic') 可切回旧外观 */
   r.classList.add('gm-fly',window.FLY3D?'fl-island':'fl-print');
-  r.innerHTML='<div class="fllay"><div class="flbw"><div id="flb" class="flb"></div></div><div class="flside"><div class="flp" id="flp"></div><div class="flruletip" title="虚线横飞规则"><b>本色虚线垫</b><br>= 横飞+12<br>同色格跳跃 · 掷6起飞<br><span>起飞不触发跳/飞</span></div><div class="fldock" id="fldock"></div></div></div>';
+  r.innerHTML='<div class="fllay"><div class="flbw"><div id="flb" class="flb"></div></div><div class="flside"><div class="flp" id="flp"></div><div class="flruletip" title="虚线横飞规则"><b>本色✈飞机格</b><br>= 沿虚线横飞+12<br>★星星格安全 · 同色格跳跃<br><span>掷6起飞 · 起飞不触发跳/飞</span></div><div class="fldock" id="fldock"></div></div></div>';
   var nr=ctx.nav('list','规则',{id:'flRules'}),nn=ctx.nav('refresh','新局',{id:'flNew'}),ne=ctx.nav('star','省电',{id:'flEco'});
   ctx.slot.appendChild(nr);ctx.slot.appendChild(nn);ctx.slot.appendChild(ne);
   nr.onclick=function(){Sound.tap();rulesModal()};
@@ -636,7 +640,7 @@ return{
   if(window.ResizeObserver){ro=new ResizeObserver(function(){fit()});ro.observe(root)}else window.addEventListener('resize',fit);
   fit();
  },
- unmount:function(){timers.forEach(clearTimeout);timers=[];if(cancel)cancel();if(ro)ro.disconnect();ro=null;if(S)save();if(selv){try{selv.remove()}catch(e){}}selv=null;document.documentElement.classList.remove('fl-land');fxLayer=null;root=null},
+ unmount:function(){timers.forEach(clearTimeout);timers=[];if(cancel)cancel();if(ro)ro.disconnect();ro=null;if(S)save();if(selv){try{selv.remove()}catch(e){}}selv=null;document.documentElement.classList.remove('fl-land');fxLayer=null;if(plateURL){try{URL.revokeObjectURL(plateURL)}catch(e){}plateURL=null}root=null},
  api:api
 };
 })();
