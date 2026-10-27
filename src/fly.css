@@ -253,10 +253,12 @@
 .gm-fly.fl-island .flbase span{display:none}
 .gm-fly.fl-island .flfin{display:none}
 .gm-fly.fl-island .fl3d-dash{z-index:4}
-.gm-fly.fl-island .fltok{filter:drop-shadow(0 3px 2px rgba(0,40,70,.35))}
-.gm-fly.fl-island .fltok.in-flight{width:6.2%;height:6.2%}
-.gm-fly.fl-island .fltok.at-base{width:6.6%;height:6.6%;filter:drop-shadow(0 2px 1px rgba(0,0,0,.25))}
-.gm-fly.fl-island .fltok.done-pose{width:6%;height:6%;outline:0;transform:translate(-50%,-50%) scale(.92)}
+.gm-fly.fl-island .fl3d-dash .fldash-path{opacity:0;transition:opacity .25s}
+.gm-fly.fl-island .fl3d-dash .fldash-path.lit{opacity:1}
+.gm-fly.fl-island .fltok{filter:drop-shadow(0 2px 1.5px rgba(0,40,70,.3))}
+.gm-fly.fl-island .fltok.in-flight{width:5.2%;height:5.2%}
+.gm-fly.fl-island .fltok.at-base{width:4.7%;height:4.7%;filter:drop-shadow(0 1.5px 1px rgba(0,0,0,.22))}
+.gm-fly.fl-island .fltok.done-pose{width:4.4%;height:4.4%;outline:0;transform:translate(-50%,-50%) scale(.92)}
 .gm-fly.fl-island .fltok.go,.gm-fly.fl-island .fltok.takeoff-lit{outline:0;border-radius:50%;
  filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 5px #fff) drop-shadow(0 0 9px #ffd23f)}
 .gm-fly.fl-island .fl3d-tok{width:100%;height:100%;display:block;overflow:visible}

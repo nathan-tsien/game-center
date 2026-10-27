@@ -26,7 +26,7 @@ function cellXY(where,idx,pid){
  return basePos(pid,idx);
 }
 function gPct(c,r){return E.gridPct(c,r)}
-function cellSizePct(){if(isl())return 5.6;return (100/15)*(root&&root.classList.contains('fl-print')?0.98:1.00)}
+function cellSizePct(){if(isl())return 5.4;return (100/15)*(root&&root.classList.contains('fl-print')?0.98:1.00)}
 function homeSizePct(){if(isl())return 5.6;return (100/15)*(root&&root.classList.contains('fl-print')?0.98:0.92)}
 
 /* ---- DOM sparkles (skipped in eco) ---- */
@@ -509,8 +509,8 @@ function playMoveFx(r){
    UI.toast('同色跳跃!',900,'star');
   }else if(e.k==='fly'){
    var a2=ringPos(e.from),b2=ringPos(e.to);
-   trailAlong([a2,{x:50,y:50},b2],'#ffd23f');
-   sparkAt(50,50,'flyburst',14);
+   if(isl()){var ft=window.FLY3D.flyTrail(e.pid,8);trailAlong(ft,'#ffd23f');sparkAt(ft[4].x,ft[4].y,'flyburst',14)}
+   else{trailAlong([a2,{x:50,y:50},b2],'#ffd23f');sparkAt(50,50,'flyburst',14)}
    var dash=root&&root.querySelector('#fldash'+e.pid);
    if(dash){dash.classList.add('lit');later(function(){try{dash.classList.remove('lit')}catch(err){}},1400)}
    UI.toast('✈️ 虚线横飞 +12!',1400,'star');
