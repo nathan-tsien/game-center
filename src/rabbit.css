@@ -1,0 +1,64 @@
+/* ===== 兔子棋 QA-v1 · 一体山体 + 粘土兔 · iPad 横屏 ~82/18 ===== */
+.gm-rabbit{padding:0;gap:0;background:linear-gradient(#f3e2c8,#e8f5d0 40%,#c8efb0);position:absolute;inset:0;overflow:hidden}
+.rblay{position:absolute;inset:0;display:flex;flex-direction:column;gap:4px;padding:4px}
+.gm-rabbit.land .rblay{flex-direction:row;align-items:stretch;gap:8px;padding:4px 6px}
+.rbbw{flex:1;min-width:0;min-height:0;display:flex;align-items:center;justify-content:center}
+.gm-rabbit.land .rbbw{flex:0 0 82%;max-width:82%}
+.rbside{flex:none;display:flex;flex-direction:column;gap:6px;min-height:0}
+.gm-rabbit.land .rbside{flex:0 0 18%;width:18%;max-width:200px;height:100%}
+.rbb{position:relative;width:min(100%,calc(100vh * 1.3));height:min(100%,calc((100vw - 8px)*.72));aspect-ratio:16/9;
+ background:#c4a878;border:4px solid #5a3a28;border-radius:28px;box-shadow:0 10px 0 rgba(40,30,20,.2),0 16px 28px rgba(0,0,0,.18);overflow:hidden}
+.gm-rabbit.land .rbb{width:100%;height:100%;max-height:none;aspect-ratio:auto}
+.rbmtn{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 70%,#7dca55 0%,#5aad3a 50%,#4a9a32 70%,transparent 71%),linear-gradient(#bfe89a 0%,#6bbf4a 52%,#c4a574 52%,#b8955a 100%);
+ background-size:cover;background-position:center;z-index:0}
+.rbmtn.has-art{background-color:#c4a878;background-size:cover;background-position:center;background-repeat:no-repeat;filter:saturate(1.06) contrast(1.03)}
+/* invisible pad markers — no floating yellow discs */
+.rbp{position:absolute;width:6.5%;height:8.5%;transform:translate(-50%,-50%);border-radius:50%;background:transparent;border:0;box-shadow:none;z-index:2;pointer-events:none}
+.rbp.trap{background:transparent}
+.rbp.trap.open,.gm-rabbit.traps-open .rbp.trap{
+ width:8%;height:11%;
+ background:radial-gradient(circle at 50% 35%,#ffe080ee,#ff9a40cc 35%,#ff601066 60%,transparent 75%);
+ box-shadow:0 0 28px #ffb040ee,0 0 12px #ffd23f,inset 0 0 16px #ff7a1fcc;
+ border:2.5px solid #ffd080cc;
+ animation:rbtrapglow 1.1s ease-in-out infinite}
+@keyframes rbtrapglow{50%{filter:brightness(1.15);box-shadow:0 0 36px #ffd23fff,0 0 16px #ff9a40}}
+.gq-eco .rbp.trap.open,.gq-eco .gm-rabbit.traps-open .rbp.trap{box-shadow:0 0 10px #ff9a4088}
+.rbsum{position:absolute;left:50%;top:8%;transform:translate(-50%,0);text-align:center;z-index:4;pointer-events:none;width:28%;height:28%}
+.rbrings{position:absolute;left:50%;top:55%;width:100%;height:80%;transform:translate(-50%,-50%);pointer-events:none;z-index:1;opacity:.0;transition:opacity .25s}
+.rbsum.spinning .rbrings,.gm-rabbit.traps-open .rbrings{opacity:1}
+.rbrings i{position:absolute;left:50%;top:50%;width:70%;height:55%;transform:translate(-50%,-50%);border:2.5px solid #6ec8ff;border-radius:50%;opacity:.65;box-shadow:0 0 10px #6ec8ffaa}
+.rbrings i:nth-child(2){width:95%;height:75%;border-color:#9adcff;opacity:.45}
+.rbrings i:nth-child(3){width:115%;height:95%;border-color:#c8eeff;opacity:.3}
+.rbsum.spinning .rbrings i,.gm-rabbit.traps-open .rbrings i{animation:rbrring 2.2s linear infinite}
+@keyframes rbrring{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.gq-eco .rbrings i{animation:none}
+#rbtok{position:absolute;inset:0;z-index:6;pointer-events:none}
+.rbtok{position:absolute;width:9.5%;height:14%;transform:translate(-50%,-58%);border:0;background:transparent;padding:0;cursor:pointer;pointer-events:auto;
+ filter:drop-shadow(0 5px 4px rgba(0,0,0,.45));transition:left .34s ease-out,top .34s ease-out}
+.rbtok .rb-bun-img{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none}
+.rbtok .rb-bun-fallback{display:block;width:70%;height:70%;margin:15% auto;border-radius:50%;box-shadow:inset 0 -4px 0 #0003}
+.rbtok.go{z-index:9;animation:rbgo .9s ease-in-out infinite;outline:3px solid #ffd23f;outline-offset:2px;border-radius:40%}
+@keyframes rbgo{50%{transform:translate(-50%,-68%) scale(1.07)}}
+.gq-eco .rbtok.go{animation:none}
+.rbfx{position:absolute;inset:0;pointer-events:none;z-index:8;overflow:hidden}
+.rbsp{position:absolute;width:8px;height:8px;margin:-4px;border-radius:50%;background:#ffd23f;box-shadow:0 0 8px #ffd23f;animation:rbsp .85s ease-out forwards}
+.rbsp.trap{background:#ff7a1f;box-shadow:0 0 10px #ff9a40}
+.rbsp.carrot{background:#ff8a2b;box-shadow:0 0 10px #ffb060}
+.rbsp.hop{background:#fff;box-shadow:0 0 8px #fff8}
+@keyframes rbsp{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
+.gq-eco .rbfx{display:none}
+.rbpnl{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:2px}
+.rbpc.pc.av1{padding:6px 8px}
+.rbpc .tkm.av{width:72px!important;height:72px!important}
+.rbpc .bd{display:inline-block;color:#fff;font-size:11px;font-weight:900;padding:1px 6px;border-radius:8px}
+.rbdock{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 4px 8px}
+.rbcard{width:84px;height:110px;border-radius:14px;background:linear-gradient(#fff,#ffe8c8);border:3px solid #e0a040;box-shadow:0 5px 0 #b87820;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.rfc{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-weight:900;color:#5a3ea0}
+.rfc.carrot span{font-size:36px}.rfc.carrot b{font-size:14px;color:#e07020}
+.rfc.step b{font-size:42px;line-height:1;color:#ff7a1f}.rfc.step small{font-size:14px}
+.rfc.color i{width:36px;height:36px;border-radius:50%;background:var(--cc);border:3px solid #fff;box-shadow:0 2px 0 #0003}
+.rfc.color b{font-size:14px;color:var(--cc)}
+.rbhint{font-size:13px;font-weight:900;text-align:center;line-height:1.25;color:#3a5a28;min-height:2.4em}
+.rbdock .btn.big{min-height:48px;font-size:18px;padding:0 14px;width:100%;max-width:none}
+.rbdeck{font-size:11px;font-weight:800;color:#6a7a50}
+@media (max-width:700px){.rbpc .tkm.av{width:56px!important;height:56px!important}.rbcard{width:64px;height:86px}}
