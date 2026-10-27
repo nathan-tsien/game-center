@@ -53,7 +53,8 @@ function homeXY(pid,h){
 }
 function hangarRect(pid){
  var br=E.BASE_RECT[pid],left=br[0]<7,top=br[1]<7;
- return{x:left?HG_IN:W-HG_IN-HG_W,y:top?HG_IN:W-HG_IN-HG_W,w:HG_W,h:HG_W,left:left,top:top};
+ /* 平台向下有 3D 侧边，下方两角上移 10 以在角区内视觉居中 */
+ return{x:left?HG_IN:W-HG_IN-HG_W,y:top?HG_IN:W-HG_IN-HG_W-10,w:HG_W,h:HG_W,left:left,top:top};
 }
 function pitXY(pid,k){
  var h=hangarRect(pid);
@@ -74,6 +75,14 @@ function hangarPct(pid){var h=hangarRect(pid);return{x:h.x/10,y:h.y/10,w:h.w/10,
 var seed=7;
 function rnd(){seed=(seed*16807)%2147483647;return(seed-1)/2147483646}
 function rr(x,y,w,h,rx,a){return '<rect x="'+n(x)+'" y="'+n(y)+'" width="'+n(w)+'" height="'+n(h)+'" rx="'+n(rx)+'" '+(a||'')+'/>'}
+/* 四角半径可不同的圆角矩形，r=[左上,右上,右下,左下] */
+function rrc(x,y,w,h,r,a){
+ var d='M'+n(x+r[0])+' '+n(y)+'H'+n(x+w-r[1])+(r[1]?'A'+r[1]+' '+r[1]+' 0 0 1 '+n(x+w)+' '+n(y+r[1]):'')+
+  'V'+n(y+h-r[2])+(r[2]?'A'+r[2]+' '+r[2]+' 0 0 1 '+n(x+w-r[2])+' '+n(y+h):'')+
+  'H'+n(x+r[3])+(r[3]?'A'+r[3]+' '+r[3]+' 0 0 1 '+n(x)+' '+n(y+h-r[3]):'')+
+  'V'+n(y+r[0])+(r[0]?'A'+r[0]+' '+r[0]+' 0 0 1 '+n(x+r[0])+' '+n(y):'')+'Z';
+ return '<path d="'+d+'" '+(a||'')+'/>';
+}
 function starPts(R,r){
  var a=[],i,ang,rad;
  for(i=0;i<10;i++){ang=-Math.PI/2+i*Math.PI/5;rad=i%2?r:R;a.push(n(Math.cos(ang)*rad)+','+n(Math.sin(ang)*rad))}
@@ -282,13 +291,15 @@ function tower(x,y,c,s,flip){
 function hangar(pid,eco){
  var hr=hangarRect(pid),p=PAL[pid],x=hr.x,y=hr.y,w=hr.w,hh=hr.h,h='',k,pp,r=29;
  /* 角区草地小岛：铺满跑道外侧角区，跑道压在其上 */
- var gs=CS+14,gx=hr.left?6:W-6-gs,gy=hr.top?6:W-6-gs;
- h+=rr(gx-8,gy-8,gs+16,gs+16,76,'fill="url(#f3shal)"');
- h+=rr(gx,gy+6,gs,gs,66,'fill="#d4b06a"');
- h+=rr(gx,gy,gs,gs,66,'fill="#f4dca2"');
- h+=rr(gx+9,gy+8,gs-18,gs-18,58,'fill="url(#f3grass)"');
+ var gs=CS+30,gx=hr.left?6:W-6-gs,gy=hr.top?6:W-6-gs;
+ /* 内角（朝棋盘中心）为直角并压在跑道下，避免露出沙边缺口 */
+ function cr(R){var a=[R,R,R,R];a[hr.left?(hr.top?2:1):(hr.top?3:0)]=0;return a}
+ h+=rrc(gx-8,gy-8,gs+16,gs+16,cr(76),'fill="url(#f3shal)"');
+ h+=rrc(gx,gy+6,gs,gs,cr(66),'fill="#d4b06a"');
+ h+=rrc(gx,gy,gs,gs,cr(66),'fill="#f4dca2"');
+ h+=rrc(hr.left?gx+9:gx,hr.top?gy+8:gy,gs-9,gs-8,cr(58),'fill="url(#f3grass)"');
  seed=31+pid*17;
- var vx=hr.left?(x+w+CS)/2:(W-CS+x)/2,hy=hr.top?(y+hh+CS)/2:(W-CS+y)/2;
+ var vx=hr.left?(x+w+6+CS)/2:(W-CS+x-6)/2,hy=hr.top?(y+hh+15+CS)/2:(W-CS+y-6)/2;
  var ty=hr.top?y+74:y+hh-2,t0=hr.top?y+104:y-4,t1=hr.top?y+hh+30:y+hh-84;
  for(k=0;k<4;k++)h+=tree(vx+(rnd()-0.5)*6,t0+k*(t1-t0)/3,10+rnd()*3,false);
  for(k=0;k<5;k++)h+=tree(x+14+k*(w-4)/4+(hr.left?0:-26),hy+(rnd()-0.5)*6,10+rnd()*3,false);
@@ -361,8 +372,8 @@ function ringTiles(){
   if(ent>=0){
    h+=colorTile(p[0],p[1],s,c,diamond)+iconStar(p[0],p[1]-1,15,'#fff');
   }else if(fly>=0){
-   var to=RXY[E.FLY_TO[fly]];
-   h+=colorTile(p[0],p[1],s,c,diamond)+iconPlane(p[0],p[1]-1,angTo(p,to),1.55,'#fff');
+   var rc=routeCtl(fly);
+   h+=colorTile(p[0],p[1],s,c,diamond)+iconPlane(p[0],p[1]-1,angTo(rc[0],rc[1]),1.55,'#fff');
   }else if(safe){
    h+=colorTile(p[0],p[1],s,c,diamond)+iconStar(p[0],p[1]-1,13,'#fff');
   }else{
@@ -416,7 +427,7 @@ function flyOverlay(){
  return h+'</svg>';
 }
 
-/* ---------- 棋子：简洁俯视玩具飞机（安静的小棋子，不抢棋盘） ---------- */
+/* ---------- 棋子：圆形玩具棋子 + 本色小飞机印花（安静、不抢棋盘；整块盖住格子上的宝石/白点） ---------- */
 function tokenDefs(){
  var h='<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>',i,p;
  var body='<path d="M-46-2C-46-9-40-12-33-12H-12V-34C-12-44-6-50 0-50C6-50 12-44 12-34V-12H33C40-12 46-9 46-2V6C46 12 41 14 35 13L12 9V26H24C30 26 32 30 32 34V38C32 42 29 44 24 44H-24C-29 44-32 42-32 38V34C-32 30-30 26-24 26H-12V9L-35 13C-41 14-46 12-46 6Z"';
@@ -424,11 +435,17 @@ function tokenDefs(){
   p=PAL[i];
   h+='<linearGradient id="f3k'+i+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+p.top+'"/><stop offset=".6" stop-color="'+p.base+'"/><stop offset="1" stop-color="'+p.side+'"/></linearGradient>';
   h+='<symbol id="f3tok'+i+'" viewBox="-56 -60 112 120">';
-  h+='<ellipse cx="2" cy="48" rx="34" ry="7" fill="#000" opacity=".16"/>';
+  h+='<ellipse cx="2" cy="53" rx="42" ry="7" fill="#000" opacity=".16"/>';
+  /* --tb/--tr 由 CSS 覆盖：到达终点 = 金色棋子 */
+  h+='<circle cy="7" r="50" style="fill:var(--tr,'+p.side+')"/>';
+  h+='<circle r="50" style="fill:var(--tb,#fffaf0)" stroke="#fff" stroke-width="2.5"/>';
+  h+='<circle r="43" fill="none" stroke="'+p.base+'" stroke-opacity=".45" stroke-width="3"/>';
+  h+='<g transform="translate(0,3) scale(.7)">';
   h+='<g transform="translate(0,5)">'+body+' fill="'+p.side+'"/></g>';
   h+=body+' fill="url(#f3k'+i+')" stroke="'+p.side+'" stroke-width="2" stroke-linejoin="round"/>';
-  h+='<polygon transform="translate(0,0)" points="'+starPts(9,4.3)+'" fill="#fff" fill-opacity=".9" stroke="#fff" stroke-opacity=".9" stroke-width="2" stroke-linejoin="round"/>';
-  h+='<ellipse cx="-3" cy="-30" rx="3" ry="9" fill="#fff" opacity=".35"/>';
+  h+='<polygon points="'+starPts(9,4.3)+'" fill="#fff" fill-opacity=".9" stroke="#fff" stroke-opacity=".9" stroke-width="2" stroke-linejoin="round"/>';
+  h+='</g>';
+  h+='<ellipse cx="-20" cy="-30" rx="13" ry="5.5" transform="rotate(-32 -20 -30)" fill="#fff" opacity=".55"/>';
   h+='</symbol>';
  }
  return h+'</defs></svg>';
