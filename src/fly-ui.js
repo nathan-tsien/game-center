@@ -12,21 +12,22 @@ function tkAv(tok,sz,cls){var src=avSrc(tok),inn=src?'<img class="tkimg" src="'+
 function eco(){try{return GC.Gfx&&GC.Gfx.mode()==='eco'}catch(e){return false}}
 function save(){if(S)S.sv=Date.now();Store.set('fly',S)}
 function load(){var s=Store.get('fly',null);if(s&&s.players&&s.players.length){S=s;if(!S.phase)S.phase='play'}else{S=E.newState()}}
-function planeImg(pid){var keys=['red','yellow','blue','green'];var k=keys[pid%4];var src=(window.FL_PLANES&&window.FL_PLANES[k])||'';if(src)return '<img class="fl-plane-img" src="'+src+'" alt="" draggable="false" decoding="async">';return planeSVG(E.COLORS[pid%4])}
+function isl(){return !!(root&&root.classList.contains('fl-island')&&window.FLY3D)}
+function planeImg(pid){if(isl())return window.FLY3D.tokenSVG(pid);var keys=['red','yellow','blue','green'];var k=keys[pid%4];var src=(window.FL_PLANES&&window.FL_PLANES[k])||'';if(src)return '<img class="fl-plane-img" src="'+src+'" alt="" draggable="false" decoding="async">';return planeSVG(E.COLORS[pid%4])}
 function planeSVG(color){var gid='pg'+Math.random().toString(36).slice(2,8);return '<svg class="fl-plane" viewBox="-20 -20 40 40" aria-hidden="true"><defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".7"/><stop offset="42%" stop-color="'+color+'"/><stop offset="100%" stop-color="#000" stop-opacity=".28"/></linearGradient><filter id="'+gid+'s"><feDropShadow dx="0" dy="1" stdDeviation="0.7" flood-opacity=".3"/></filter></defs><ellipse cx="0" cy="12" rx="9" ry="2.8" fill="#00000028"/><g transform="translate(0,-1.2) rotate(18)" filter="url(#'+gid+'s)"><path d="M0-14C2.6-14 3.8-10 3.8-5.4L14 3.4V6.6L3.8 2.4V9.6L8.2 13.2V15.4L0 13.6-8.2 15.4V13.2L-3.8 9.6V2.4L-14 6.6V3.4L-3.8-5.4C-3.8-10-2.6-14 0-14Z" fill="url(#'+gid+')" stroke="#fff" stroke-width="1.9" stroke-linejoin="round"/><path d="M0-14C1.7-14 2.6-10.4 2.6-6.6V2.2" stroke="#fff" stroke-width="1.3" opacity=".5" fill="none"/><circle cy="-6.6" r="2.35" fill="#b8ecff" stroke="#fff" stroke-width="0.9"/><ellipse cx="0" cy="4" rx="2.2" ry="1.1" fill="#000" opacity=".12"/></g></svg>'}
 
-function ringPos(i){return E.ringPos(i)}
-function homePos(pid,idx){return E.homePos(pid,idx)}
-function basePos(pid,k){return E.basePos(pid,k)}
+function ringPos(i){return isl()?window.FLY3D.ringPos(i):E.ringPos(i)}
+function homePos(pid,idx){return isl()?window.FLY3D.homePos(pid,idx):E.homePos(pid,idx)}
+function basePos(pid,k){return isl()?window.FLY3D.basePos(pid,k):E.basePos(pid,k)}
 function cellXY(where,idx,pid){
  if(where==='track')return ringPos(idx);
  if(where==='home')return homePos(pid,idx);
- if(where==='done')return E.donePos(pid);
+ if(where==='done')return isl()?basePos(pid,0):E.donePos(pid);
  return basePos(pid,idx);
 }
 function gPct(c,r){return E.gridPct(c,r)}
-function cellSizePct(){return (100/15)*(root&&root.classList.contains('fl-print')?0.98:1.00)}
-function homeSizePct(){return (100/15)*(root&&root.classList.contains('fl-print')?0.98:0.92)}
+function cellSizePct(){if(isl())return 5.6;return (100/15)*(root&&root.classList.contains('fl-print')?0.98:1.00)}
+function homeSizePct(){if(isl())return 5.6;return (100/15)*(root&&root.classList.contains('fl-print')?0.98:0.92)}
 
 /* ---- DOM sparkles (skipped in eco) ---- */
 function ensureFx(){
@@ -230,7 +231,32 @@ function buildPathGuides(){
  return h;
 }
 
+function buildIslandBoard(){
+ var b=$q('#flb'),F=window.FLY3D,h='',i,cs=cellSizePct(),hs=homeSizePct();
+ h+=F.tokenDefs();
+ h+=F.boardSVG({eco:eco()});
+ for(i=0;i<E.TRACK;i++){
+  var p=ringPos(i),ent=E.ENTRY.indexOf(i),flyFor=E.FLY_FROM.indexOf(i),gateFor=E.HOME_GATE.indexOf(i);
+  var cls='flc c'+E.cellColor(i)+(E.isSafe(i)&&ent<0?' safe':'')+(ent>=0?' entry e'+ent:'')+(flyFor>=0?' flypad f'+flyFor:'')+(gateFor>=0?' homegate g'+gateFor:'');
+  var title=flyFor>=0?' title="落到本色飞机格 → 沿虚线横飞 +12"':(gateFor>=0?' title="拐进本色回家道"':'');
+  h+='<div class="'+cls+'" data-i="'+i+'"'+title+' style="left:'+p.x+'%;top:'+p.y+'%;width:'+cs+'%;height:'+cs+'%"></div>';
+ }
+ for(var hp=0;hp<4;hp++){
+  for(var hi=0;hi<(E.HOME_CELLS[hp]||[]).length;hi++){
+   var pp=homePos(hp,hi);
+   h+='<div class="flhome c'+hp+'" data-p="'+hp+'" data-h="'+hi+'" style="left:'+pp.x+'%;top:'+pp.y+'%;width:'+hs+'%;height:'+hs+'%"></div>';
+  }
+ }
+ h+=F.flyOverlay();
+ for(var pid=0;pid<4;pid++){
+  var r=F.hangarPct(pid);
+  h+='<div class="flbase" data-p="'+pid+'" style="left:'+r.x+'%;top:'+r.y+'%;width:'+r.w+'%;height:'+r.h+'%;--bc:'+E.COLORS[pid]+'"><span>'+E.CNAMES[pid]+'</span></div>';
+ }
+ h+='<div id="fltok"></div><div class="flfx" aria-hidden="true"></div>';
+ b.innerHTML=h;fxLayer=$q('.flfx');
+}
 function buildBoard(){
+ if(isl())return buildIslandBoard();
  var b=$q('#flb'),h='',i,cs=cellSizePct();
  h+='<div class="flsky" aria-hidden="true"></div>';
  /* SVG plate: wood rim, clay hangars with recessed pits, center triangles */
@@ -582,14 +608,21 @@ var api={
  setPrintMode:function(on){
   if(!root)return;
   root.classList.toggle('fl-print',!!on);
+  if(on)root.classList.remove('fl-island');
+  if(S&&S.players&&S.players.length){buildBoard();render()}
+ },
+ setBoardStyle:function(st){
+  if(!root)return;
+  root.classList.toggle('fl-island',st==='island');
+  root.classList.toggle('fl-print',st==='print');
   if(S&&S.players&&S.players.length){buildBoard();render()}
  }
 };
 return{
  mount:function(r,ctx){
   root=r;busy=false;selv=null;timers=[];fxLayer=null;load();
-  /* v13：默认高还原印刷棋外观（一比一交付）；可用 setPrintMode(false) 切回塑料 */
-  r.classList.add('gm-fly','fl-print');
+  /* v14：默认 3D 卡通海岛棋盘；setBoardStyle('print'|'plastic') 可切回旧外观 */
+  r.classList.add('gm-fly',window.FLY3D?'fl-island':'fl-print');
   r.innerHTML='<div class="fllay"><div class="flbw"><div id="flb" class="flb"></div></div><div class="flside"><div class="flp" id="flp"></div><div class="flruletip" title="虚线横飞规则"><b>本色虚线垫</b><br>= 横飞+12<br>同色格跳跃 · 掷6起飞<br><span>起飞不触发跳/飞</span></div><div class="fldock" id="fldock"></div></div></div>';
   var nr=ctx.nav('list','规则',{id:'flRules'}),nn=ctx.nav('refresh','新局',{id:'flNew'}),ne=ctx.nav('star','省电',{id:'flEco'});
   ctx.slot.appendChild(nr);ctx.slot.appendChild(nn);ctx.slot.appendChild(ne);

@@ -8,7 +8,7 @@ def opt(n):return rd(n) if os.path.exists(d+n) else ''
 head=rd('head.html').replace('__DEFS__',rd('defs.txt'))
 core=rd('core.js').replace('/*__INTRO__*/',rd('intro.js')+'\n'+rd('fx.js'))
 ct=rd('ct-engine.js')+'\n'+rd('ct-lines.js')+'\n'+rd('ct-landmarks.js')+'\nCTE.setData('+rd('ct-data.json').strip()+');\n'+rd('ct-ui.js')
-fly=rd('fly-engine.js')+'\n'+rd('fly-ui.js')
+fly=rd('fly-engine.js')+'\n'+rd('fly-board3d.js')+'\n'+rd('fly-ui.js')
 rabbit=rd('rabbit-engine.js')+'\n'+rd('rabbit-ui.js')
 games=rd('games.js').replace('__CHINA__',ct).replace('__CARDSVG__',rd('cardsvg.js')).replace('__FLY__',fly).replace('__RABBIT__',rabbit)
 css=rd('ct.css')+rd('intro.css')+rd('fly.css')+rd('rabbit.css')
