@@ -4,7 +4,7 @@ var FLY=(function(){
 var E=window.FLYE,Store=GC.Store,Sound=GC.Sound,UI=GC.UI,Dice=GC.Dice,Select=GC.Select;
 var TKN=E.TKN,TKC=['#2f80ed','#f2b705','#e53935','#ff4fa3','#1fae5b','#8e44ec'];
 var root,S,busy=false,selv=null,timers=[],ro=null,lastDie=6,cancel=null,fxLayer=null,plateURL=null,bubs={},faceMood={};
-var pokeN={},pokeAt={},pokeLock=0,pokeBurst=0,pokeBurstT=0;
+var pokeN={},pokeAt={},pokeLock=0,pokeBurst=0,pokeBurstT=0,duckUntil=0;
 function $q(s){return root.querySelector(s)}
 function later(f,ms){var t=setTimeout(f,ms);timers.push(t);return t}
 function esc(s){return UI.esc(s)}
@@ -125,7 +125,7 @@ function renderHangars(){
   var seat=+el.getAttribute('data-p'),p=playerAtSeat(seat);
   el.style.setProperty('--bc',E.COLORS[seat]);
   if(!p){el.innerHTML='<span class="flcname">'+E.CNAMES[seat]+'</span>';return}
-  el.innerHTML='<div class="flhplate"><span class="flhav">'+tkAv(p.tok,32,'hav',persistMood(p))+'</span><b class="flhnm">'+esc(p.name)+'</b></div>';
+  el.innerHTML='<div class="flhplate"><span class="flhav">'+tkAv(p.tok,58,'hav',persistMood(p))+'</span><b class="flhnm">'+esc(p.name)+'</b></div>';
  });
 }
 function showTokBubble(el,txt){
@@ -376,7 +376,7 @@ function buildIslandBoard(){
   var r=F.hangarPct(pid);
   h+='<div class="flbase" data-p="'+pid+'" style="left:'+r.x+'%;top:'+r.y+'%;width:'+r.w+'%;height:'+r.h+'%;--bc:'+E.COLORS[pid]+'"><span>'+E.CNAMES[pid]+'</span></div>';
  }
- h+='<div id="fltok"></div><div class="flfx" aria-hidden="true"></div>';
+ h+='<div id="fltok"></div><div class="fldock fldock-c" id="fldock"></div><div class="flfx" aria-hidden="true"></div>';
  b.innerHTML=h;fxLayer=$q('.flfx');
 }
 function buildBoard(){
@@ -531,6 +531,7 @@ function buildBoard(){
  });
  h+='<div class="flfin" aria-label="终点">'+(root&&root.classList.contains('fl-print')?'':'<b>终</b>')+'</div>';
  h+='<div id="fltok"></div>';
+ h+='<div class="fldock fldock-c" id="fldock"></div>';
  h+='<div class="flfx" aria-hidden="true"></div>';
  b.innerHTML=h;fxLayer=$q('.flfx');
 }
@@ -605,16 +606,22 @@ function renderPanel(){
  el.innerHTML=h;
  restoreBubs();
 }
+function duckDock(ms){
+ duckUntil=Date.now()+(ms||1100);
+ var el=$q('#fldock');if(el)el.classList.add('duck');
+ later(function(){if(Date.now()>=duckUntil-40)try{renderDock()}catch(e){}},(ms||1100)+40);
+}
 function renderDock(){
  var el=$q('#fldock');if(!el)return;
  var ready=S.phase==='play'&&S.roll==null&&!busy;
+ var duck=Date.now()<duckUntil;
  var hint='';
  if(S.phase==='over'){var w=S.players[S.winner];hint='🏆 '+esc(w.name)+' 获胜!';}
  else if(S.phase!=='play'){hint='选角色开始';}
  else if(S.roll!=null){hint='掷出 <b>'+S.roll+'</b> · 点发光飞机'+(S.roll===6?' · 可起飞':'')}
  else if(S.again){hint='再掷一次!'}
  else{hint='轮到 <b style="color:'+TKC[E.cur(S).tok]+'">'+esc(E.cur(S).name)+'</b>'}
- el.className='fldock'+(ready?' want':'')+(S.phase==='over'?' over':'');
+ el.className='fldock fldock-c'+(ready?' want':' idle')+(duck?' duck':'')+(S.phase==='over'?' over':'');
  el.innerHTML='<div class="fldie-wrap'+(ready?' want':'')+'"><div class="fldie'+(ready?' pulse':'')+'" id="flDie" role="button" aria-label="骰子">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
   (S.phase==='play'?'<button class="btn big flroll" id="flRoll"'+(ready?'':' disabled')+'>🎲 掷骰子</button>':'')+
   (S.phase==='over'?'<button class="btn pri" id="flAgain">再来一局</button>':'')+
@@ -644,6 +651,7 @@ function playMoveFx(r){
    var dash=root&&root.querySelector('#fldash'+dashSeat);
    if(dash){dash.classList.add('lit');later(function(){try{dash.classList.remove('lit')}catch(err){}},1400)}
    UI.toast('✈️ 虚线横飞 +12!',1400,'star');
+   duckDock(1400);
   }else if(e.k==='capture'){
    var pos=ringPos(e.at!=null?e.at:0);
    sparkAt(pos.x,pos.y,'boom',12);
@@ -768,7 +776,7 @@ return{
   root=r;busy=false;selv=null;timers=[];fxLayer=null;load();
   /* v14：默认 3D 卡通海岛棋盘；setBoardStyle('print'|'plastic') 可切回旧外观 */
   r.classList.add('gm-fly',window.FLY3D?'fl-island':'fl-print');
-  r.innerHTML='<div class="fllay"><div class="flbw"><div id="flb" class="flb"></div></div><div class="flside"><div class="flp" id="flp"></div><div class="flruletip" title="虚线横飞规则"><b>本色✈飞机格</b><br>= 沿虚线横飞+12<br>★星星格安全 · 同色格跳跃<br><span>掷6起飞 · 起飞不触发跳/飞</span></div><div class="fldock" id="fldock"></div></div></div>';
+  r.innerHTML='<div class="fllay"><div class="flbw"><div id="flb" class="flb"></div></div><div class="flside"><div class="flp" id="flp"></div><div class="flruletip" title="虚线横飞规则"><b>本色✈飞机格</b><br>= 沿虚线横飞+12<br>★星星格安全 · 同色格跳跃<br><span>掷6起飞 · 起飞不触发跳/飞</span></div></div></div>';
   var nr=ctx.nav('list','规则',{id:'flRules'}),nn=ctx.nav('refresh','新局',{id:'flNew'}),ne=ctx.nav('star','省电',{id:'flEco'});
   ctx.slot.appendChild(nr);ctx.slot.appendChild(nn);ctx.slot.appendChild(ne);
   nr.onclick=function(){Sound.tap();rulesModal()};
@@ -781,7 +789,7 @@ return{
   if(window.ResizeObserver){ro=new ResizeObserver(function(){fit()});ro.observe(root)}else window.addEventListener('resize',fit);
   fit();
  },
-  unmount:function(){timers.forEach(clearTimeout);timers=[];bubs={};faceMood={};pokeN={};pokeAt={};if(cancel)cancel();if(ro)ro.disconnect();ro=null;if(S)save();if(selv){try{selv.remove()}catch(e){}}selv=null;document.documentElement.classList.remove('fl-land');fxLayer=null;if(plateURL){try{URL.revokeObjectURL(plateURL)}catch(e){}plateURL=null}root=null},
+  unmount:function(){timers.forEach(clearTimeout);timers=[];bubs={};faceMood={};pokeN={};pokeAt={};duckUntil=0;if(cancel)cancel();if(ro)ro.disconnect();ro=null;if(S)save();if(selv){try{selv.remove()}catch(e){}}selv=null;document.documentElement.classList.remove('fl-land');fxLayer=null;if(plateURL){try{URL.revokeObjectURL(plateURL)}catch(e){}plateURL=null}root=null},
  api:api
 };
 })();

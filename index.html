@@ -1564,19 +1564,21 @@ html.gq-eco .moodfs{display:none!important}
 
 /* Hangar label overlay — 角色铭牌贴在机库外角，棋子仍是飞机 */
 .flbase{position:absolute;border-radius:14px;background:transparent;border:0;overflow:visible;
- z-index:5;display:flex;align-items:flex-start;justify-content:center;padding-top:1.8%;pointer-events:none}
+ z-index:7;display:flex;align-items:flex-start;justify-content:center;padding-top:1.8%;pointer-events:none}
 .flbase .flcname{font-size:10px;font-weight:900;color:#fff;background:var(--bc);padding:2px 8px;border-radius:9px;z-index:2;
  box-shadow:0 2px 0 rgba(0,0,0,.22),inset 0 1px 0 #fff6;opacity:.95;letter-spacing:.04em}
-.flhplate{position:absolute;z-index:6;display:flex;align-items:center;gap:3px;
- background:rgba(255,255,255,.95);border:2.5px solid var(--bc);border-radius:14px;padding:1px 7px 1px 1px;
- box-shadow:0 3px 0 rgba(0,0,0,.2),0 6px 10px rgba(0,40,70,.18);max-width:90%;pointer-events:none}
-.flhplate .tkm.hav{width:26px!important;height:26px!important;flex:none;border-radius:50%;overflow:hidden;
- box-shadow:0 0 0 2px #fff}
-.flhplate .flhnm{font-size:10px;font-weight:900;color:#3a2a5c;line-height:1.1;white-space:nowrap;letter-spacing:.02em}
-.flbase[data-p="1"] .flhplate{top:-12%;left:-10%}
-.flbase[data-p="2"] .flhplate{top:-12%;right:-10%;left:auto;flex-direction:row-reverse;padding:1px 1px 1px 7px}
-.flbase[data-p="0"] .flhplate{top:auto;bottom:-12%;left:-10%}
-.flbase[data-p="3"] .flhplate{top:auto;bottom:-12%;right:-10%;left:auto;flex-direction:row-reverse;padding:1px 1px 1px 7px}
+.flhplate{position:absolute;z-index:6;display:flex;flex-direction:column;align-items:center;gap:3px;
+ background:rgba(255,255,255,.96);border:3px solid var(--bc);border-radius:20px;padding:5px 8px 6px;
+ box-shadow:0 4px 0 rgba(0,0,0,.2),0 8px 14px rgba(0,40,70,.2);max-width:78%;pointer-events:none}
+.flhplate .tkm.hav{width:58px!important;height:58px!important;flex:none;border-radius:50%;overflow:hidden;
+ box-shadow:0 0 0 3px #fff,0 3px 0 rgba(0,0,0,.18)}
+.flhplate .flhnm{font-size:13px;font-weight:900;color:#3a2a5c;line-height:1.15;white-space:nowrap;letter-spacing:.02em;
+ text-shadow:0 1px 0 #fff}
+.flbase[data-p="1"] .flhplate{top:-20%;left:-18%}
+.flbase[data-p="2"] .flhplate{top:-20%;right:-18%;left:auto}
+.flbase[data-p="0"] .flhplate{top:auto;bottom:-20%;left:-18%}
+.flbase[data-p="3"] .flhplate{top:auto;bottom:-20%;right:-18%;left:auto}
+.flbase{z-index:7}
 
 /* Center finish — 极小中心点标，四色三角对顶清晰可见 */
 .flfin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;z-index:4;pointer-events:none;width:auto}
@@ -1650,20 +1652,28 @@ html.gq-eco .moodfs{display:none!important}
 .flpc .pbub{font-size:11px;padding:4px 6px;bottom:4px;z-index:6}
 .gm-fly.fl-island .flpc .pbub{background:#fffef8}
 .flpc .bd{display:inline-block;color:#fff;font-size:11px;font-weight:900;padding:1px 6px;border-radius:8px}
-.fldock{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 8px 10px;margin:2px 2px 4px;
+.fldock{display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 10px 10px;
  border-radius:22px;background:linear-gradient(180deg,#fffef8 0%,#fff3d6 100%);border:3px solid #fff;
  box-shadow:0 5px 0 rgba(120,80,30,.14),0 8px 14px rgba(0,0,0,.1);overflow:visible}
+.fldock-c{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:12;
+ width:21%;min-width:132px;max-width:176px;box-sizing:border-box;margin:0}
+.fldock-c.idle,.fldock-c.duck{transition:transform .28s ease,opacity .28s ease}
 .fldock.want{background:linear-gradient(180deg,#fff8d8 0%,#ffd56a 100%);border-color:#fff;
- box-shadow:0 0 0 4px #ffd23f,0 6px 0 #e09a10,0 0 22px #ffd23faa;animation:fldockbounce 1.15s ease-in-out infinite}
-@keyframes fldockbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-.fldie-wrap{position:relative;width:124px;height:124px;display:flex;align-items:center;justify-content:center;perspective:520px;overflow:visible}
+ box-shadow:0 0 0 4px #ffd23f,0 6px 0 #e09a10,0 0 24px #ffd23faa;animation:fldockbounce 1.15s ease-in-out infinite}
+.fldock-c.idle{opacity:.42;transform:translate(-50%,-50%) scale(.58);pointer-events:none;z-index:3;
+ animation:none;box-shadow:0 3px 0 rgba(120,80,30,.12);background:linear-gradient(180deg,#fffef8cc,#fff3d6cc)}
+.fldock-c.idle .flroll,.fldock-c.idle .flhint{display:none}
+.fldock-c.duck{opacity:.12;transform:translate(-50%,-50%) scale(.4);pointer-events:none;z-index:3;animation:none}
+.fldock-c.over{z-index:12;opacity:1;transform:translate(-50%,-50%);pointer-events:auto}
+@keyframes fldockbounce{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,calc(-50% - 8px))}}
+.fldie-wrap{position:relative;width:96px;height:96px;display:flex;align-items:center;justify-content:center;perspective:520px;overflow:visible}
 .fldie-wrap::before{content:'';position:absolute;left:50%;bottom:2px;transform:translateX(-50%);width:78px;height:20px;border-radius:50%;
  background:radial-gradient(ellipse,#ffd23fcc,#ff9a4044 55%,transparent 70%);box-shadow:0 0 18px #ffd23faa;z-index:0}
 .fldie-wrap.want::before{width:96px;height:26px;animation:fldieglow .7s ease-in-out infinite}
 .fldie-wrap.rolling::before{width:110px;height:30px;animation:fldieglow .35s ease-in-out infinite}
 @keyframes fldieglow{50%{opacity:.55;transform:translateX(-50%) scaleX(1.18)}}
-.fldie{position:relative;z-index:1;width:104px;height:104px;cursor:pointer;filter:drop-shadow(0 8px 6px rgba(0,0,0,.35));transform-style:preserve-3d}
-.fldie.rolling{width:118px;height:118px;z-index:5}
+.fldie{position:relative;z-index:1;width:82px;height:82px;cursor:pointer;filter:drop-shadow(0 8px 6px rgba(0,0,0,.35));transform-style:preserve-3d}
+.fldie.rolling{width:96px;height:96px;z-index:5}
 .fldie.pulse{animation:dieidle 1.6s ease-in-out infinite}
 .fldie svg,.fldie .die{width:100%;height:100%}
 .fldie .ctdw{width:100%;height:100%;transform-style:preserve-3d}
@@ -1697,11 +1707,11 @@ html.gq-std .fldie .die.roll,html.gq-std .fldie .die.flyroll,html.gq-eco .fldie 
  .gm-fly .fldie .die.flyroll,.gm-fly .fldie .die.roll{animation:fltumble-eco .5s linear infinite!important}
  .fltok .flglow,.seatbar.need,.tkseat.wait,.fldock.want,.fldie.pulse,.fltok.poked,.fltok.poked-mad{animation:none}
 }
-.flhint{font-size:13px;font-weight:900;text-align:center;line-height:1.25;color:#5a3ea0;min-height:2.2em}
-.fldock .btn.big,.fldock .btn.flroll{min-height:56px;font-size:22px;padding:0 12px;width:100%;max-width:none;letter-spacing:.04em}
+.flhint{font-size:12px;font-weight:900;text-align:center;line-height:1.2;color:#5a3ea0;min-height:0}
+.fldock .btn.big,.fldock .btn.flroll{min-height:44px;font-size:18px;padding:0 10px;width:100%;max-width:none;letter-spacing:.04em}
 .gq-eco .fldie.pulse,.gq-eco .fldock.want,.gq-eco .fldie-wrap.want::before{animation:none}
 @media (prefers-reduced-motion:reduce){.fldock.want,.fldie.pulse,.fldie-wrap.want::before{animation:none}}
-@media (max-width:700px){.flpc .tkm.av{width:56px!important;height:56px!important}.fldie-wrap{width:96px;height:96px}.fldie{width:80px;height:80px}.fldie.rolling{width:90px;height:90px}.fldock .btn.big{min-height:48px;font-size:18px}}
+@media (max-width:700px){.flpc .tkm.av{width:56px!important;height:56px!important}.fldie-wrap{width:84px;height:84px}.fldie{width:72px;height:72px}.fldie.rolling{width:82px;height:82px}.fldock .btn.big{min-height:40px;font-size:16px}.fldock-c{width:28%;min-width:120px}.flhplate .tkm.hav{width:44px!important;height:44px!important}}
 
 /* Always-visible fly rule tip — under sidebar, kid glance */
 .flruletip{flex:none;margin:2px 4px 4px;padding:7px 8px;border-radius:12px;font-size:11px;font-weight:800;line-height:1.35;color:#5a3ea0;text-align:center;
@@ -4024,7 +4034,7 @@ var FLY=(function(){
 var E=window.FLYE,Store=GC.Store,Sound=GC.Sound,UI=GC.UI,Dice=GC.Dice,Select=GC.Select;
 var TKN=E.TKN,TKC=['#2f80ed','#f2b705','#e53935','#ff4fa3','#1fae5b','#8e44ec'];
 var root,S,busy=false,selv=null,timers=[],ro=null,lastDie=6,cancel=null,fxLayer=null,plateURL=null,bubs={},faceMood={};
-var pokeN={},pokeAt={},pokeLock=0,pokeBurst=0,pokeBurstT=0;
+var pokeN={},pokeAt={},pokeLock=0,pokeBurst=0,pokeBurstT=0,duckUntil=0;
 function $q(s){return root.querySelector(s)}
 function later(f,ms){var t=setTimeout(f,ms);timers.push(t);return t}
 function esc(s){return UI.esc(s)}
@@ -4145,7 +4155,7 @@ function renderHangars(){
   var seat=+el.getAttribute('data-p'),p=playerAtSeat(seat);
   el.style.setProperty('--bc',E.COLORS[seat]);
   if(!p){el.innerHTML='<span class="flcname">'+E.CNAMES[seat]+'</span>';return}
-  el.innerHTML='<div class="flhplate"><span class="flhav">'+tkAv(p.tok,32,'hav',persistMood(p))+'</span><b class="flhnm">'+esc(p.name)+'</b></div>';
+  el.innerHTML='<div class="flhplate"><span class="flhav">'+tkAv(p.tok,58,'hav',persistMood(p))+'</span><b class="flhnm">'+esc(p.name)+'</b></div>';
  });
 }
 function showTokBubble(el,txt){
@@ -4396,7 +4406,7 @@ function buildIslandBoard(){
   var r=F.hangarPct(pid);
   h+='<div class="flbase" data-p="'+pid+'" style="left:'+r.x+'%;top:'+r.y+'%;width:'+r.w+'%;height:'+r.h+'%;--bc:'+E.COLORS[pid]+'"><span>'+E.CNAMES[pid]+'</span></div>';
  }
- h+='<div id="fltok"></div><div class="flfx" aria-hidden="true"></div>';
+ h+='<div id="fltok"></div><div class="fldock fldock-c" id="fldock"></div><div class="flfx" aria-hidden="true"></div>';
  b.innerHTML=h;fxLayer=$q('.flfx');
 }
 function buildBoard(){
@@ -4551,6 +4561,7 @@ function buildBoard(){
  });
  h+='<div class="flfin" aria-label="终点">'+(root&&root.classList.contains('fl-print')?'':'<b>终</b>')+'</div>';
  h+='<div id="fltok"></div>';
+ h+='<div class="fldock fldock-c" id="fldock"></div>';
  h+='<div class="flfx" aria-hidden="true"></div>';
  b.innerHTML=h;fxLayer=$q('.flfx');
 }
@@ -4625,16 +4636,22 @@ function renderPanel(){
  el.innerHTML=h;
  restoreBubs();
 }
+function duckDock(ms){
+ duckUntil=Date.now()+(ms||1100);
+ var el=$q('#fldock');if(el)el.classList.add('duck');
+ later(function(){if(Date.now()>=duckUntil-40)try{renderDock()}catch(e){}},(ms||1100)+40);
+}
 function renderDock(){
  var el=$q('#fldock');if(!el)return;
  var ready=S.phase==='play'&&S.roll==null&&!busy;
+ var duck=Date.now()<duckUntil;
  var hint='';
  if(S.phase==='over'){var w=S.players[S.winner];hint='🏆 '+esc(w.name)+' 获胜!';}
  else if(S.phase!=='play'){hint='选角色开始';}
  else if(S.roll!=null){hint='掷出 <b>'+S.roll+'</b> · 点发光飞机'+(S.roll===6?' · 可起飞':'')}
  else if(S.again){hint='再掷一次!'}
  else{hint='轮到 <b style="color:'+TKC[E.cur(S).tok]+'">'+esc(E.cur(S).name)+'</b>'}
- el.className='fldock'+(ready?' want':'')+(S.phase==='over'?' over':'');
+ el.className='fldock fldock-c'+(ready?' want':' idle')+(duck?' duck':'')+(S.phase==='over'?' over':'');
  el.innerHTML='<div class="fldie-wrap'+(ready?' want':'')+'"><div class="fldie'+(ready?' pulse':'')+'" id="flDie" role="button" aria-label="骰子">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
   (S.phase==='play'?'<button class="btn big flroll" id="flRoll"'+(ready?'':' disabled')+'>🎲 掷骰子</button>':'')+
   (S.phase==='over'?'<button class="btn pri" id="flAgain">再来一局</button>':'')+
@@ -4664,6 +4681,7 @@ function playMoveFx(r){
    var dash=root&&root.querySelector('#fldash'+dashSeat);
    if(dash){dash.classList.add('lit');later(function(){try{dash.classList.remove('lit')}catch(err){}},1400)}
    UI.toast('✈️ 虚线横飞 +12!',1400,'star');
+   duckDock(1400);
   }else if(e.k==='capture'){
    var pos=ringPos(e.at!=null?e.at:0);
    sparkAt(pos.x,pos.y,'boom',12);
@@ -4788,7 +4806,7 @@ return{
   root=r;busy=false;selv=null;timers=[];fxLayer=null;load();
   /* v14：默认 3D 卡通海岛棋盘；setBoardStyle('print'|'plastic') 可切回旧外观 */
   r.classList.add('gm-fly',window.FLY3D?'fl-island':'fl-print');
-  r.innerHTML='<div class="fllay"><div class="flbw"><div id="flb" class="flb"></div></div><div class="flside"><div class="flp" id="flp"></div><div class="flruletip" title="虚线横飞规则"><b>本色✈飞机格</b><br>= 沿虚线横飞+12<br>★星星格安全 · 同色格跳跃<br><span>掷6起飞 · 起飞不触发跳/飞</span></div><div class="fldock" id="fldock"></div></div></div>';
+  r.innerHTML='<div class="fllay"><div class="flbw"><div id="flb" class="flb"></div></div><div class="flside"><div class="flp" id="flp"></div><div class="flruletip" title="虚线横飞规则"><b>本色✈飞机格</b><br>= 沿虚线横飞+12<br>★星星格安全 · 同色格跳跃<br><span>掷6起飞 · 起飞不触发跳/飞</span></div></div></div>';
   var nr=ctx.nav('list','规则',{id:'flRules'}),nn=ctx.nav('refresh','新局',{id:'flNew'}),ne=ctx.nav('star','省电',{id:'flEco'});
   ctx.slot.appendChild(nr);ctx.slot.appendChild(nn);ctx.slot.appendChild(ne);
   nr.onclick=function(){Sound.tap();rulesModal()};
@@ -4801,7 +4819,7 @@ return{
   if(window.ResizeObserver){ro=new ResizeObserver(function(){fit()});ro.observe(root)}else window.addEventListener('resize',fit);
   fit();
  },
-  unmount:function(){timers.forEach(clearTimeout);timers=[];bubs={};faceMood={};pokeN={};pokeAt={};if(cancel)cancel();if(ro)ro.disconnect();ro=null;if(S)save();if(selv){try{selv.remove()}catch(e){}}selv=null;document.documentElement.classList.remove('fl-land');fxLayer=null;if(plateURL){try{URL.revokeObjectURL(plateURL)}catch(e){}plateURL=null}root=null},
+  unmount:function(){timers.forEach(clearTimeout);timers=[];bubs={};faceMood={};pokeN={};pokeAt={};duckUntil=0;if(cancel)cancel();if(ro)ro.disconnect();ro=null;if(S)save();if(selv){try{selv.remove()}catch(e){}}selv=null;document.documentElement.classList.remove('fl-land');fxLayer=null;if(plateURL){try{URL.revokeObjectURL(plateURL)}catch(e){}plateURL=null}root=null},
  api:api
 };
 })();
