@@ -296,7 +296,8 @@ var FLY={
  pokeAngry:['哼!战神要跺厨房了!','再戳就罚你回炉排队!']
 }
 };
-var FLY_EVENTS=['select','roll6','lowRoll','takeoff','jump','fly12','eat','eaten','enterHome','finishPlane','win','bounce','poke','poke2','pokeAngry'];
+Object.keys(TURN).forEach(function(k){if(FLY[k])FLY[k].turnStart=TURN[k].slice()});
+var FLY_EVENTS=['select','roll6','lowRoll','takeoff','jump','fly12','eat','eaten','enterHome','finishPlane','win','bounce','poke','poke2','pokeAngry','turnStart'];
 function pick(tok,type,rnd){var a=(L[tok]||L[0])[type];if(!a||!a.length)return '';var r=rnd?rnd(a.length):Math.floor(Math.random()*a.length);return a[r]}
 function pickFly(tok,type,rnd){var a=(FLY[tok]||FLY[0])[type];if(!a||!a.length)return '';var r=rnd?rnd(a.length):Math.floor(Math.random()*a.length);return a[r]}
 var API={LINES:L,EVENTS:EVENTS,FLY:FLY,FLY_EVENTS:FLY_EVENTS,pick:pick,pickFly:pickFly};
