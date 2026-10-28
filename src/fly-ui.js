@@ -617,15 +617,13 @@ function renderDock(){
  var duck=Date.now()<duckUntil;
  var hint='';
  if(S.phase==='over'){var w=S.players[S.winner];hint='🏆 '+esc(w.name)+' 获胜!';}
- else if(S.phase!=='play'){hint='选角色开始';}
- else if(S.roll!=null){hint='掷出 <b>'+S.roll+'</b> · 点发光飞机'+(S.roll===6?' · 可起飞':'')}
- else if(S.again){hint='再掷一次!'}
- else{hint='轮到 <b style="color:'+TKC[E.cur(S).tok]+'">'+esc(E.cur(S).name)+'</b>'}
+ else if(ready&&S.again){hint='再掷一次!'}
+ else if(ready){hint='轮到 <b style="color:'+TKC[E.cur(S).tok]+'">'+esc(E.cur(S).name)+'</b>'}
  el.className='fldock fldock-c'+(ready?' want':' idle')+(duck?' duck':'')+(S.phase==='over'?' over':'');
- el.innerHTML='<div class="fldie-wrap'+(ready?' want':'')+'"><div class="fldie'+(ready?' pulse':'')+'" id="flDie" role="button" aria-label="骰子">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
-  (S.phase==='play'?'<button class="btn big flroll" id="flRoll"'+(ready?'':' disabled')+'>🎲 掷骰子</button>':'')+
+ el.innerHTML='<div class="fldie-wrap'+(ready?' want':'')+'"><div class="fldie'+(ready?' pulse':'')+'" id="flDie" role="button" aria-label="掷骰子">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
+  (ready?'<button class="btn big flroll" id="flRoll">🎲 掷骰子</button>':'')+
   (S.phase==='over'?'<button class="btn pri" id="flAgain">再来一局</button>':'')+
-  '<div class="flhint" id="flHint">'+hint+'</div>';
+  (hint?'<div class="flhint" id="flHint">'+hint+'</div>':'');
  var d=$q('#flDie'),r=$q('#flRoll'),a=$q('#flAgain');
  if(d)d.onclick=function(){if(S.phase==='play'&&S.roll==null&&!busy)doRoll()};
  if(r)r.onclick=function(){doRoll()};
@@ -676,6 +674,7 @@ function doRoll(forced){
   var light=eco()||(UI.reduce&&UI.reduce());
   die.classList.add('rolling');
   var wrap=die.closest('.fldie-wrap');if(wrap)wrap.classList.add('rolling');
+  var dock=$q('#fldock');if(dock)dock.classList.add('rolling');
   cancel=Dice.roll(wrapDie(die),[v],function(){
    var r=E.roll(S,v);
    busy=false;save();
