@@ -1,14 +1,15 @@
 /* ======================= 飞行棋 Phase-1b 棋盘 UI · 经典玩法+趣味动画 ======================= */
 var FLY=(function(){
 'use strict';
-var E=window.FLYE,Store=GC.Store,Sound=GC.Sound,UI=GC.UI,Dice=GC.Dice,Select=GC.Select;
+var E=window.FLYE,Store=GC.Store,Sound=GC.Sound,UI=GC.UI,Dice=GC.Dice,Select=GC.Select,LN=window.CTE_LINES;
 var TKN=E.TKN,TKC=['#2f80ed','#f2b705','#e53935','#ff4fa3','#1fae5b','#8e44ec'];
-var root,S,busy=false,selv=null,timers=[],ro=null,lastDie=6,cancel=null,fxLayer=null,plateURL=null;
+var root,S,busy=false,selv=null,timers=[],ro=null,lastDie=6,cancel=null,fxLayer=null,plateURL=null,bubs={},faceMood={};
 function $q(s){return root.querySelector(s)}
 function later(f,ms){var t=setTimeout(f,ms);timers.push(t);return t}
 function esc(s){return UI.esc(s)}
-function avSrc(tok){var A=window.CT_AV;return(A&&A[tok])?A[tok]:null}
-function tkAv(tok,sz,cls){var src=avSrc(tok),inn=src?'<img class="tkimg" src="'+src+'" alt="" draggable="false" decoding="async">':'<svg viewBox="-24 -24 48 48"><use href="#tk'+tok+'"/></svg>';return '<span class="tkm '+(cls||'')+'" style="width:'+sz+'px;height:'+sz+'px">'+inn+'</span>'}
+function avSrc(tok,mood){var M=window.CT_AV_MOOD,A=window.CT_AV,k=mood==='proud'?'happy':mood;if(k&&M&&M[k]&&M[k][tok])return M[k][tok];if(A&&A[tok])return A[tok];return null}
+function persistMood(p){if(!p)return null;if(S&&S.winner===p.id)return 'proud';var m=faceMood[p.id];if(m&&Date.now()<m.until)return m.kind;return null}
+function tkAv(tok,sz,cls,mood){var src=avSrc(tok,mood),inn=src?'<img class="tkimg" src="'+src+'" alt="" draggable="false" decoding="async">':'<svg viewBox="-24 -24 48 48"><use href="#tk'+tok+'"/></svg>';return '<span class="tkm '+(cls||'')+'"'+(mood?' data-mood="'+mood+'"':'')+' style="width:'+sz+'px;height:'+sz+'px">'+inn+'</span>'}
 function eco(){try{return GC.Gfx&&GC.Gfx.mode()==='eco'}catch(e){return false}}
 function save(){if(S)S.sv=Date.now();Store.set('fly',S)}
 function load(){var s=Store.get('fly',null);if(s&&s.players&&s.players.length){S=s;if(!S.phase)S.phase='play'}else{S=E.newState()}}
@@ -55,6 +56,70 @@ function trailAlong(pts,color){
  pts.forEach(function(p,i){
   later(function(){sparkAt(p.x,p.y,'trail',3)},i*40);
  });
+}
+
+/* ---- 大富翁角色反应: 台词 + 表情贴图 + 立绘/特效（复用 GC.Mood / Voice / CTE_LINES） ---- */
+function P(id){return S&&S.players?S.players[id]:null}
+function fxOn(){return !eco()&&!(UI.reduce&&UI.reduce())}
+function moodTarget(pid){
+ var c=root&&root.querySelector('.flpc[data-pid="'+pid+'"] .av');
+ if(c&&c.getBoundingClientRect().width)return c;
+ var t=root&&root.querySelector('.fltok.go[data-p="'+pid+'"],.fltok[data-p="'+pid+'"]');
+ return t&&t.getBoundingClientRect().width?t:null;
+}
+function flashMoodFace(pid,kind){
+ var p=P(pid);if(!p)return;var src=avSrc(p.tok,kind);if(!src)return;
+ faceMood[pid]={kind:kind==='proud'?'happy':kind,until:Date.now()+2200};
+ var img=root&&root.querySelector('.flpc[data-pid="'+pid+'"] img.tkimg');
+ if(img){img.setAttribute('src',src);img.setAttribute('data-flash-mood',kind);
+  later(function(){if(img.getAttribute('data-flash-mood')!==kind)return;var back=avSrc(p.tok,persistMood(p));if(back)img.setAttribute('src',back);img.removeAttribute('data-flash-mood')},2200)}
+}
+function mood(pid,kind,o){
+ if(!GC.Mood)return;var p=P(pid);if(!p||!kind)return;
+ try{flashMoodFace(pid,kind)}catch(e){}
+ var t=moodTarget(pid);
+ try{GC.Mood.play(p.tok,kind,t||document.body,Object.assign({key:'fl'+kind+pid},o||{}))}catch(x){}
+}
+function showBubble(p,txt,type){
+ if(!p||!txt||!root)return;
+ bubs[p.id]={txt:txt,type:type,until:Date.now()+3200};
+ var pc=root.querySelector('.flpc[data-pid="'+p.id+'"]');
+ if(!pc)return;
+ var ob=pc.querySelector('.pbub');if(ob)ob.remove();
+ var b=document.createElement('div');b.className='pbub t-'+type;b.textContent=txt;pc.appendChild(b);
+ pc.classList.remove('shake');void pc.offsetWidth;pc.classList.add('shake');
+ later(function(){if(!bubs[p.id]||bubs[p.id].txt!==txt)return;b.classList.add('out');later(function(){try{b.remove()}catch(e){}},200);delete bubs[p.id]},2800);
+}
+function restoreBubs(){
+ Object.keys(bubs).forEach(function(id){
+  var b=bubs[id];if(!b||Date.now()>b.until){delete bubs[id];return}
+  var pc=root&&root.querySelector('.flpc[data-pid="'+id+'"]');if(!pc||pc.querySelector('.pbub'))return;
+  var d=document.createElement('div');d.className='pbub t-'+b.type;d.textContent=b.txt;pc.appendChild(d);
+ });
+}
+function sayReact(pid,type,o){
+ o=o||{};var p=P(pid);if(!p||!type)return '';
+ var txt='';
+ try{txt=(LN&&LN.pick)?LN.pick(p.tok,type,function(n){return Dice.int(n)}):''}catch(e){}
+ if(txt){showBubble(p,txt,type);try{GC.Voice.say(txt,p.tok,{queue:1,prot:1})}catch(x){}}
+ if(o.mood)mood(pid,o.mood,{tiny:!!o.tiny,noFs:!!o.tiny,key:o.key||('fl'+type+pid)});
+ return txt;
+}
+function reactMove(r,before){
+ if(!r||!r.ok)return;
+ var h=S.hist&&S.hist[S.hist.length-1],pid=h?h.pid:(S.turn||0);
+ var ev=r.ev||[],cap=null,k={};
+ ev.forEach(function(e){k[e.k]=e;if(e.k==='capture')cap=e});
+ ev.forEach(function(e){if(e.k==='capture'&&e.victim!=null)sayReact(e.victim,'eaten',{mood:'sad',tiny:1,key:'fleaten'+e.victim})});
+ if(k.win){sayReact(pid,'win',{mood:'proud'});return}
+ if(cap||(r.sent&&r.sent.length)){sayReact(pid,'eat',{mood:'angry'});return}
+ if(k.finish){sayReact(pid,'finishPlane',{mood:'proud'});return}
+ if(k.fly){sayReact(pid,'fly12',{mood:'proud',tiny:1});return}
+ if(k.jump){sayReact(pid,'jump',{mood:'happy',tiny:1});return}
+ if(k.takeoff){sayReact(pid,'takeoff',{mood:'happy',tiny:1});return}
+ if(k.triple6){sayReact(pid,'bounce',{mood:'sad'});return}
+ var entered=r.path&&r.path.some(function(s){return s.where==='home'})&&before&&before.where!=='home'&&before.where!=='done';
+ if(entered)sayReact(pid,'enterHome',{mood:'happy',tiny:1});
 }
 
 
@@ -472,11 +537,12 @@ function renderPanel(){
   var cur=S.phase==='play'&&p.id===S.turn,done=p.planes.filter(function(x){return x.where==='done'}).length;
   var fly=p.planes.filter(function(x){return x.where==='track'||x.where==='home'}).length;
   h+='<div class="pc av1 flpc'+(cur?' cur':'')+(S.winner===p.id?' win':'')+'" data-pid="'+p.id+'" style="--pc:'+TKC[p.tok]+'">'+
-   '<div class="pcm">'+tkAv(p.tok,72,'av')+'<div class="pci"><div class="pn">'+esc(p.name)+(cur?'<em>▶</em>':'')+'</div>'+
+   '<div class="pcm">'+tkAv(p.tok,72,'av',persistMood(p))+'<div class="pci"><div class="pn">'+esc(p.name)+(cur?'<em>▶</em>':'')+'</div>'+
    '<div class="pcb"><span class="np" title="飞机">✈️'+fly+'/4</span><span class="nw">🏁'+done+'</span>'+
    '<span class="bd" style="background:'+p.color+'" title="'+p.cname+'色">'+p.cname+'</span></div></div></div></div>';
  });
  el.innerHTML=h;
+ restoreBubs();
 }
 function renderDock(){
  var el=$q('#fldock');if(!el)return;
@@ -540,9 +606,11 @@ function doRoll(forced){
    if(!r.ok){UI.toast(r.err||'不能掷',1400,'warn');render();return}
    if(r.v===6){Sound.seq([[523,.08],[659,.08],[784,.15]])}
    else Sound.beep(300,.1);
-   if(r.triple6){UI.toast('三连6!一架飞机回基地',1600,'warn');render();return}
+   if(r.triple6){UI.toast('三连6!一架飞机回基地',1600,'warn');render();sayReact((S.turn-1+S.players.length)%S.players.length,'bounce',{mood:'sad'});return}
    if(r.passed){UI.toast(r.v===6?'没飞机可飞,再掷':'没飞机可飞,换下一位',1400,'info');render();return}
    S.pending={mov:r.mov};render();
+   if(r.v===6)sayReact(S.turn,'roll6',{mood:'happy',tiny:1});
+   else if(r.v===1)sayReact(S.turn,'lowRoll',{mood:'worried',tiny:1});
    if(r.mov.length===1){later(function(){pickPlane(r.mov[0])},280)}
   });
  }else{
@@ -574,6 +642,7 @@ function pickPlane(plId){
  if(S.phase==='over'){var w=S.players[S.winner];try{GC.Intro.banner(w.tok,w.name,'获胜啦!')}catch(e){}UI.toast('🏆 '+w.name+' 获胜!',2500,'star')}
  else if(S.again)UI.toast('再掷一次!',1000,'info');
  render();
+ reactMove(r,before);
 }
 function rulesModal(){
  UI.modal('<h2>飞行棋规则</h2><p style="text-align:left;line-height:1.5">'+
@@ -640,7 +709,7 @@ return{
   if(window.ResizeObserver){ro=new ResizeObserver(function(){fit()});ro.observe(root)}else window.addEventListener('resize',fit);
   fit();
  },
- unmount:function(){timers.forEach(clearTimeout);timers=[];if(cancel)cancel();if(ro)ro.disconnect();ro=null;if(S)save();if(selv){try{selv.remove()}catch(e){}}selv=null;document.documentElement.classList.remove('fl-land');fxLayer=null;if(plateURL){try{URL.revokeObjectURL(plateURL)}catch(e){}plateURL=null}root=null},
+ unmount:function(){timers.forEach(clearTimeout);timers=[];bubs={};faceMood={};if(cancel)cancel();if(ro)ro.disconnect();ro=null;if(S)save();if(selv){try{selv.remove()}catch(e){}}selv=null;document.documentElement.classList.remove('fl-land');fxLayer=null;if(plateURL){try{URL.revokeObjectURL(plateURL)}catch(e){}plateURL=null}root=null},
  api:api
 };
 })();
