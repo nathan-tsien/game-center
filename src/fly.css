@@ -214,8 +214,8 @@
 .fldie{position:relative;z-index:1;width:50px;height:50px;cursor:pointer;filter:drop-shadow(0 6px 5px rgba(0,0,0,.35));transform-style:preserve-3d}
 .fldock-c.want .fldie{width:56px;height:56px;
  filter:drop-shadow(0 6px 5px rgba(0,0,0,.35)) drop-shadow(0 0 12px #ffd23fcc)}
-.fldie.rolling{width:84px;height:84px;z-index:5}
-.fldie-wrap.rolling{width:92px;height:92px}
+.fldie.rolling,.fldock-c.want .fldie.rolling{width:84px;height:84px;z-index:5}
+.fldie-wrap.rolling,.fldock-c.want .fldie-wrap.rolling{width:92px;height:92px}
 .fldie.pulse{animation:dieidle 1.6s ease-in-out infinite}
 .fldie svg,.fldie .die{width:100%;height:100%}
 .fldie .ctdw{width:100%;height:100%;transform-style:preserve-3d}
