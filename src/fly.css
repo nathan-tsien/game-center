@@ -3,9 +3,9 @@
 .fllay{position:absolute;inset:0;display:flex;flex-direction:column;gap:4px;padding:4px}
 .gm-fly.land .fllay{flex-direction:row;align-items:stretch;gap:8px;padding:4px 6px}
 .flbw{flex:1;min-width:0;min-height:0;display:flex;align-items:center;justify-content:center}
-.gm-fly.land .flbw{flex:0 0 82%;max-width:82%}
+.gm-fly.land .flbw{flex:0 0 78%;max-width:78%}
 .flside{flex:none;display:flex;flex-direction:column;gap:6px;min-height:0}
-.gm-fly.land .flside{flex:0 0 18%;width:18%;max-width:200px;height:100%}
+.gm-fly.land .flside{flex:0 0 22%;width:22%;max-width:248px;height:100%}
 
 /* Square classic board — wood trim + soft clay plate */
 .flb{position:relative;width:min(100%,100%);height:min(100%,100%);aspect-ratio:1/1;
@@ -97,11 +97,21 @@
 .flhome .flmark{width:58%;height:58%;background:radial-gradient(circle at 40% 35%,#fff 0%,#f5f0e8 70%,#e8e0d4 100%);
  box-shadow:inset 0 2px 4px rgba(0,0,0,.18),inset 0 -1px 0 #fff8,0 1px 0 #fff6}
 
-/* Hangar label overlay */
-.flbase{position:absolute;border-radius:14px;background:transparent;border:0;
- z-index:1;display:flex;align-items:flex-start;justify-content:center;padding-top:1.8%;pointer-events:none}
-.flbase span{font-size:10px;font-weight:900;color:#fff;background:var(--bc);padding:2px 8px;border-radius:9px;z-index:2;
+/* Hangar label overlay — 角色铭牌贴在机库外角，棋子仍是飞机 */
+.flbase{position:absolute;border-radius:14px;background:transparent;border:0;overflow:visible;
+ z-index:5;display:flex;align-items:flex-start;justify-content:center;padding-top:1.8%;pointer-events:none}
+.flbase .flcname{font-size:10px;font-weight:900;color:#fff;background:var(--bc);padding:2px 8px;border-radius:9px;z-index:2;
  box-shadow:0 2px 0 rgba(0,0,0,.22),inset 0 1px 0 #fff6;opacity:.95;letter-spacing:.04em}
+.flhplate{position:absolute;z-index:6;display:flex;align-items:center;gap:4px;
+ background:rgba(255,255,255,.95);border:2.5px solid var(--bc);border-radius:16px;padding:2px 8px 2px 2px;
+ box-shadow:0 3px 0 rgba(0,0,0,.2),0 6px 10px rgba(0,40,70,.18);max-width:96%;pointer-events:none}
+.flhplate .tkm.hav{width:32px!important;height:32px!important;flex:none;border-radius:50%;overflow:hidden;
+ box-shadow:0 0 0 2px #fff}
+.flhplate .flhnm{font-size:11px;font-weight:900;color:#3a2a5c;line-height:1.1;white-space:nowrap;letter-spacing:.02em}
+.flbase[data-p="1"] .flhplate{top:-6%;left:-4%}
+.flbase[data-p="2"] .flhplate{top:-6%;right:-4%;left:auto;flex-direction:row-reverse;padding:2px 2px 2px 8px}
+.flbase[data-p="0"] .flhplate{top:auto;bottom:-6%;left:-4%}
+.flbase[data-p="3"] .flhplate{top:auto;bottom:-6%;right:-4%;left:auto;flex-direction:row-reverse;padding:2px 2px 2px 8px}
 
 /* Center finish — 极小中心点标，四色三角对顶清晰可见 */
 .flfin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;z-index:4;pointer-events:none;width:auto}
@@ -148,6 +158,16 @@
 @keyframes flhalopulse{0%,100%{transform:translate(-50%,-50%) scale(.88);opacity:.82}50%{transform:translate(-50%,-50%) scale(1.12);opacity:1}}
 .gq-eco .fltok.go,.gq-eco .fltok.takeoff-lit{animation:none}
 .gq-eco .fltok .flglow{animation:none;opacity:1;transform:translate(-50%,-50%) scale(1)}
+.fltok.poked{animation:flpoke .38s ease-out}
+.fltok.poked-mad{animation:flpokemad .46s ease-in-out}
+@keyframes flpoke{0%{transform:translate(-50%,-50%) scale(1)}40%{transform:translate(-50%,-60%) scale(1.14) rotate(-8deg)}100%{transform:translate(-50%,-50%)}}
+@keyframes flpokemad{0%,100%{transform:translate(-50%,-50%)}30%{transform:translate(-56%,-50%) rotate(-12deg)}70%{transform:translate(-44%,-50%) rotate(12deg)}}
+.fltbub{position:absolute;left:50%;bottom:110%;transform:translateX(-50%);z-index:12;pointer-events:none;
+ background:#fff;color:#3a2a5c;border:2.5px solid var(--pc,#ff6fae);border-radius:12px;padding:3px 8px;
+ font-size:11px;font-weight:900;line-height:1.2;white-space:nowrap;max-width:150px;overflow:hidden;text-overflow:ellipsis;
+ box-shadow:0 3px 0 rgba(0,0,0,.16)}
+.fltbub::after{content:'';position:absolute;left:50%;top:100%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--pc,#ff6fae)}
+.gq-eco .fltok.poked,.gq-eco .fltok.poked-mad{animation:none}
 
 .flfx{position:absolute;inset:0;pointer-events:none;z-index:9;overflow:hidden}
 .flsp{position:absolute;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:hsl(var(--h,50) 90% 60%);box-shadow:0 0 6px hsl(var(--h,50) 90% 70%);
@@ -165,15 +185,20 @@
 .flpc .pbub{font-size:11px;padding:4px 6px;bottom:4px;z-index:6}
 .gm-fly.fl-island .flpc .pbub{background:#fffef8}
 .flpc .bd{display:inline-block;color:#fff;font-size:11px;font-weight:900;padding:1px 6px;border-radius:8px}
-.fldock{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 4px 8px}
-.fldock{overflow:visible}
-.fldie-wrap{position:relative;width:108px;height:108px;display:flex;align-items:center;justify-content:center;perspective:520px;overflow:visible}
-.fldie-wrap::before{content:'';position:absolute;left:50%;bottom:2px;transform:translateX(-50%);width:70px;height:18px;border-radius:50%;
+.fldock{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 8px 10px;margin:2px 2px 4px;
+ border-radius:22px;background:linear-gradient(180deg,#fffef8 0%,#fff3d6 100%);border:3px solid #fff;
+ box-shadow:0 5px 0 rgba(120,80,30,.14),0 8px 14px rgba(0,0,0,.1);overflow:visible}
+.fldock.want{background:linear-gradient(180deg,#fff8d8 0%,#ffd56a 100%);border-color:#fff;
+ box-shadow:0 0 0 4px #ffd23f,0 6px 0 #e09a10,0 0 22px #ffd23faa;animation:fldockbounce 1.15s ease-in-out infinite}
+@keyframes fldockbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.fldie-wrap{position:relative;width:124px;height:124px;display:flex;align-items:center;justify-content:center;perspective:520px;overflow:visible}
+.fldie-wrap::before{content:'';position:absolute;left:50%;bottom:2px;transform:translateX(-50%);width:78px;height:20px;border-radius:50%;
  background:radial-gradient(ellipse,#ffd23fcc,#ff9a4044 55%,transparent 70%);box-shadow:0 0 18px #ffd23faa;z-index:0}
-.fldie-wrap.rolling::before{width:96px;height:28px;animation:fldieglow .35s ease-in-out infinite}
+.fldie-wrap.want::before{width:96px;height:26px;animation:fldieglow .7s ease-in-out infinite}
+.fldie-wrap.rolling::before{width:110px;height:30px;animation:fldieglow .35s ease-in-out infinite}
 @keyframes fldieglow{50%{opacity:.55;transform:translateX(-50%) scaleX(1.18)}}
-.fldie{position:relative;z-index:1;width:78px;height:78px;cursor:pointer;filter:drop-shadow(0 8px 6px rgba(0,0,0,.35));transform-style:preserve-3d}
-.fldie.rolling{width:92px;height:92px;z-index:5}
+.fldie{position:relative;z-index:1;width:104px;height:104px;cursor:pointer;filter:drop-shadow(0 8px 6px rgba(0,0,0,.35));transform-style:preserve-3d}
+.fldie.rolling{width:118px;height:118px;z-index:5}
 .fldie.pulse{animation:dieidle 1.6s ease-in-out infinite}
 .fldie svg,.fldie .die{width:100%;height:100%}
 .fldie .ctdw{width:100%;height:100%;transform-style:preserve-3d}
@@ -205,12 +230,13 @@ html.gq-std .fldie .die.roll,html.gq-std .fldie .die.flyroll,html.gq-eco .fldie 
  animation-iteration-count:infinite!important}
 @media (prefers-reduced-motion:reduce){
  .gm-fly .fldie .die.flyroll,.gm-fly .fldie .die.roll{animation:fltumble-eco .5s linear infinite!important}
- .fltok .flglow,.seatbar.need,.tkseat.wait{animation:none}
+ .fltok .flglow,.seatbar.need,.tkseat.wait,.fldock.want,.fldie.pulse,.fltok.poked,.fltok.poked-mad{animation:none}
 }
-.flhint{font-size:13px;font-weight:900;text-align:center;line-height:1.25;color:#5a3ea0;min-height:2.4em}
-.fldock .btn.big{min-height:48px;font-size:18px;padding:0 14px;width:100%;max-width:none}
-.gq-eco .fldie.pulse{animation:none}
-@media (max-width:700px){.flpc .tkm.av{width:56px!important;height:56px!important}.fldie-wrap{width:84px;height:84px}.fldie{width:64px;height:64px}.fldie.rolling{width:74px;height:74px}}
+.flhint{font-size:13px;font-weight:900;text-align:center;line-height:1.25;color:#5a3ea0;min-height:2.2em}
+.fldock .btn.big,.fldock .btn.flroll{min-height:56px;font-size:22px;padding:0 12px;width:100%;max-width:none;letter-spacing:.04em}
+.gq-eco .fldie.pulse,.gq-eco .fldock.want,.gq-eco .fldie-wrap.want::before{animation:none}
+@media (prefers-reduced-motion:reduce){.fldock.want,.fldie.pulse,.fldie-wrap.want::before{animation:none}}
+@media (max-width:700px){.flpc .tkm.av{width:56px!important;height:56px!important}.fldie-wrap{width:96px;height:96px}.fldie{width:80px;height:80px}.fldie.rolling{width:90px;height:90px}.fldock .btn.big{min-height:48px;font-size:18px}}
 
 /* Always-visible fly rule tip — under sidebar, kid glance */
 .flruletip{flex:none;margin:2px 4px 4px;padding:7px 8px;border-radius:12px;font-size:11px;font-weight:800;line-height:1.35;color:#5a3ea0;text-align:center;
@@ -294,9 +320,10 @@ html.gq-std .fldie .die.roll,html.gq-std .fldie .die.flyroll,html.gq-eco .fldie 
 .gm-fly.fl-island .fl3d-plate{z-index:1}
 .gm-fly.fl-island .flc,.gm-fly.fl-island .flhome{background:transparent!important;border:0!important;box-shadow:none!important;outline:none!important;border-radius:24%;pointer-events:none}
 .gm-fly.fl-island .flc.entry.lit{box-shadow:0 0 0 3px #fff,0 0 0 6px #ffd23f,0 0 18px #ffd23f!important;animation:fllit 1s ease-in-out infinite}
-.gm-fly.fl-island .flbase{border-radius:9%}
+.gm-fly.fl-island .flbase{border-radius:9%;overflow:visible}
 .gm-fly.fl-island .flbase.lit{box-shadow:0 0 0 4px #fff,0 0 0 8px #ffd23f,0 0 26px #ffd23fcc;animation:fllit 1s ease-in-out infinite}
-.gm-fly.fl-island .flbase span{display:none}
+.gm-fly.fl-island .flbase .flcname{display:none}
+.gm-fly.fl-island .flb{overflow:visible}
 .gm-fly.fl-island .flfin{display:none}
 .gm-fly.fl-island .fl3d-dash{z-index:4}
 .gm-fly.fl-island .fl3d-dash .fldash-path{opacity:0;transition:opacity .25s}

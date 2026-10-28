@@ -4,6 +4,7 @@ var FLY=(function(){
 var E=window.FLYE,Store=GC.Store,Sound=GC.Sound,UI=GC.UI,Dice=GC.Dice,Select=GC.Select;
 var TKN=E.TKN,TKC=['#2f80ed','#f2b705','#e53935','#ff4fa3','#1fae5b','#8e44ec'];
 var root,S,busy=false,selv=null,timers=[],ro=null,lastDie=6,cancel=null,fxLayer=null,plateURL=null,bubs={},faceMood={};
+var pokeN={},pokeAt={},pokeLock=0,pokeBurst=0,pokeBurstT=0;
 function $q(s){return root.querySelector(s)}
 function later(f,ms){var t=setTimeout(f,ms);timers.push(t);return t}
 function esc(s){return UI.esc(s)}
@@ -110,8 +111,54 @@ function sayReact(pid,type,o){
  var txt='',LN=window.CTE_LINES;
  try{txt=(LN&&LN.pickFly)?LN.pickFly(p.tok,type,function(n){return Dice.int(n)}):''}catch(e){}
  if(txt){showBubble(p,txt,type);try{GC.Voice.say(txt,p.tok,{queue:1,prot:1})}catch(x){}}
- if(o.mood)mood(pid,o.mood,{tiny:!!o.tiny,noFs:!!o.tiny,key:o.key||('fl'+type+pid)});
+ if(o.mood)mood(pid,o.mood,{tiny:!!o.tiny,noFs:o.noFs!=null?!!o.noFs:!!o.tiny,key:o.key||('fl'+type+pid),plate:o.plate||txt||FLY_PLATE[o.mood]||''});
  return txt;
+}
+function playerAtSeat(seat){
+ if(!S||!S.players)return null;
+ var i,p=null;for(i=0;i<S.players.length;i++)if(seatOf(S.players[i])===seat)p=S.players[i];
+ return p;
+}
+function renderHangars(){
+ if(!root)return;
+ Array.prototype.forEach.call(root.querySelectorAll('.flbase'),function(el){
+  var seat=+el.getAttribute('data-p'),p=playerAtSeat(seat);
+  el.style.setProperty('--bc',E.COLORS[seat]);
+  if(!p){el.innerHTML='<span class="flcname">'+E.CNAMES[seat]+'</span>';return}
+  el.innerHTML='<div class="flhplate"><span class="flhav">'+tkAv(p.tok,32,'hav',persistMood(p))+'</span><b class="flhnm">'+esc(p.name)+'</b></div>';
+ });
+}
+function showTokBubble(el,txt){
+ if(!el||!txt)return;
+ var old=el.querySelector('.fltbub');if(old)old.remove();
+ var b=document.createElement('div');b.className='fltbub';b.textContent=txt;el.appendChild(b);
+ later(function(){try{b.remove()}catch(e){}},1800);
+}
+function pokePlane(pid,plId){
+ if(busy||!S||S.phase!=='play')return;
+ var now=Date.now();
+ if(now-pokeLock<420)return;
+ pokeLock=now;
+ if(now-pokeBurstT>2800){pokeBurst=0;pokeBurstT=now}
+ pokeBurst++;
+ if(pokeBurst>4)return;
+ var key=pid+'|'+plId;
+ if(!pokeAt[key]||now-pokeAt[key]>7000)pokeN[key]=0;
+ pokeAt[key]=now;
+ pokeN[key]=(pokeN[key]||0)+1;
+ var n=pokeN[key],p=P(pid);if(!p)return;
+ var type=n>=3?'pokeAngry':(n===2?'poke2':'poke');
+ var mk=n>=3?'angry':(n===2?'worried':'happy');
+ var heavy=n===3&&fxOn();
+ var tokEl=root&&root.querySelector('.fltok[data-p="'+pid+'"][data-pl="'+plId+'"]');
+ if(tokEl){
+  tokEl.classList.remove('poked','poked-mad');void tokEl.offsetWidth;
+  tokEl.classList.add(n>=3?'poked-mad':'poked');
+  later(function(){try{tokEl.classList.remove('poked','poked-mad')}catch(e){}},520);
+ }
+ Sound.tap();
+ var txt=sayReact(pid,type,{mood:mk,tiny:!heavy,noFs:!heavy,key:heavy?('flpokeA'+pid):('flpoke'+pid+n)});
+ showTokBubble(tokEl,txt||(n>=3?'哼!':'嘿!'));
 }
 function reactMove(r,before){
  if(!r||!r.ok)return;
@@ -527,8 +574,12 @@ function renderTokens(){
   });
  });
  el.innerHTML=h;
- Array.prototype.forEach.call(el.querySelectorAll('.fltok.go'),function(b){
-  b.onclick=function(){pickPlane(+b.getAttribute('data-pl'))};
+ Array.prototype.forEach.call(el.querySelectorAll('.fltok'),function(b){
+  b.onclick=function(){
+   var pid=+b.getAttribute('data-p'),plId=+b.getAttribute('data-pl');
+   var can=S.pending&&S.pending.mov&&S.turn===pid&&S.pending.mov.indexOf(plId)>=0;
+   if(can)pickPlane(plId);else pokePlane(pid,plId);
+  };
  });
  /* takeoff pads highlight — hangar/entry 按座位色，不是加入顺序 */
  var curSeat=S.players&&S.players[S.turn]?seatOf(S.players[S.turn]):-1;
@@ -556,16 +607,18 @@ function renderPanel(){
 }
 function renderDock(){
  var el=$q('#fldock');if(!el)return;
+ var ready=S.phase==='play'&&S.roll==null&&!busy;
  var hint='';
  if(S.phase==='over'){var w=S.players[S.winner];hint='🏆 '+esc(w.name)+' 获胜!';}
  else if(S.phase!=='play'){hint='选角色开始';}
  else if(S.roll!=null){hint='掷出 <b>'+S.roll+'</b> · 点发光飞机'+(S.roll===6?' · 可起飞':'')}
  else if(S.again){hint='再掷一次!'}
  else{hint='轮到 <b style="color:'+TKC[E.cur(S).tok]+'">'+esc(E.cur(S).name)+'</b>'}
- el.innerHTML='<div class="fldie-wrap"><div class="fldie'+(S.roll==null&&S.phase==='play'?' pulse':'')+'" id="flDie" role="button" aria-label="骰子">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
-  '<div class="flhint" id="flHint">'+hint+'</div>'+
-  (S.phase==='play'&&S.roll==null?'<button class="btn big" id="flRoll">🎲 掷骰子</button>':'')+
-  (S.phase==='over'?'<button class="btn pri" id="flAgain">再来一局</button>':'');
+ el.className='fldock'+(ready?' want':'')+(S.phase==='over'?' over':'');
+ el.innerHTML='<div class="fldie-wrap'+(ready?' want':'')+'"><div class="fldie'+(ready?' pulse':'')+'" id="flDie" role="button" aria-label="骰子">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
+  (S.phase==='play'?'<button class="btn big flroll" id="flRoll"'+(ready?'':' disabled')+'>🎲 掷骰子</button>':'')+
+  (S.phase==='over'?'<button class="btn pri" id="flAgain">再来一局</button>':'')+
+  '<div class="flhint" id="flHint">'+hint+'</div>';
  var d=$q('#flDie'),r=$q('#flRoll'),a=$q('#flAgain');
  if(d)d.onclick=function(){if(S.phase==='play'&&S.roll==null&&!busy)doRoll()};
  if(r)r.onclick=function(){doRoll()};
@@ -574,7 +627,7 @@ function renderDock(){
 function render(){
  if(!root||!S)return;
  root.classList.toggle('over',S.phase==='over');
- renderTokens();renderPanel();renderDock();
+ renderTokens();renderHangars();renderPanel();renderDock();
 }
 function playMoveFx(r){
  if(!r||!r.ev)return;
@@ -696,6 +749,7 @@ function fit(){
 }
 var api={
  state:function(){return S},engine:E,render:function(){render()},roll:function(v){return doRoll(v)},
+ poke:function(pid,pl){pokePlane(pid,pl)},
  setPrintMode:function(on){
   if(!root)return;
   root.classList.toggle('fl-print',!!on);
@@ -727,7 +781,7 @@ return{
   if(window.ResizeObserver){ro=new ResizeObserver(function(){fit()});ro.observe(root)}else window.addEventListener('resize',fit);
   fit();
  },
- unmount:function(){timers.forEach(clearTimeout);timers=[];bubs={};faceMood={};if(cancel)cancel();if(ro)ro.disconnect();ro=null;if(S)save();if(selv){try{selv.remove()}catch(e){}}selv=null;document.documentElement.classList.remove('fl-land');fxLayer=null;if(plateURL){try{URL.revokeObjectURL(plateURL)}catch(e){}plateURL=null}root=null},
+  unmount:function(){timers.forEach(clearTimeout);timers=[];bubs={};faceMood={};pokeN={};pokeAt={};if(cancel)cancel();if(ro)ro.disconnect();ro=null;if(S)save();if(selv){try{selv.remove()}catch(e){}}selv=null;document.documentElement.classList.remove('fl-land');fxLayer=null;if(plateURL){try{URL.revokeObjectURL(plateURL)}catch(e){}plateURL=null}root=null},
  api:api
 };
 })();

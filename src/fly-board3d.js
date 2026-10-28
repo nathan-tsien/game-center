@@ -427,95 +427,62 @@ function flyOverlay(){
  return h+'</svg>';
 }
 
-/* ---------- 棋子：角色风味圆筹码 + 座位色粗描边（一眼认出是谁的飞机，又不抢海岛盘） ---------- */
+/* ---------- 棋子：玩具飞机剪影（座位色机身）+ 角色涂装点缀。人脸在机库铭牌，不画在棋子上 ---------- */
 function tokenDefs(){return ''}
-function miniPlane(fill){
- return '<g transform="translate(0,34) scale(.38)"><path d="'+PLANE_D+'" fill="'+fill+'" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></g>';
-}
-function chipFace(tok){
- /* tok 0小狗 1小狮子 2不不奥特曼 3哎呀公主 4温柔喷火龙 5猪肉战神 */
- if(tok===0){
-  return '<ellipse cx="-28" cy="-6" rx="14" ry="20" transform="rotate(-28 -28 -6)" fill="#c47a3a" stroke="#8a4e1c" stroke-width="2"/>'+
-   '<ellipse cx="28" cy="-6" rx="14" ry="20" transform="rotate(28 28 -6)" fill="#c47a3a" stroke="#8a4e1c" stroke-width="2"/>'+
-   '<circle r="28" fill="#ffe0b0" stroke="#d49a5a" stroke-width="2"/>'+
-   '<ellipse cx="-11" cy="-4" rx="5" ry="6" fill="#fff"/><ellipse cx="11" cy="-4" rx="5" ry="6" fill="#fff"/>'+
-   '<circle cx="-10" cy="-3" r="2.6" fill="#2a1a10"/><circle cx="10" cy="-3" r="2.6" fill="#2a1a10"/>'+
-   '<ellipse cy="8" rx="6" ry="4.2" fill="#5a2a18"/><circle cx="-2" cy="6.5" r="1.4" fill="#fff" opacity=".5"/>'+
-   '<path d="M-10 16 Q0 22 10 16" fill="none" stroke="#c45a3a" stroke-width="2" stroke-linecap="round"/>'+
-   '<circle cx="-18" cy="6" r="4.5" fill="#f2a090" opacity=".7"/><circle cx="18" cy="6" r="4.5" fill="#f2a090" opacity=".7"/>';
+var PLANE_BODY='M0-28C6.2-28 9.2-18 9.2-10.2L28 6.2V12.2L9.2 4.2V18.2L18.4 26.2V30.4L0 26.4-18.4 30.4V26.2L-9.2 18.2V4.2L-28 12.2V6.2L-9.2-10.2C-9.2-18-6.2-28 0-28Z';
+function planeTrim(tok,pal){
+ /* 涂装只点缀机翼/机尾，剪影始终是飞机 */
+ if(tok===0){ /* 小狗：爪印 + 骨头尾 */
+  return '<ellipse cx="-16" cy="2" rx="3.2" ry="2.4" fill="#8a4e1c" opacity=".85"/>'+
+   '<circle cx="-19" cy="-1.2" r="1.15" fill="#8a4e1c"/><circle cx="-13.4" cy="-1.4" r="1.15" fill="#8a4e1c"/><circle cx="-16" cy="-2.4" r="1.1" fill="#8a4e1c"/>'+
+   '<rect x="-2.2" y="22" width="4.4" height="8" rx="1.4" fill="#fff8e6" stroke="#c9a36b" stroke-width="0.8"/>'+
+   '<circle cx="-3.6" cy="22" r="2.1" fill="#fff8e6" stroke="#c9a36b" stroke-width="0.8"/>'+
+   '<circle cx="3.6" cy="22" r="2.1" fill="#fff8e6" stroke="#c9a36b" stroke-width="0.8"/>';
  }
- if(tok===1){
-  var mane='',i,a;
-  for(i=0;i<10;i++){a=-90+i*36;mane+='<ellipse cx="0" cy="-30" rx="8" ry="16" transform="rotate('+a+')" fill="'+(i%2?'#ff9a1a':'#ffc43a')+'" stroke="#e07800" stroke-width="1.2"/>';}
-  return mane+'<circle r="24" fill="#ffe08a" stroke="#e0a020" stroke-width="2"/>'+
-   '<ellipse cx="-8" cy="-4" rx="4.2" ry="5" fill="#3a2208"/><ellipse cx="8" cy="-4" rx="4.2" ry="5" fill="#3a2208"/>'+
-   '<circle cx="-6.5" cy="-5.5" r="1.3" fill="#fff"/><circle cx="9.5" cy="-5.5" r="1.3" fill="#fff"/>'+
-   '<ellipse cy="6" rx="5" ry="3.4" fill="#c45a20"/>'+
-   '<path d="M-18 4 H-28 M18 4 H28 M-16 10 H-26 M16 10 H26" stroke="#7a4010" stroke-width="1.8" stroke-linecap="round"/>'+
-   '<path d="M-8 14 Q0 20 8 14" fill="none" stroke="#c45a20" stroke-width="2" stroke-linecap="round"/>';
+ if(tok===1){ /* 小狮子：鬃毛条 + 小皇冠 */
+  return '<path d="M-4-8 L-7-14 L-1-10 L0-16 L1-10 L7-14 L4-8" fill="#ffb020" stroke="#e07800" stroke-width="0.9" stroke-linejoin="round"/>'+
+   '<path d="M-22 6 L-26 2 M22 6 L26 2 M-20 10 L-24 7 M20 10 L24 7" stroke="#ff9a1a" stroke-width="1.8" stroke-linecap="round"/>';
  }
- if(tok===2){
-  return '<rect x="-22" y="-8" width="44" height="38" rx="10" fill="#dfe7f2" stroke="#7a8aa0" stroke-width="2"/>'+
-   '<path d="M-30-18 Q-36-2 -28 16 L-18 10 Z" fill="#e0485e"/><path d="M30-18 Q36-2 28 16 L18 10 Z" fill="#e0485e"/>'+
-   '<ellipse cy="-10" rx="26" ry="22" fill="#eef3f8" stroke="#9aacbf" stroke-width="2"/>'+
-   '<path d="M-6-28 L0-38 L6-28 Z" fill="#ffd23f" stroke="#e0a800" stroke-width="1.4"/>'+
-   '<ellipse cx="-9" cy="-10" rx="7" ry="5.2" fill="#ffd23f" stroke="#c9a000" stroke-width="1.2"/>'+
-   '<ellipse cx="9" cy="-10" rx="7" ry="5.2" fill="#ffd23f" stroke="#c9a000" stroke-width="1.2"/>'+
-   '<path d="M-4-18 L0-8 L4-18" fill="none" stroke="#e0485e" stroke-width="2.4" stroke-linejoin="round"/>'+
-   '<circle cy="14" r="6.5" fill="#e0485e" stroke="#fff" stroke-width="2"/>'+
-   '<circle cy="14" r="2.6" fill="#ffd23f"/>';
+ if(tok===2){ /* 不不奥特曼：银红能量条 + 计时器 */
+  return '<path d="M-6-2 H6" stroke="#eef3f8" stroke-width="3.4" stroke-linecap="round"/>'+
+   '<path d="M-6-2 H6" stroke="#e0485e" stroke-width="1.6" stroke-linecap="round"/>'+
+   '<circle cy="8" r="4.4" fill="#e0485e" stroke="#fff" stroke-width="1.3"/>'+
+   '<circle cy="8" r="1.7" fill="#ffd23f"/>'+
+   '<path d="M-24 7 L-18 3 M24 7 L18 3" stroke="#e0485e" stroke-width="2.2" stroke-linecap="round"/>';
  }
- if(tok===3){
-  return '<circle r="30" fill="#e7f6ff"/><circle r="26" fill="none" stroke="#9ad8ff" stroke-width="3"/>'+
-   '<g stroke="#fff" stroke-width="3.2" stroke-linecap="round">'+
-   '<path d="M0-20 V20 M-20 0 H20 M-14-14 L14 14 M14-14 L-14 14"/>'+
+ if(tok===3){ /* 哎呀公主：冰晶翼尖 + 雪花尾 */
+  return '<polygon points="-28,7 -32,2 -26,4" fill="#e7f6ff" stroke="#7ec8ff" stroke-width="0.9"/>'+
+   '<polygon points="28,7 32,2 26,4" fill="#e7f6ff" stroke="#7ec8ff" stroke-width="0.9"/>'+
+   '<g transform="translate(0,22)" stroke="#9ad8ff" stroke-width="1.3" stroke-linecap="round">'+
+   '<path d="M0-4 V4 M-4 0 H4 M-2.8-2.8 L2.8 2.8 M2.8-2.8 L-2.8 2.8"/>'+
    '</g>'+
-   '<g stroke="#7ec8ff" stroke-width="1.8" stroke-linecap="round">'+
-   '<path d="M0-20 V20 M-20 0 H20 M-14-14 L14 14 M14-14 L-14 14"/>'+
-   '</g>'+
-   '<circle r="7" fill="#c8eeff" stroke="#fff" stroke-width="2"/>'+
-   '<polygon points="0,-32 -6,-22 0,-24 6,-22" fill="#fff" stroke="#9ad8ff" stroke-width="1.2"/>'+
-   '<circle cx="-22" cy="-16" r="3.2" fill="#fff"/><circle cx="24" cy="-8" r="2.4" fill="#fff"/>'+
-   '<circle cx="18" cy="16" r="2.8" fill="#d8f4ff"/><circle cx="-16" cy="18" r="2.2" fill="#fff"/>';
+   '<circle cx="-12" cy="-6" r="1.3" fill="#fff"/><circle cx="14" cy="10" r="1.1" fill="#d8f4ff"/>';
  }
- if(tok===4){
-  return '<path d="M-34 6 Q-48 -8 -30 -22 Q-22 -4 -18 8 Z" fill="#f0b090" stroke="#c47858" stroke-width="1.6"/>'+
-   '<path d="M34 6 Q48 -8 30 -22 Q22 -4 18 8 Z" fill="#f0b090" stroke="#c47858" stroke-width="1.6"/>'+
-   '<path d="M-12-28 Q-16-42 -4-36 Q0-30 0-22 Z" fill="#ffe0c8" stroke="#d4a07a" stroke-width="1.4"/>'+
-   '<path d="M12-28 Q16-42 4-36 Q0-30 0-22 Z" fill="#ffe0c8" stroke="#d4a07a" stroke-width="1.4"/>'+
-   '<circle r="26" fill="#ffe6d2" stroke="#e0a888" stroke-width="2"/>'+
-   '<path d="M-16-8 Q-10-12 -6-6" fill="none" stroke="#c47890" stroke-width="1.6" stroke-linecap="round"/>'+
-   '<path d="M16-8 Q10-12 6-6" fill="none" stroke="#c47890" stroke-width="1.6" stroke-linecap="round"/>'+
-   '<ellipse cx="-8" cy="-2" rx="3.6" ry="4.4" fill="#5a3040"/><ellipse cx="8" cy="-2" rx="3.6" ry="4.4" fill="#5a3040"/>'+
-   '<circle cx="-6.6" cy="-3.4" r="1.2" fill="#fff"/><circle cx="9.4" cy="-3.4" r="1.2" fill="#fff"/>'+
-   '<path d="M-8 10 Q0 16 8 10" fill="none" stroke="#d47890" stroke-width="2" stroke-linecap="round"/>'+
-   '<path d="M-4 18 Q0 28 4 18 Q0 22 -4 18 Z" fill="#ffb070" stroke="#e07040" stroke-width="1.2"/>';
+ if(tok===4){ /* 温柔喷火龙：小角 + 翼膜纹，火只在生气 Mood 里喷 */
+  return '<path d="M-3.2-18 L-5.4-24 L-1-19" fill="#ffe0c8" stroke="#d4a07a" stroke-width="0.9"/>'+
+   '<path d="M3.2-18 L5.4-24 L1-19" fill="#ffe0c8" stroke="#d4a07a" stroke-width="0.9"/>'+
+   '<path d="M-22 10 Q-16 14 -10 10" fill="none" stroke="#f0b090" stroke-width="1.6" stroke-linecap="round"/>'+
+   '<path d="M22 10 Q16 14 10 10" fill="none" stroke="#f0b090" stroke-width="1.6" stroke-linecap="round"/>';
  }
- /* 猪肉战神：人类战厨，猪只作为食物道具 */
- return '<ellipse cy="-28" rx="20" ry="10" fill="#fff" stroke="#d8d0c4" stroke-width="2"/>'+
-  '<rect x="-16" y="-24" width="32" height="8" rx="2" fill="#fff" stroke="#c8c0b4" stroke-width="1.4"/>'+
-  '<circle r="24" fill="#f3c7a0" stroke="#d49a70" stroke-width="2"/>'+
-  '<path d="M-14-6 Q-8-12 -2-6" fill="none" stroke="#6a3a28" stroke-width="2.2" stroke-linecap="round"/>'+
-  '<path d="M2-6 Q8-12 14-6" fill="none" stroke="#6a3a28" stroke-width="2.2" stroke-linecap="round"/>'+
-  '<ellipse cx="-8" cy="-1" rx="3.4" ry="4" fill="#3a2218"/><ellipse cx="8" cy="-1" rx="3.4" ry="4" fill="#3a2218"/>'+
-  '<path d="M-10 10 Q0 6 10 10 Q0 16 -10 10 Z" fill="#c45a40"/>'+
-  '<g transform="rotate(-38 18 16)"><rect x="8" y="12" width="28" height="3" rx="1.5" fill="#c0a070"/>'+
-  '<ellipse cx="18" cy="13.5" rx="5" ry="3.6" fill="#c47848"/><ellipse cx="28" cy="13.5" rx="5" ry="3.6" fill="#a85830"/></g>'+
-  '<polygon points="0,-36 -5,-28 0,-30 5,-28" fill="#ffd23f"/>';
+ /* 猪肉战神：厨帽 + 金星；猪只作为机翼食物道具 */
+ return '<ellipse cx="0" cy="-20.5" rx="6.2" ry="2.4" fill="#fff" stroke="#d8d0c4" stroke-width="0.9"/>'+
+  '<rect x="-4.4" y="-20" width="8.8" height="3.2" rx="0.8" fill="#fff" stroke="#c8c0b4" stroke-width="0.8"/>'+
+  '<polygon points="6,8 3,12 9,12" fill="#ffd23f" stroke="#e0a800" stroke-width="0.7"/>'+
+  '<g transform="rotate(-28 16 8)"><rect x="12" y="7" width="12" height="1.6" rx=".7" fill="#c0a070"/>'+
+  '<ellipse cx="16" cy="7.8" rx="2.4" ry="1.7" fill="#c47848"/></g>';
 }
 function tokenSVG(pid,tok){
  tok=(tok==null?0:tok)|0;if(tok<0)tok=0;if(tok>5)tok=tok%6;
  var pal=PAL[((pid%4)+4)%4];
- var tint=['#fff4e4','#fff0c8','#eef3f8','#e7f6ff','#ffe6d2','#f8e0c8'][tok];
- return '<svg class="fl-plane fl3d-tok" viewBox="-56 -60 112 120" aria-hidden="true">'+
-  '<ellipse cx="2" cy="53" rx="42" ry="7" fill="#000" opacity=".16"/>'+
-  '<circle cy="7" r="50" style="fill:var(--tr,'+pal.side+')"/>'+
-  '<circle r="50" style="fill:var(--tb,'+tint+')" stroke="#fff" stroke-width="2.4"/>'+
-  '<circle r="46" fill="none" stroke="'+pal.base+'" stroke-width="7.5"/>'+
-  '<circle r="40" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>'+
-  '<g transform="translate(0,-4)">'+chipFace(tok)+'</g>'+
-  miniPlane(pal.base)+
-  '<ellipse cx="-20" cy="-30" rx="13" ry="5.5" transform="rotate(-32 -20 -30)" fill="#fff" opacity=".4"/>'+
+ return '<svg class="fl-plane fl3d-tok" viewBox="-40 -40 80 80" aria-hidden="true">'+
+  '<ellipse cx="2" cy="34" rx="16" ry="4.5" fill="#000" opacity=".2"/>'+
+  '<path d="'+PLANE_BODY+'" fill="'+pal.side+'" transform="translate(1.4,1.8)"/>'+
+  '<path class="fl-plane-body" d="'+PLANE_BODY+'" fill="'+pal.base+'" stroke="#fff" stroke-width="2.1" stroke-linejoin="round"/>'+
+  '<path d="M0-26C3.6-26 5.2-18 5.2-11V16" fill="none" stroke="'+pal.light+'" stroke-width="2.8" stroke-linecap="round" opacity=".75"/>'+
+  '<ellipse cy="-12" rx="5" ry="6.2" fill="#b8ecff" stroke="#fff" stroke-width="1.3"/>'+
+  '<ellipse cx="-1.3" cy="-14" rx="1.9" ry="2.3" fill="#fff" opacity=".55"/>'+
+  '<circle cy="-26.5" r="3" fill="'+pal.top+'" stroke="#fff" stroke-width="1"/>'+
+  planeTrim(tok,pal)+
   '</svg>';
 }
 

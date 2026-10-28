@@ -1468,9 +1468,9 @@ html.gq-eco .moodfs{display:none!important}
 .fllay{position:absolute;inset:0;display:flex;flex-direction:column;gap:4px;padding:4px}
 .gm-fly.land .fllay{flex-direction:row;align-items:stretch;gap:8px;padding:4px 6px}
 .flbw{flex:1;min-width:0;min-height:0;display:flex;align-items:center;justify-content:center}
-.gm-fly.land .flbw{flex:0 0 82%;max-width:82%}
+.gm-fly.land .flbw{flex:0 0 78%;max-width:78%}
 .flside{flex:none;display:flex;flex-direction:column;gap:6px;min-height:0}
-.gm-fly.land .flside{flex:0 0 18%;width:18%;max-width:200px;height:100%}
+.gm-fly.land .flside{flex:0 0 22%;width:22%;max-width:248px;height:100%}
 
 /* Square classic board — wood trim + soft clay plate */
 .flb{position:relative;width:min(100%,100%);height:min(100%,100%);aspect-ratio:1/1;
@@ -1562,11 +1562,21 @@ html.gq-eco .moodfs{display:none!important}
 .flhome .flmark{width:58%;height:58%;background:radial-gradient(circle at 40% 35%,#fff 0%,#f5f0e8 70%,#e8e0d4 100%);
  box-shadow:inset 0 2px 4px rgba(0,0,0,.18),inset 0 -1px 0 #fff8,0 1px 0 #fff6}
 
-/* Hangar label overlay */
-.flbase{position:absolute;border-radius:14px;background:transparent;border:0;
- z-index:1;display:flex;align-items:flex-start;justify-content:center;padding-top:1.8%;pointer-events:none}
-.flbase span{font-size:10px;font-weight:900;color:#fff;background:var(--bc);padding:2px 8px;border-radius:9px;z-index:2;
+/* Hangar label overlay — 角色铭牌贴在机库外角，棋子仍是飞机 */
+.flbase{position:absolute;border-radius:14px;background:transparent;border:0;overflow:visible;
+ z-index:5;display:flex;align-items:flex-start;justify-content:center;padding-top:1.8%;pointer-events:none}
+.flbase .flcname{font-size:10px;font-weight:900;color:#fff;background:var(--bc);padding:2px 8px;border-radius:9px;z-index:2;
  box-shadow:0 2px 0 rgba(0,0,0,.22),inset 0 1px 0 #fff6;opacity:.95;letter-spacing:.04em}
+.flhplate{position:absolute;z-index:6;display:flex;align-items:center;gap:4px;
+ background:rgba(255,255,255,.95);border:2.5px solid var(--bc);border-radius:16px;padding:2px 8px 2px 2px;
+ box-shadow:0 3px 0 rgba(0,0,0,.2),0 6px 10px rgba(0,40,70,.18);max-width:96%;pointer-events:none}
+.flhplate .tkm.hav{width:32px!important;height:32px!important;flex:none;border-radius:50%;overflow:hidden;
+ box-shadow:0 0 0 2px #fff}
+.flhplate .flhnm{font-size:11px;font-weight:900;color:#3a2a5c;line-height:1.1;white-space:nowrap;letter-spacing:.02em}
+.flbase[data-p="1"] .flhplate{top:-6%;left:-4%}
+.flbase[data-p="2"] .flhplate{top:-6%;right:-4%;left:auto;flex-direction:row-reverse;padding:2px 2px 2px 8px}
+.flbase[data-p="0"] .flhplate{top:auto;bottom:-6%;left:-4%}
+.flbase[data-p="3"] .flhplate{top:auto;bottom:-6%;right:-4%;left:auto;flex-direction:row-reverse;padding:2px 2px 2px 8px}
 
 /* Center finish — 极小中心点标，四色三角对顶清晰可见 */
 .flfin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;z-index:4;pointer-events:none;width:auto}
@@ -1613,6 +1623,16 @@ html.gq-eco .moodfs{display:none!important}
 @keyframes flhalopulse{0%,100%{transform:translate(-50%,-50%) scale(.88);opacity:.82}50%{transform:translate(-50%,-50%) scale(1.12);opacity:1}}
 .gq-eco .fltok.go,.gq-eco .fltok.takeoff-lit{animation:none}
 .gq-eco .fltok .flglow{animation:none;opacity:1;transform:translate(-50%,-50%) scale(1)}
+.fltok.poked{animation:flpoke .38s ease-out}
+.fltok.poked-mad{animation:flpokemad .46s ease-in-out}
+@keyframes flpoke{0%{transform:translate(-50%,-50%) scale(1)}40%{transform:translate(-50%,-60%) scale(1.14) rotate(-8deg)}100%{transform:translate(-50%,-50%)}}
+@keyframes flpokemad{0%,100%{transform:translate(-50%,-50%)}30%{transform:translate(-56%,-50%) rotate(-12deg)}70%{transform:translate(-44%,-50%) rotate(12deg)}}
+.fltbub{position:absolute;left:50%;bottom:110%;transform:translateX(-50%);z-index:12;pointer-events:none;
+ background:#fff;color:#3a2a5c;border:2.5px solid var(--pc,#ff6fae);border-radius:12px;padding:3px 8px;
+ font-size:11px;font-weight:900;line-height:1.2;white-space:nowrap;max-width:150px;overflow:hidden;text-overflow:ellipsis;
+ box-shadow:0 3px 0 rgba(0,0,0,.16)}
+.fltbub::after{content:'';position:absolute;left:50%;top:100%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--pc,#ff6fae)}
+.gq-eco .fltok.poked,.gq-eco .fltok.poked-mad{animation:none}
 
 .flfx{position:absolute;inset:0;pointer-events:none;z-index:9;overflow:hidden}
 .flsp{position:absolute;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:hsl(var(--h,50) 90% 60%);box-shadow:0 0 6px hsl(var(--h,50) 90% 70%);
@@ -1630,15 +1650,20 @@ html.gq-eco .moodfs{display:none!important}
 .flpc .pbub{font-size:11px;padding:4px 6px;bottom:4px;z-index:6}
 .gm-fly.fl-island .flpc .pbub{background:#fffef8}
 .flpc .bd{display:inline-block;color:#fff;font-size:11px;font-weight:900;padding:1px 6px;border-radius:8px}
-.fldock{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 4px 8px}
-.fldock{overflow:visible}
-.fldie-wrap{position:relative;width:108px;height:108px;display:flex;align-items:center;justify-content:center;perspective:520px;overflow:visible}
-.fldie-wrap::before{content:'';position:absolute;left:50%;bottom:2px;transform:translateX(-50%);width:70px;height:18px;border-radius:50%;
+.fldock{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 8px 10px;margin:2px 2px 4px;
+ border-radius:22px;background:linear-gradient(180deg,#fffef8 0%,#fff3d6 100%);border:3px solid #fff;
+ box-shadow:0 5px 0 rgba(120,80,30,.14),0 8px 14px rgba(0,0,0,.1);overflow:visible}
+.fldock.want{background:linear-gradient(180deg,#fff8d8 0%,#ffd56a 100%);border-color:#fff;
+ box-shadow:0 0 0 4px #ffd23f,0 6px 0 #e09a10,0 0 22px #ffd23faa;animation:fldockbounce 1.15s ease-in-out infinite}
+@keyframes fldockbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.fldie-wrap{position:relative;width:124px;height:124px;display:flex;align-items:center;justify-content:center;perspective:520px;overflow:visible}
+.fldie-wrap::before{content:'';position:absolute;left:50%;bottom:2px;transform:translateX(-50%);width:78px;height:20px;border-radius:50%;
  background:radial-gradient(ellipse,#ffd23fcc,#ff9a4044 55%,transparent 70%);box-shadow:0 0 18px #ffd23faa;z-index:0}
-.fldie-wrap.rolling::before{width:96px;height:28px;animation:fldieglow .35s ease-in-out infinite}
+.fldie-wrap.want::before{width:96px;height:26px;animation:fldieglow .7s ease-in-out infinite}
+.fldie-wrap.rolling::before{width:110px;height:30px;animation:fldieglow .35s ease-in-out infinite}
 @keyframes fldieglow{50%{opacity:.55;transform:translateX(-50%) scaleX(1.18)}}
-.fldie{position:relative;z-index:1;width:78px;height:78px;cursor:pointer;filter:drop-shadow(0 8px 6px rgba(0,0,0,.35));transform-style:preserve-3d}
-.fldie.rolling{width:92px;height:92px;z-index:5}
+.fldie{position:relative;z-index:1;width:104px;height:104px;cursor:pointer;filter:drop-shadow(0 8px 6px rgba(0,0,0,.35));transform-style:preserve-3d}
+.fldie.rolling{width:118px;height:118px;z-index:5}
 .fldie.pulse{animation:dieidle 1.6s ease-in-out infinite}
 .fldie svg,.fldie .die{width:100%;height:100%}
 .fldie .ctdw{width:100%;height:100%;transform-style:preserve-3d}
@@ -1670,12 +1695,13 @@ html.gq-std .fldie .die.roll,html.gq-std .fldie .die.flyroll,html.gq-eco .fldie 
  animation-iteration-count:infinite!important}
 @media (prefers-reduced-motion:reduce){
  .gm-fly .fldie .die.flyroll,.gm-fly .fldie .die.roll{animation:fltumble-eco .5s linear infinite!important}
- .fltok .flglow,.seatbar.need,.tkseat.wait{animation:none}
+ .fltok .flglow,.seatbar.need,.tkseat.wait,.fldock.want,.fldie.pulse,.fltok.poked,.fltok.poked-mad{animation:none}
 }
-.flhint{font-size:13px;font-weight:900;text-align:center;line-height:1.25;color:#5a3ea0;min-height:2.4em}
-.fldock .btn.big{min-height:48px;font-size:18px;padding:0 14px;width:100%;max-width:none}
-.gq-eco .fldie.pulse{animation:none}
-@media (max-width:700px){.flpc .tkm.av{width:56px!important;height:56px!important}.fldie-wrap{width:84px;height:84px}.fldie{width:64px;height:64px}.fldie.rolling{width:74px;height:74px}}
+.flhint{font-size:13px;font-weight:900;text-align:center;line-height:1.25;color:#5a3ea0;min-height:2.2em}
+.fldock .btn.big,.fldock .btn.flroll{min-height:56px;font-size:22px;padding:0 12px;width:100%;max-width:none;letter-spacing:.04em}
+.gq-eco .fldie.pulse,.gq-eco .fldock.want,.gq-eco .fldie-wrap.want::before{animation:none}
+@media (prefers-reduced-motion:reduce){.fldock.want,.fldie.pulse,.fldie-wrap.want::before{animation:none}}
+@media (max-width:700px){.flpc .tkm.av{width:56px!important;height:56px!important}.fldie-wrap{width:96px;height:96px}.fldie{width:80px;height:80px}.fldie.rolling{width:90px;height:90px}.fldock .btn.big{min-height:48px;font-size:18px}}
 
 /* Always-visible fly rule tip — under sidebar, kid glance */
 .flruletip{flex:none;margin:2px 4px 4px;padding:7px 8px;border-radius:12px;font-size:11px;font-weight:800;line-height:1.35;color:#5a3ea0;text-align:center;
@@ -1759,9 +1785,10 @@ html.gq-std .fldie .die.roll,html.gq-std .fldie .die.flyroll,html.gq-eco .fldie 
 .gm-fly.fl-island .fl3d-plate{z-index:1}
 .gm-fly.fl-island .flc,.gm-fly.fl-island .flhome{background:transparent!important;border:0!important;box-shadow:none!important;outline:none!important;border-radius:24%;pointer-events:none}
 .gm-fly.fl-island .flc.entry.lit{box-shadow:0 0 0 3px #fff,0 0 0 6px #ffd23f,0 0 18px #ffd23f!important;animation:fllit 1s ease-in-out infinite}
-.gm-fly.fl-island .flbase{border-radius:9%}
+.gm-fly.fl-island .flbase{border-radius:9%;overflow:visible}
 .gm-fly.fl-island .flbase.lit{box-shadow:0 0 0 4px #fff,0 0 0 8px #ffd23f,0 0 26px #ffd23fcc;animation:fllit 1s ease-in-out infinite}
-.gm-fly.fl-island .flbase span{display:none}
+.gm-fly.fl-island .flbase .flcname{display:none}
+.gm-fly.fl-island .flb{overflow:visible}
 .gm-fly.fl-island .flfin{display:none}
 .gm-fly.fl-island .fl3d-dash{z-index:4}
 .gm-fly.fl-island .fl3d-dash .fldash-path{opacity:0;transition:opacity .25s}
@@ -3890,95 +3917,62 @@ function flyOverlay(){
  return h+'</svg>';
 }
 
-/* ---------- 棋子：角色风味圆筹码 + 座位色粗描边（一眼认出是谁的飞机，又不抢海岛盘） ---------- */
+/* ---------- 棋子：玩具飞机剪影（座位色机身）+ 角色涂装点缀。人脸在机库铭牌，不画在棋子上 ---------- */
 function tokenDefs(){return ''}
-function miniPlane(fill){
- return '<g transform="translate(0,34) scale(.38)"><path d="'+PLANE_D+'" fill="'+fill+'" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></g>';
-}
-function chipFace(tok){
- /* tok 0小狗 1小狮子 2不不奥特曼 3哎呀公主 4温柔喷火龙 5猪肉战神 */
- if(tok===0){
-  return '<ellipse cx="-28" cy="-6" rx="14" ry="20" transform="rotate(-28 -28 -6)" fill="#c47a3a" stroke="#8a4e1c" stroke-width="2"/>'+
-   '<ellipse cx="28" cy="-6" rx="14" ry="20" transform="rotate(28 28 -6)" fill="#c47a3a" stroke="#8a4e1c" stroke-width="2"/>'+
-   '<circle r="28" fill="#ffe0b0" stroke="#d49a5a" stroke-width="2"/>'+
-   '<ellipse cx="-11" cy="-4" rx="5" ry="6" fill="#fff"/><ellipse cx="11" cy="-4" rx="5" ry="6" fill="#fff"/>'+
-   '<circle cx="-10" cy="-3" r="2.6" fill="#2a1a10"/><circle cx="10" cy="-3" r="2.6" fill="#2a1a10"/>'+
-   '<ellipse cy="8" rx="6" ry="4.2" fill="#5a2a18"/><circle cx="-2" cy="6.5" r="1.4" fill="#fff" opacity=".5"/>'+
-   '<path d="M-10 16 Q0 22 10 16" fill="none" stroke="#c45a3a" stroke-width="2" stroke-linecap="round"/>'+
-   '<circle cx="-18" cy="6" r="4.5" fill="#f2a090" opacity=".7"/><circle cx="18" cy="6" r="4.5" fill="#f2a090" opacity=".7"/>';
+var PLANE_BODY='M0-28C6.2-28 9.2-18 9.2-10.2L28 6.2V12.2L9.2 4.2V18.2L18.4 26.2V30.4L0 26.4-18.4 30.4V26.2L-9.2 18.2V4.2L-28 12.2V6.2L-9.2-10.2C-9.2-18-6.2-28 0-28Z';
+function planeTrim(tok,pal){
+ /* 涂装只点缀机翼/机尾，剪影始终是飞机 */
+ if(tok===0){ /* 小狗：爪印 + 骨头尾 */
+  return '<ellipse cx="-16" cy="2" rx="3.2" ry="2.4" fill="#8a4e1c" opacity=".85"/>'+
+   '<circle cx="-19" cy="-1.2" r="1.15" fill="#8a4e1c"/><circle cx="-13.4" cy="-1.4" r="1.15" fill="#8a4e1c"/><circle cx="-16" cy="-2.4" r="1.1" fill="#8a4e1c"/>'+
+   '<rect x="-2.2" y="22" width="4.4" height="8" rx="1.4" fill="#fff8e6" stroke="#c9a36b" stroke-width="0.8"/>'+
+   '<circle cx="-3.6" cy="22" r="2.1" fill="#fff8e6" stroke="#c9a36b" stroke-width="0.8"/>'+
+   '<circle cx="3.6" cy="22" r="2.1" fill="#fff8e6" stroke="#c9a36b" stroke-width="0.8"/>';
  }
- if(tok===1){
-  var mane='',i,a;
-  for(i=0;i<10;i++){a=-90+i*36;mane+='<ellipse cx="0" cy="-30" rx="8" ry="16" transform="rotate('+a+')" fill="'+(i%2?'#ff9a1a':'#ffc43a')+'" stroke="#e07800" stroke-width="1.2"/>';}
-  return mane+'<circle r="24" fill="#ffe08a" stroke="#e0a020" stroke-width="2"/>'+
-   '<ellipse cx="-8" cy="-4" rx="4.2" ry="5" fill="#3a2208"/><ellipse cx="8" cy="-4" rx="4.2" ry="5" fill="#3a2208"/>'+
-   '<circle cx="-6.5" cy="-5.5" r="1.3" fill="#fff"/><circle cx="9.5" cy="-5.5" r="1.3" fill="#fff"/>'+
-   '<ellipse cy="6" rx="5" ry="3.4" fill="#c45a20"/>'+
-   '<path d="M-18 4 H-28 M18 4 H28 M-16 10 H-26 M16 10 H26" stroke="#7a4010" stroke-width="1.8" stroke-linecap="round"/>'+
-   '<path d="M-8 14 Q0 20 8 14" fill="none" stroke="#c45a20" stroke-width="2" stroke-linecap="round"/>';
+ if(tok===1){ /* 小狮子：鬃毛条 + 小皇冠 */
+  return '<path d="M-4-8 L-7-14 L-1-10 L0-16 L1-10 L7-14 L4-8" fill="#ffb020" stroke="#e07800" stroke-width="0.9" stroke-linejoin="round"/>'+
+   '<path d="M-22 6 L-26 2 M22 6 L26 2 M-20 10 L-24 7 M20 10 L24 7" stroke="#ff9a1a" stroke-width="1.8" stroke-linecap="round"/>';
  }
- if(tok===2){
-  return '<rect x="-22" y="-8" width="44" height="38" rx="10" fill="#dfe7f2" stroke="#7a8aa0" stroke-width="2"/>'+
-   '<path d="M-30-18 Q-36-2 -28 16 L-18 10 Z" fill="#e0485e"/><path d="M30-18 Q36-2 28 16 L18 10 Z" fill="#e0485e"/>'+
-   '<ellipse cy="-10" rx="26" ry="22" fill="#eef3f8" stroke="#9aacbf" stroke-width="2"/>'+
-   '<path d="M-6-28 L0-38 L6-28 Z" fill="#ffd23f" stroke="#e0a800" stroke-width="1.4"/>'+
-   '<ellipse cx="-9" cy="-10" rx="7" ry="5.2" fill="#ffd23f" stroke="#c9a000" stroke-width="1.2"/>'+
-   '<ellipse cx="9" cy="-10" rx="7" ry="5.2" fill="#ffd23f" stroke="#c9a000" stroke-width="1.2"/>'+
-   '<path d="M-4-18 L0-8 L4-18" fill="none" stroke="#e0485e" stroke-width="2.4" stroke-linejoin="round"/>'+
-   '<circle cy="14" r="6.5" fill="#e0485e" stroke="#fff" stroke-width="2"/>'+
-   '<circle cy="14" r="2.6" fill="#ffd23f"/>';
+ if(tok===2){ /* 不不奥特曼：银红能量条 + 计时器 */
+  return '<path d="M-6-2 H6" stroke="#eef3f8" stroke-width="3.4" stroke-linecap="round"/>'+
+   '<path d="M-6-2 H6" stroke="#e0485e" stroke-width="1.6" stroke-linecap="round"/>'+
+   '<circle cy="8" r="4.4" fill="#e0485e" stroke="#fff" stroke-width="1.3"/>'+
+   '<circle cy="8" r="1.7" fill="#ffd23f"/>'+
+   '<path d="M-24 7 L-18 3 M24 7 L18 3" stroke="#e0485e" stroke-width="2.2" stroke-linecap="round"/>';
  }
- if(tok===3){
-  return '<circle r="30" fill="#e7f6ff"/><circle r="26" fill="none" stroke="#9ad8ff" stroke-width="3"/>'+
-   '<g stroke="#fff" stroke-width="3.2" stroke-linecap="round">'+
-   '<path d="M0-20 V20 M-20 0 H20 M-14-14 L14 14 M14-14 L-14 14"/>'+
+ if(tok===3){ /* 哎呀公主：冰晶翼尖 + 雪花尾 */
+  return '<polygon points="-28,7 -32,2 -26,4" fill="#e7f6ff" stroke="#7ec8ff" stroke-width="0.9"/>'+
+   '<polygon points="28,7 32,2 26,4" fill="#e7f6ff" stroke="#7ec8ff" stroke-width="0.9"/>'+
+   '<g transform="translate(0,22)" stroke="#9ad8ff" stroke-width="1.3" stroke-linecap="round">'+
+   '<path d="M0-4 V4 M-4 0 H4 M-2.8-2.8 L2.8 2.8 M2.8-2.8 L-2.8 2.8"/>'+
    '</g>'+
-   '<g stroke="#7ec8ff" stroke-width="1.8" stroke-linecap="round">'+
-   '<path d="M0-20 V20 M-20 0 H20 M-14-14 L14 14 M14-14 L-14 14"/>'+
-   '</g>'+
-   '<circle r="7" fill="#c8eeff" stroke="#fff" stroke-width="2"/>'+
-   '<polygon points="0,-32 -6,-22 0,-24 6,-22" fill="#fff" stroke="#9ad8ff" stroke-width="1.2"/>'+
-   '<circle cx="-22" cy="-16" r="3.2" fill="#fff"/><circle cx="24" cy="-8" r="2.4" fill="#fff"/>'+
-   '<circle cx="18" cy="16" r="2.8" fill="#d8f4ff"/><circle cx="-16" cy="18" r="2.2" fill="#fff"/>';
+   '<circle cx="-12" cy="-6" r="1.3" fill="#fff"/><circle cx="14" cy="10" r="1.1" fill="#d8f4ff"/>';
  }
- if(tok===4){
-  return '<path d="M-34 6 Q-48 -8 -30 -22 Q-22 -4 -18 8 Z" fill="#f0b090" stroke="#c47858" stroke-width="1.6"/>'+
-   '<path d="M34 6 Q48 -8 30 -22 Q22 -4 18 8 Z" fill="#f0b090" stroke="#c47858" stroke-width="1.6"/>'+
-   '<path d="M-12-28 Q-16-42 -4-36 Q0-30 0-22 Z" fill="#ffe0c8" stroke="#d4a07a" stroke-width="1.4"/>'+
-   '<path d="M12-28 Q16-42 4-36 Q0-30 0-22 Z" fill="#ffe0c8" stroke="#d4a07a" stroke-width="1.4"/>'+
-   '<circle r="26" fill="#ffe6d2" stroke="#e0a888" stroke-width="2"/>'+
-   '<path d="M-16-8 Q-10-12 -6-6" fill="none" stroke="#c47890" stroke-width="1.6" stroke-linecap="round"/>'+
-   '<path d="M16-8 Q10-12 6-6" fill="none" stroke="#c47890" stroke-width="1.6" stroke-linecap="round"/>'+
-   '<ellipse cx="-8" cy="-2" rx="3.6" ry="4.4" fill="#5a3040"/><ellipse cx="8" cy="-2" rx="3.6" ry="4.4" fill="#5a3040"/>'+
-   '<circle cx="-6.6" cy="-3.4" r="1.2" fill="#fff"/><circle cx="9.4" cy="-3.4" r="1.2" fill="#fff"/>'+
-   '<path d="M-8 10 Q0 16 8 10" fill="none" stroke="#d47890" stroke-width="2" stroke-linecap="round"/>'+
-   '<path d="M-4 18 Q0 28 4 18 Q0 22 -4 18 Z" fill="#ffb070" stroke="#e07040" stroke-width="1.2"/>';
+ if(tok===4){ /* 温柔喷火龙：小角 + 翼膜纹，火只在生气 Mood 里喷 */
+  return '<path d="M-3.2-18 L-5.4-24 L-1-19" fill="#ffe0c8" stroke="#d4a07a" stroke-width="0.9"/>'+
+   '<path d="M3.2-18 L5.4-24 L1-19" fill="#ffe0c8" stroke="#d4a07a" stroke-width="0.9"/>'+
+   '<path d="M-22 10 Q-16 14 -10 10" fill="none" stroke="#f0b090" stroke-width="1.6" stroke-linecap="round"/>'+
+   '<path d="M22 10 Q16 14 10 10" fill="none" stroke="#f0b090" stroke-width="1.6" stroke-linecap="round"/>';
  }
- /* 猪肉战神：人类战厨，猪只作为食物道具 */
- return '<ellipse cy="-28" rx="20" ry="10" fill="#fff" stroke="#d8d0c4" stroke-width="2"/>'+
-  '<rect x="-16" y="-24" width="32" height="8" rx="2" fill="#fff" stroke="#c8c0b4" stroke-width="1.4"/>'+
-  '<circle r="24" fill="#f3c7a0" stroke="#d49a70" stroke-width="2"/>'+
-  '<path d="M-14-6 Q-8-12 -2-6" fill="none" stroke="#6a3a28" stroke-width="2.2" stroke-linecap="round"/>'+
-  '<path d="M2-6 Q8-12 14-6" fill="none" stroke="#6a3a28" stroke-width="2.2" stroke-linecap="round"/>'+
-  '<ellipse cx="-8" cy="-1" rx="3.4" ry="4" fill="#3a2218"/><ellipse cx="8" cy="-1" rx="3.4" ry="4" fill="#3a2218"/>'+
-  '<path d="M-10 10 Q0 6 10 10 Q0 16 -10 10 Z" fill="#c45a40"/>'+
-  '<g transform="rotate(-38 18 16)"><rect x="8" y="12" width="28" height="3" rx="1.5" fill="#c0a070"/>'+
-  '<ellipse cx="18" cy="13.5" rx="5" ry="3.6" fill="#c47848"/><ellipse cx="28" cy="13.5" rx="5" ry="3.6" fill="#a85830"/></g>'+
-  '<polygon points="0,-36 -5,-28 0,-30 5,-28" fill="#ffd23f"/>';
+ /* 猪肉战神：厨帽 + 金星；猪只作为机翼食物道具 */
+ return '<ellipse cx="0" cy="-20.5" rx="6.2" ry="2.4" fill="#fff" stroke="#d8d0c4" stroke-width="0.9"/>'+
+  '<rect x="-4.4" y="-20" width="8.8" height="3.2" rx="0.8" fill="#fff" stroke="#c8c0b4" stroke-width="0.8"/>'+
+  '<polygon points="6,8 3,12 9,12" fill="#ffd23f" stroke="#e0a800" stroke-width="0.7"/>'+
+  '<g transform="rotate(-28 16 8)"><rect x="12" y="7" width="12" height="1.6" rx=".7" fill="#c0a070"/>'+
+  '<ellipse cx="16" cy="7.8" rx="2.4" ry="1.7" fill="#c47848"/></g>';
 }
 function tokenSVG(pid,tok){
  tok=(tok==null?0:tok)|0;if(tok<0)tok=0;if(tok>5)tok=tok%6;
  var pal=PAL[((pid%4)+4)%4];
- var tint=['#fff4e4','#fff0c8','#eef3f8','#e7f6ff','#ffe6d2','#f8e0c8'][tok];
- return '<svg class="fl-plane fl3d-tok" viewBox="-56 -60 112 120" aria-hidden="true">'+
-  '<ellipse cx="2" cy="53" rx="42" ry="7" fill="#000" opacity=".16"/>'+
-  '<circle cy="7" r="50" style="fill:var(--tr,'+pal.side+')"/>'+
-  '<circle r="50" style="fill:var(--tb,'+tint+')" stroke="#fff" stroke-width="2.4"/>'+
-  '<circle r="46" fill="none" stroke="'+pal.base+'" stroke-width="7.5"/>'+
-  '<circle r="40" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>'+
-  '<g transform="translate(0,-4)">'+chipFace(tok)+'</g>'+
-  miniPlane(pal.base)+
-  '<ellipse cx="-20" cy="-30" rx="13" ry="5.5" transform="rotate(-32 -20 -30)" fill="#fff" opacity=".4"/>'+
+ return '<svg class="fl-plane fl3d-tok" viewBox="-40 -40 80 80" aria-hidden="true">'+
+  '<ellipse cx="2" cy="34" rx="16" ry="4.5" fill="#000" opacity=".2"/>'+
+  '<path d="'+PLANE_BODY+'" fill="'+pal.side+'" transform="translate(1.4,1.8)"/>'+
+  '<path class="fl-plane-body" d="'+PLANE_BODY+'" fill="'+pal.base+'" stroke="#fff" stroke-width="2.1" stroke-linejoin="round"/>'+
+  '<path d="M0-26C3.6-26 5.2-18 5.2-11V16" fill="none" stroke="'+pal.light+'" stroke-width="2.8" stroke-linecap="round" opacity=".75"/>'+
+  '<ellipse cy="-12" rx="5" ry="6.2" fill="#b8ecff" stroke="#fff" stroke-width="1.3"/>'+
+  '<ellipse cx="-1.3" cy="-14" rx="1.9" ry="2.3" fill="#fff" opacity=".55"/>'+
+  '<circle cy="-26.5" r="3" fill="'+pal.top+'" stroke="#fff" stroke-width="1"/>'+
+  planeTrim(tok,pal)+
   '</svg>';
 }
 
@@ -4030,6 +4024,7 @@ var FLY=(function(){
 var E=window.FLYE,Store=GC.Store,Sound=GC.Sound,UI=GC.UI,Dice=GC.Dice,Select=GC.Select;
 var TKN=E.TKN,TKC=['#2f80ed','#f2b705','#e53935','#ff4fa3','#1fae5b','#8e44ec'];
 var root,S,busy=false,selv=null,timers=[],ro=null,lastDie=6,cancel=null,fxLayer=null,plateURL=null,bubs={},faceMood={};
+var pokeN={},pokeAt={},pokeLock=0,pokeBurst=0,pokeBurstT=0;
 function $q(s){return root.querySelector(s)}
 function later(f,ms){var t=setTimeout(f,ms);timers.push(t);return t}
 function esc(s){return UI.esc(s)}
@@ -4136,8 +4131,54 @@ function sayReact(pid,type,o){
  var txt='',LN=window.CTE_LINES;
  try{txt=(LN&&LN.pickFly)?LN.pickFly(p.tok,type,function(n){return Dice.int(n)}):''}catch(e){}
  if(txt){showBubble(p,txt,type);try{GC.Voice.say(txt,p.tok,{queue:1,prot:1})}catch(x){}}
- if(o.mood)mood(pid,o.mood,{tiny:!!o.tiny,noFs:!!o.tiny,key:o.key||('fl'+type+pid)});
+ if(o.mood)mood(pid,o.mood,{tiny:!!o.tiny,noFs:o.noFs!=null?!!o.noFs:!!o.tiny,key:o.key||('fl'+type+pid),plate:o.plate||txt||FLY_PLATE[o.mood]||''});
  return txt;
+}
+function playerAtSeat(seat){
+ if(!S||!S.players)return null;
+ var i,p=null;for(i=0;i<S.players.length;i++)if(seatOf(S.players[i])===seat)p=S.players[i];
+ return p;
+}
+function renderHangars(){
+ if(!root)return;
+ Array.prototype.forEach.call(root.querySelectorAll('.flbase'),function(el){
+  var seat=+el.getAttribute('data-p'),p=playerAtSeat(seat);
+  el.style.setProperty('--bc',E.COLORS[seat]);
+  if(!p){el.innerHTML='<span class="flcname">'+E.CNAMES[seat]+'</span>';return}
+  el.innerHTML='<div class="flhplate"><span class="flhav">'+tkAv(p.tok,32,'hav',persistMood(p))+'</span><b class="flhnm">'+esc(p.name)+'</b></div>';
+ });
+}
+function showTokBubble(el,txt){
+ if(!el||!txt)return;
+ var old=el.querySelector('.fltbub');if(old)old.remove();
+ var b=document.createElement('div');b.className='fltbub';b.textContent=txt;el.appendChild(b);
+ later(function(){try{b.remove()}catch(e){}},1800);
+}
+function pokePlane(pid,plId){
+ if(busy||!S||S.phase!=='play')return;
+ var now=Date.now();
+ if(now-pokeLock<420)return;
+ pokeLock=now;
+ if(now-pokeBurstT>2800){pokeBurst=0;pokeBurstT=now}
+ pokeBurst++;
+ if(pokeBurst>4)return;
+ var key=pid+'|'+plId;
+ if(!pokeAt[key]||now-pokeAt[key]>7000)pokeN[key]=0;
+ pokeAt[key]=now;
+ pokeN[key]=(pokeN[key]||0)+1;
+ var n=pokeN[key],p=P(pid);if(!p)return;
+ var type=n>=3?'pokeAngry':(n===2?'poke2':'poke');
+ var mk=n>=3?'angry':(n===2?'worried':'happy');
+ var heavy=n===3&&fxOn();
+ var tokEl=root&&root.querySelector('.fltok[data-p="'+pid+'"][data-pl="'+plId+'"]');
+ if(tokEl){
+  tokEl.classList.remove('poked','poked-mad');void tokEl.offsetWidth;
+  tokEl.classList.add(n>=3?'poked-mad':'poked');
+  later(function(){try{tokEl.classList.remove('poked','poked-mad')}catch(e){}},520);
+ }
+ Sound.tap();
+ var txt=sayReact(pid,type,{mood:mk,tiny:!heavy,noFs:!heavy,key:heavy?('flpokeA'+pid):('flpoke'+pid+n)});
+ showTokBubble(tokEl,txt||(n>=3?'哼!':'嘿!'));
 }
 function reactMove(r,before){
  if(!r||!r.ok)return;
@@ -4553,8 +4594,12 @@ function renderTokens(){
   });
  });
  el.innerHTML=h;
- Array.prototype.forEach.call(el.querySelectorAll('.fltok.go'),function(b){
-  b.onclick=function(){pickPlane(+b.getAttribute('data-pl'))};
+ Array.prototype.forEach.call(el.querySelectorAll('.fltok'),function(b){
+  b.onclick=function(){
+   var pid=+b.getAttribute('data-p'),plId=+b.getAttribute('data-pl');
+   var can=S.pending&&S.pending.mov&&S.turn===pid&&S.pending.mov.indexOf(plId)>=0;
+   if(can)pickPlane(plId);else pokePlane(pid,plId);
+  };
  });
  /* takeoff pads highlight — hangar/entry 按座位色，不是加入顺序 */
  var curSeat=S.players&&S.players[S.turn]?seatOf(S.players[S.turn]):-1;
@@ -4582,16 +4627,18 @@ function renderPanel(){
 }
 function renderDock(){
  var el=$q('#fldock');if(!el)return;
+ var ready=S.phase==='play'&&S.roll==null&&!busy;
  var hint='';
  if(S.phase==='over'){var w=S.players[S.winner];hint='🏆 '+esc(w.name)+' 获胜!';}
  else if(S.phase!=='play'){hint='选角色开始';}
  else if(S.roll!=null){hint='掷出 <b>'+S.roll+'</b> · 点发光飞机'+(S.roll===6?' · 可起飞':'')}
  else if(S.again){hint='再掷一次!'}
  else{hint='轮到 <b style="color:'+TKC[E.cur(S).tok]+'">'+esc(E.cur(S).name)+'</b>'}
- el.innerHTML='<div class="fldie-wrap"><div class="fldie'+(S.roll==null&&S.phase==='play'?' pulse':'')+'" id="flDie" role="button" aria-label="骰子">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
-  '<div class="flhint" id="flHint">'+hint+'</div>'+
-  (S.phase==='play'&&S.roll==null?'<button class="btn big" id="flRoll">🎲 掷骰子</button>':'')+
-  (S.phase==='over'?'<button class="btn pri" id="flAgain">再来一局</button>':'');
+ el.className='fldock'+(ready?' want':'')+(S.phase==='over'?' over':'');
+ el.innerHTML='<div class="fldie-wrap'+(ready?' want':'')+'"><div class="fldie'+(ready?' pulse':'')+'" id="flDie" role="button" aria-label="骰子">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
+  (S.phase==='play'?'<button class="btn big flroll" id="flRoll"'+(ready?'':' disabled')+'>🎲 掷骰子</button>':'')+
+  (S.phase==='over'?'<button class="btn pri" id="flAgain">再来一局</button>':'')+
+  '<div class="flhint" id="flHint">'+hint+'</div>';
  var d=$q('#flDie'),r=$q('#flRoll'),a=$q('#flAgain');
  if(d)d.onclick=function(){if(S.phase==='play'&&S.roll==null&&!busy)doRoll()};
  if(r)r.onclick=function(){doRoll()};
@@ -4600,7 +4647,7 @@ function renderDock(){
 function render(){
  if(!root||!S)return;
  root.classList.toggle('over',S.phase==='over');
- renderTokens();renderPanel();renderDock();
+ renderTokens();renderHangars();renderPanel();renderDock();
 }
 function playMoveFx(r){
  if(!r||!r.ev)return;
@@ -4722,6 +4769,7 @@ function fit(){
 }
 var api={
  state:function(){return S},engine:E,render:function(){render()},roll:function(v){return doRoll(v)},
+ poke:function(pid,pl){pokePlane(pid,pl)},
  setPrintMode:function(on){
   if(!root)return;
   root.classList.toggle('fl-print',!!on);
@@ -4753,7 +4801,7 @@ return{
   if(window.ResizeObserver){ro=new ResizeObserver(function(){fit()});ro.observe(root)}else window.addEventListener('resize',fit);
   fit();
  },
- unmount:function(){timers.forEach(clearTimeout);timers=[];bubs={};faceMood={};if(cancel)cancel();if(ro)ro.disconnect();ro=null;if(S)save();if(selv){try{selv.remove()}catch(e){}}selv=null;document.documentElement.classList.remove('fl-land');fxLayer=null;if(plateURL){try{URL.revokeObjectURL(plateURL)}catch(e){}plateURL=null}root=null},
+  unmount:function(){timers.forEach(clearTimeout);timers=[];bubs={};faceMood={};pokeN={};pokeAt={};if(cancel)cancel();if(ro)ro.disconnect();ro=null;if(S)save();if(selv){try{selv.remove()}catch(e){}}selv=null;document.documentElement.classList.remove('fl-land');fxLayer=null;if(plateURL){try{URL.revokeObjectURL(plateURL)}catch(e){}plateURL=null}root=null},
  api:api
 };
 })();
@@ -6024,7 +6072,10 @@ var FLY={
  enterHome:['汪!拐进回家跑道啦!','快到家了,摇尾巴!'],
  finishPlane:['汪!一架飞机到终点啦!','汪汪,到家啦!'],
  win:['汪汪汪!小狗飞到终点第一名!','我赢啦,大家都来摸摸我!'],
- bounce:['汪呜,三连六,一架要回家。','飞太猛了,掉回基地了。']
+ bounce:['汪呜,三连六,一架要回家。','飞太猛了,掉回基地了。'],
+ poke:['汪?摸摸飞机呀!','汪汪,这是我的小飞机!'],
+ poke2:['汪呜,不要一直戳啦。','耳朵要皱起来了,汪!'],
+ pokeAngry:['汪!再戳我要咬螺旋桨了!','哼,小狗生气了,汪汪汪!']
 },
 1:{ /* 小狮子 */
  select:['嗷呜!本王来开飞机!','本王要第一个飞到终点!'],
@@ -6038,7 +6089,10 @@ var FLY={
  enterHome:['本王拐进回家跑道!','嗷,终点在向本王招手!'],
  finishPlane:['嗷呜!一架王机到终点!','本王的飞机到家啦!'],
  win:['嗷呜!本王第一个飞到终点!','森林之王,飞行冠军!'],
- bounce:['嗷!三连六,太猛了。','本王先回基地蓄力。']
+ bounce:['嗷!三连六,太猛了。','本王先回基地蓄力。'],
+ poke:['嗷?本王的飞机,请轻一点。','摸摸可以,本王允许。'],
+ poke2:['哼,本王的鬃毛要炸了。','不要一直戳王机!'],
+ pokeAngry:['嗷呜!本王真的生气了!','再戳,本王要把你吼飞!']
 },
 2:{ /* 不不奥特曼 */
  select:['不不不!奥特曼来开飞机!','能量满满,冲向终点!'],
@@ -6052,7 +6106,10 @@ var FLY={
  enterHome:['咻,拐进回家跑道!','不不不,是回家回家!'],
  finishPlane:['一架奥特飞机到达终点!','好好好,到家啦!'],
  win:['不不不,是赢赢赢!我飞到终点啦!','地球靠我,飞行冠军!'],
- bounce:['不不不,飞太猛掉回去了!','警报,三连六,先回基地。']
+ bounce:['不不不,飞太猛掉回去了!','警报,三连六,先回基地。'],
+ poke:['不不不,这是奥特飞机!','能量满满,可以摸摸。'],
+ poke2:['哼,计时器要响了。','不要戳光线开关啦!'],
+ pokeAngry:['不不不!奥特曼生气了!','再戳就光线全开了!']
 },
 3:{ /* 哎呀公主: 冰雪闪光,不喷火 */
  select:['哎呀,本公主来开飞机咯!','哎呀呀,人家要闪闪亮亮飞到终点!'],
@@ -6066,7 +6123,10 @@ var FLY={
  enterHome:['哎呀,人家拐进回家跑道啦!','哎呀,快到闪闪终点咯!'],
  finishPlane:['哎呀,一架公主飞机到家啦!','哎呀呀,终点闪闪发光!'],
  win:['哎呀!人家第一个飞到终点啦!','公主加冕,飞行冠军!'],
- bounce:['哎呀,掷太高兴,掉回基地了。','哎呀呀,三连六好晕,先回家。']
+ bounce:['哎呀,掷太高兴,掉回基地了。','哎呀呀,三连六好晕,先回家。'],
+ poke:['哎呀,这是公主专机呀。','轻轻碰一下雪花漆嘛。'],
+ poke2:['哎呀,皇冠要歪了。','不要一直戳人家的飞机!'],
+ pokeAngry:['哼!本公主冰一下你!','哎呀呀,再戳就冻住螺旋桨!']
 },
 4:{ /* 温柔喷火龙: 日常轻声; 喷火只在叠吃 */
  select:['呼,小龙来陪你开飞机。','你好呀,小龙会温柔地飞。'],
@@ -6080,7 +6140,10 @@ var FLY={
  enterHome:['呼,拐进暖暖的回家跑道。','快到家了,轻轻走。'],
  finishPlane:['一架小龙飞机到家啦。','呼,暖暖的,到终点了。'],
  win:['哇,小龙飞到终点啦,谢谢大家。','最温暖的龙是飞行冠军!'],
- bounce:['呼,飞太猛,掉回基地了。','三连六,小龙先歇一歇。']
+ bounce:['呼,飞太猛,掉回基地了。','三连六,小龙先歇一歇。'],
+ poke:['呼,小龙的飞机,轻轻碰就好。','你好呀,这是温柔专机。'],
+ poke2:['呼…请不要一直戳。','小火苗有点不高兴了。'],
+ pokeAngry:['哼!小龙真的生气了!','再戳,小龙要喷火了!']
 },
 5:{ /* 猪肉战神: 人类厨神; 「猪肉战神登场!」已有录音且适合出场 */
  select:['猪肉战神登场!','哼!哼!厨神来开飞机!'],
@@ -6094,10 +6157,13 @@ var FLY={
  enterHome:['拐进回家跑道,终点快到啦!','厨神巡航,回家道!'],
  finishPlane:['一架战神飞机到家,开宴!','哈哈哈,战神飞机到终点!'],
  win:['哈哈哈!厨神飞到终点第一名!','百味战神,飞行冠军!'],
- bounce:['哼,三连六,先回炉。','飞太猛了,回基地重整!']
+ bounce:['哼,三连六,先回炉。','飞太猛了,回基地重整!'],
+ poke:['哼!这是战神专机。','摸摸可以,别弄脏厨帽。'],
+ poke2:['哼,锅铲要响了。','不要一直戳战神飞机!'],
+ pokeAngry:['哼!战神要跺厨房了!','再戳就罚你回炉排队!']
 }
 };
-var FLY_EVENTS=['select','roll6','lowRoll','takeoff','jump','fly12','eat','eaten','enterHome','finishPlane','win','bounce'];
+var FLY_EVENTS=['select','roll6','lowRoll','takeoff','jump','fly12','eat','eaten','enterHome','finishPlane','win','bounce','poke','poke2','pokeAngry'];
 function pick(tok,type,rnd){var a=(L[tok]||L[0])[type];if(!a||!a.length)return '';var r=rnd?rnd(a.length):Math.floor(Math.random()*a.length);return a[r]}
 function pickFly(tok,type,rnd){var a=(FLY[tok]||FLY[0])[type];if(!a||!a.length)return '';var r=rnd?rnd(a.length):Math.floor(Math.random()*a.length);return a[r]}
 var API={LINES:L,EVENTS:EVENTS,FLY:FLY,FLY_EVENTS:FLY_EVENTS,pick:pick,pickFly:pickFly};
