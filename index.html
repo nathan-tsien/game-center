@@ -23,19 +23,19 @@ button,input{font-family:inherit}
 #view{flex:1;min-height:0;position:relative;overflow:hidden}
 /* nav: candy buttons with icon + text */
 #nav{display:flex;align-items:center;gap:8px;padding:8px 10px;flex:none;position:relative;z-index:16;overflow:visible}
-.navfold{display:none;position:absolute;left:50%;bottom:0;transform:translate(-50%,62%);z-index:12;align-items:center;justify-content:center;gap:4px;
- min-width:92px;min-height:34px;padding:4px 14px 6px;border:3px solid #fff;border-radius:0 0 18px 18px;cursor:pointer;font-family:inherit;
- color:#fff;font-weight:900;font-size:13px;letter-spacing:.4px;line-height:1;
+.navfold{display:none;position:absolute;left:50%;bottom:0;transform:translate(-50%,62%);z-index:20;align-items:center;justify-content:center;gap:4px;
+ min-width:110px;min-height:40px;padding:6px 16px 8px;border:3px solid #fff;border-radius:0 0 20px 20px;cursor:pointer;font-family:inherit;
+ color:#fff;font-weight:900;font-size:14px;letter-spacing:.4px;line-height:1;
  background:linear-gradient(180deg,#ff8ec4 0%,#ff5fa8 100%);
  box-shadow:0 5px 0 #c44880,0 8px 12px rgba(60,30,90,.22),inset 0 2px 0 rgba(255,255,255,.4)}
-.navfold svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.navfold svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .navfold:active{transform:translate(-50%,70%) scale(.96);box-shadow:0 2px 0 #c44880}
 body:not([data-route=home]) .navfold{display:inline-flex}
 body.nav-hid #nav{height:0;min-height:0;padding:0!important;margin:0;border:0;overflow:visible}
 body.nav-hid #nav>:not(.navfold){display:none}
-body.nav-hid .navfold{top:0;bottom:auto;transform:translate(-50%,0);border-radius:0 0 18px 18px}
+body.nav-hid .navfold{top:0;bottom:auto;transform:translate(-50%,0);border-radius:0 0 20px 20px}
 body.nav-hid .navfold:active{transform:translate(-50%,4px) scale(.96)}
-body.nav-hid #toast{top:calc(env(safe-area-inset-top) + 46px)}
+body.nav-hid #toast{top:calc(env(safe-area-inset-top) + 52px)}
 @media (prefers-reduced-motion:reduce){.navfold{transition:none}}
 #nav .ttl{flex:1;min-width:0;font-weight:900;font-size:21px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:8px}
 #nav .ttl .tic{width:30px;height:30px;flex:none;display:inline-block;filter:drop-shadow(0 2px 0 rgba(0,0,0,.15))}
