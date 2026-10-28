@@ -108,11 +108,12 @@
 .flhplate .tkm.hav{width:64px!important;height:64px!important;flex:none;border-radius:50%;overflow:hidden;
  box-shadow:0 0 0 4px #fff,0 0 0 8px var(--bc),0 6px 0 rgba(0,0,0,.22)}
 .flhplate .flhnm{margin-top:-10px;font-size:13px;font-weight:900;color:#3a2a5c;line-height:1.1;white-space:nowrap;letter-spacing:.02em;
- background:#fff;border:2.5px solid var(--bc);border-radius:11px;padding:2px 8px;box-shadow:0 2px 0 rgba(0,0,0,.18);z-index:1}
-.flbase[data-p="1"] .flhplate{top:-26%;left:-26%}
-.flbase[data-p="2"] .flhplate{top:-26%;right:-26%;left:auto}
-.flbase[data-p="0"] .flhplate{top:auto;bottom:-26%;left:-26%}
-.flbase[data-p="3"] .flhplate{top:auto;bottom:-26%;right:-26%;left:auto}
+ background:#fff;border:2.5px solid var(--bc);border-radius:11px;padding:2px 8px;box-shadow:0 2px 0 rgba(0,0,0,.18);z-index:1;
+ max-width:78px;overflow:hidden;text-overflow:ellipsis}
+.flbase[data-p="1"] .flhplate{top:-26%;left:-26%;align-items:flex-start}
+.flbase[data-p="2"] .flhplate{top:-26%;right:-26%;left:auto;align-items:flex-end}
+.flbase[data-p="0"] .flhplate{top:auto;bottom:-26%;left:-26%;align-items:flex-start}
+.flbase[data-p="3"] .flhplate{top:auto;bottom:-26%;right:-26%;left:auto;align-items:flex-end}
 
 /* Center finish — 极小中心点标，四色三角对顶清晰可见 */
 .flfin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;z-index:4;pointer-events:none;width:auto}
