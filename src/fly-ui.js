@@ -847,13 +847,15 @@ function pickPlane(plId){
  function finish(){
   walkShow=null;clearWalkHit();
   playMoveFx(r);
+  var tookOff=r.ev&&r.ev.some(function(e){return e.k==='takeoff'});
+  var launched=r.ev&&r.ev.some(function(e){return e.k==='launch'});
   if(r.sent&&r.sent.length){Sound.seq([[880,.06],[440,.1]]);UI.toast('叠吃!送回基地',1200,'star')}
-  else if(r.ev&&r.ev.some(function(e){return e.k==='takeoff'})){Sound.seq([[523,.08],[784,.12]]);UI.toast('先到停机坪!',1100,'star')}
-  else if(r.ev&&r.ev.some(function(e){return e.k==='launch'})){Sound.seq([[523,.08],[784,.12]]);if(!r.ev.some(function(e){return e.k==='jump'||e.k==='fly'}))UI.toast('正式起飞!',1100,'star')}
+  else if(tookOff){Sound.seq([[523,.08],[784,.12]]);UI.toast(S.again?'先到停机坪,再掷一次!':'先到停机坪!',1400,'star')}
+  else if(launched){Sound.seq([[523,.08],[784,.12]]);if(!r.ev.some(function(e){return e.k==='jump'||e.k==='fly'}))UI.toast('正式起飞!',1100,'star')}
   else if(r.ev&&r.ev.some(function(e){return e.k==='finish'})){Sound.hi();UI.toast('到达终点!',1400,'star')}
   else if(!(r.ev&&r.ev.some(function(e){return e.k==='jump'||e.k==='fly'})))Sound.pop();
   if(S.phase==='over'){var w=S.players[S.winner];try{GC.Intro.banner(w.tok,w.name,'飞到终点啦!')}catch(e){}UI.toast('🏆 '+w.name+' 飞到终点!',2500,'star')}
-  else if(S.again)UI.toast('再掷一次!',1000,'info');
+  else if(S.again&&!tookOff)UI.toast('再掷一次!',1000,'info');
   render();
   reactMove(r,before);
   busy=false;
