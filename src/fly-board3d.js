@@ -427,30 +427,64 @@ function flyOverlay(){
  return h+'</svg>';
 }
 
-/* ---------- 棋子：圆形玩具棋子 + 本色小飞机印花（安静、不抢棋盘；整块盖住格子上的宝石/白点） ---------- */
-function tokenDefs(){
- var h='<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>',i,p;
- var body='<path d="M-46-2C-46-9-40-12-33-12H-12V-34C-12-44-6-50 0-50C6-50 12-44 12-34V-12H33C40-12 46-9 46-2V6C46 12 41 14 35 13L12 9V26H24C30 26 32 30 32 34V38C32 42 29 44 24 44H-24C-29 44-32 42-32 38V34C-32 30-30 26-24 26H-12V9L-35 13C-41 14-46 12-46 6Z"';
- for(i=0;i<4;i++){
-  p=PAL[i];
-  h+='<linearGradient id="f3k'+i+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+p.top+'"/><stop offset=".6" stop-color="'+p.base+'"/><stop offset="1" stop-color="'+p.side+'"/></linearGradient>';
-  h+='<symbol id="f3tok'+i+'" viewBox="-56 -60 112 120">';
-  h+='<ellipse cx="2" cy="53" rx="42" ry="7" fill="#000" opacity=".16"/>';
-  /* --tb/--tr 由 CSS 覆盖：到达终点 = 金色棋子 */
-  h+='<circle cy="7" r="50" style="fill:var(--tr,'+p.side+')"/>';
-  h+='<circle r="50" style="fill:var(--tb,#fffaf0)" stroke="#fff" stroke-width="2.5"/>';
-  h+='<circle r="43" fill="none" stroke="'+p.base+'" stroke-opacity=".45" stroke-width="3"/>';
-  h+='<g transform="translate(0,3) scale(.7)">';
-  h+='<g transform="translate(0,5)">'+body+' fill="'+p.side+'"/></g>';
-  h+=body+' fill="url(#f3k'+i+')" stroke="'+p.side+'" stroke-width="2" stroke-linejoin="round"/>';
-  h+='<polygon points="'+starPts(9,4.3)+'" fill="#fff" fill-opacity=".9" stroke="#fff" stroke-opacity=".9" stroke-width="2" stroke-linejoin="round"/>';
-  h+='</g>';
-  h+='<ellipse cx="-20" cy="-30" rx="13" ry="5.5" transform="rotate(-32 -20 -30)" fill="#fff" opacity=".55"/>';
-  h+='</symbol>';
+/* ---------- 棋子：玩具飞机剪影（座位色机身）+ 角色涂装点缀。人脸在机库铭牌，不画在棋子上 ---------- */
+function tokenDefs(){return ''}
+var PLANE_BODY='M0-28C6.2-28 9.2-18 9.2-10.2L28 6.2V12.2L9.2 4.2V18.2L18.4 26.2V30.4L0 26.4-18.4 30.4V26.2L-9.2 18.2V4.2L-28 12.2V6.2L-9.2-10.2C-9.2-18-6.2-28 0-28Z';
+function planeTrim(tok,pal){
+ /* 涂装只点缀机翼/机尾，剪影始终是飞机 */
+ if(tok===0){ /* 小狗：爪印 + 骨头尾 */
+  return '<ellipse cx="-16" cy="2" rx="3.2" ry="2.4" fill="#8a4e1c" opacity=".85"/>'+
+   '<circle cx="-19" cy="-1.2" r="1.15" fill="#8a4e1c"/><circle cx="-13.4" cy="-1.4" r="1.15" fill="#8a4e1c"/><circle cx="-16" cy="-2.4" r="1.1" fill="#8a4e1c"/>'+
+   '<rect x="-2.2" y="22" width="4.4" height="8" rx="1.4" fill="#fff8e6" stroke="#c9a36b" stroke-width="0.8"/>'+
+   '<circle cx="-3.6" cy="22" r="2.1" fill="#fff8e6" stroke="#c9a36b" stroke-width="0.8"/>'+
+   '<circle cx="3.6" cy="22" r="2.1" fill="#fff8e6" stroke="#c9a36b" stroke-width="0.8"/>';
  }
- return h+'</defs></svg>';
+ if(tok===1){ /* 小狮子：鬃毛条 + 小皇冠 */
+  return '<path d="M-4-8 L-7-14 L-1-10 L0-16 L1-10 L7-14 L4-8" fill="#ffb020" stroke="#e07800" stroke-width="0.9" stroke-linejoin="round"/>'+
+   '<path d="M-22 6 L-26 2 M22 6 L26 2 M-20 10 L-24 7 M20 10 L24 7" stroke="#ff9a1a" stroke-width="1.8" stroke-linecap="round"/>';
+ }
+ if(tok===2){ /* 不不奥特曼：银红能量条 + 计时器 */
+  return '<path d="M-6-2 H6" stroke="#eef3f8" stroke-width="3.4" stroke-linecap="round"/>'+
+   '<path d="M-6-2 H6" stroke="#e0485e" stroke-width="1.6" stroke-linecap="round"/>'+
+   '<circle cy="8" r="4.4" fill="#e0485e" stroke="#fff" stroke-width="1.3"/>'+
+   '<circle cy="8" r="1.7" fill="#ffd23f"/>'+
+   '<path d="M-24 7 L-18 3 M24 7 L18 3" stroke="#e0485e" stroke-width="2.2" stroke-linecap="round"/>';
+ }
+ if(tok===3){ /* 哎呀公主：冰晶翼尖 + 雪花尾 */
+  return '<polygon points="-28,7 -32,2 -26,4" fill="#e7f6ff" stroke="#7ec8ff" stroke-width="0.9"/>'+
+   '<polygon points="28,7 32,2 26,4" fill="#e7f6ff" stroke="#7ec8ff" stroke-width="0.9"/>'+
+   '<g transform="translate(0,22)" stroke="#9ad8ff" stroke-width="1.3" stroke-linecap="round">'+
+   '<path d="M0-4 V4 M-4 0 H4 M-2.8-2.8 L2.8 2.8 M2.8-2.8 L-2.8 2.8"/>'+
+   '</g>'+
+   '<circle cx="-12" cy="-6" r="1.3" fill="#fff"/><circle cx="14" cy="10" r="1.1" fill="#d8f4ff"/>';
+ }
+ if(tok===4){ /* 温柔喷火龙：小角 + 翼膜纹，火只在生气 Mood 里喷 */
+  return '<path d="M-3.2-18 L-5.4-24 L-1-19" fill="#ffe0c8" stroke="#d4a07a" stroke-width="0.9"/>'+
+   '<path d="M3.2-18 L5.4-24 L1-19" fill="#ffe0c8" stroke="#d4a07a" stroke-width="0.9"/>'+
+   '<path d="M-22 10 Q-16 14 -10 10" fill="none" stroke="#f0b090" stroke-width="1.6" stroke-linecap="round"/>'+
+   '<path d="M22 10 Q16 14 10 10" fill="none" stroke="#f0b090" stroke-width="1.6" stroke-linecap="round"/>';
+ }
+ /* 猪肉战神：厨帽 + 金星；猪只作为机翼食物道具 */
+ return '<ellipse cx="0" cy="-20.5" rx="6.2" ry="2.4" fill="#fff" stroke="#d8d0c4" stroke-width="0.9"/>'+
+  '<rect x="-4.4" y="-20" width="8.8" height="3.2" rx="0.8" fill="#fff" stroke="#c8c0b4" stroke-width="0.8"/>'+
+  '<polygon points="6,8 3,12 9,12" fill="#ffd23f" stroke="#e0a800" stroke-width="0.7"/>'+
+  '<g transform="rotate(-28 16 8)"><rect x="12" y="7" width="12" height="1.6" rx=".7" fill="#c0a070"/>'+
+  '<ellipse cx="16" cy="7.8" rx="2.4" ry="1.7" fill="#c47848"/></g>';
 }
-function tokenSVG(pid){return '<svg class="fl-plane fl3d-tok" viewBox="0 0 112 120" aria-hidden="true"><use href="#f3tok'+(pid%4)+'" width="112" height="120"/></svg>'}
+function tokenSVG(pid,tok){
+ tok=(tok==null?0:tok)|0;if(tok<0)tok=0;if(tok>5)tok=tok%6;
+ var pal=PAL[((pid%4)+4)%4];
+ return '<svg class="fl-plane fl3d-tok" viewBox="-40 -40 80 80" aria-hidden="true">'+
+  '<ellipse cx="2" cy="34" rx="16" ry="4.5" fill="#000" opacity=".2"/>'+
+  '<path d="'+PLANE_BODY+'" fill="'+pal.side+'" transform="translate(1.4,1.8)"/>'+
+  '<path class="fl-plane-body" d="'+PLANE_BODY+'" fill="'+pal.base+'" stroke="#fff" stroke-width="2.1" stroke-linejoin="round"/>'+
+  '<path d="M0-26C3.6-26 5.2-18 5.2-11V16" fill="none" stroke="'+pal.light+'" stroke-width="2.8" stroke-linecap="round" opacity=".75"/>'+
+  '<ellipse cy="-12" rx="5" ry="6.2" fill="#b8ecff" stroke="#fff" stroke-width="1.3"/>'+
+  '<ellipse cx="-1.3" cy="-14" rx="1.9" ry="2.3" fill="#fff" opacity=".55"/>'+
+  '<circle cy="-26.5" r="3" fill="'+pal.top+'" stroke="#fff" stroke-width="1"/>'+
+  planeTrim(tok,pal)+
+  '</svg>';
+}
 
 /* ---------- 整盘 ---------- */
 function boardSVG(opt){

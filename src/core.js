@@ -206,15 +206,18 @@ var Dice=GC.Dice={
   var w=st.clientWidth,h=st.clientHeight,gap=Math.max(10,Math.min(w,h)*.06),a=Math.min((w-gap*(n-1))/n,h),b=Math.min(w,(h-gap*(n-1))/n),col=b>a,best=Math.max(40,Math.min((col?b:a)-8,260));
   st.style.setProperty('--ds',best+'px');st.style.setProperty('--gap',gap+'px');st.style.flexDirection=col?'column':'row';
  },
- /* animate the dice in stage, settle on results; cb when all stopped */
- roll:function(stage,res,cb){
+ /* animate the dice in stage, settle on results; cb when all stopped.
+    opts:{ms,stagger,tail,tick,cls} — 飞行棋传更长 ms + flyroll 做出明显翻滚 */
+ roll:function(stage,res,cb,opts){
+  opts=opts||{};
   var nodes=stage.children,i,iv,tm=[];
-  for(i=0;i<nodes.length;i++){nodes[i].classList.remove('land');nodes[i].removeAttribute('data-done');nodes[i].classList.add('roll')}
+  var spin=opts.ms!=null?opts.ms:650,stag=opts.stagger!=null?opts.stagger:260,tail=opts.tail!=null?opts.tail:380,tickMs=opts.tick!=null?opts.tick:75,extra=opts.cls||'';
+  for(i=0;i<nodes.length;i++){nodes[i].classList.remove('land');nodes[i].removeAttribute('data-done');nodes[i].classList.add('roll');if(extra)nodes[i].classList.add(extra)}
   Sound.vib(30);var tick=0;
-  iv=setInterval(function(){tick++;for(var i=0;i<nodes.length;i++){if(nodes[i].getAttribute('data-done'))continue;nodes[i].innerHTML=Dice.svg(Dice.int(6)+1)}if(tick%2===0)Sound.beep(300+Dice.int(200),.04)},75);
-  function stop(i){if(!nodes[i])return;nodes[i].setAttribute('data-done',1);nodes[i].classList.remove('roll');nodes[i].innerHTML=Dice.svg(res[i]);nodes[i].classList.add('land');Sound.beep(220,.12);Sound.vib(20)}
-  for(i=0;i<res.length;i++)(function(i){tm.push(setTimeout(function(){stop(i)},650+i*260))})(i);
-  tm.push(setTimeout(function(){clearInterval(iv);cb&&cb()},650+(res.length-1)*260+380));
+  iv=setInterval(function(){tick++;for(var i=0;i<nodes.length;i++){if(nodes[i].getAttribute('data-done'))continue;nodes[i].innerHTML=Dice.svg(Dice.int(6)+1)}if(tick%2===0)Sound.beep(300+Dice.int(200),.04)},tickMs);
+  function stop(i){if(!nodes[i])return;nodes[i].setAttribute('data-done',1);nodes[i].classList.remove('roll');if(extra)nodes[i].classList.remove(extra);nodes[i].innerHTML=Dice.svg(res[i]);nodes[i].classList.add('land');Sound.beep(220,.12);Sound.vib(20)}
+  for(i=0;i<res.length;i++)(function(i){tm.push(setTimeout(function(){stop(i)},spin+i*stag))})(i);
+  tm.push(setTimeout(function(){clearInterval(iv);cb&&cb()},spin+(res.length-1)*stag+tail));
   return function(){clearInterval(iv);tm.forEach(clearTimeout)};
  },
  /* shake-to-roll (shared). handler is set by the page that is mounted */
@@ -348,6 +351,8 @@ GC.Mood=(function(){
 })();
 /*__INTRO__*/
 var Select=GC.Select={
+ /* 飞行棋四角：黄TL · 蓝TR · 红BL · 绿BR（与引擎 seat 0红 1黄 2蓝 3绿 一致） */
+ SEATS:[{i:1,name:'黄',corner:'左上',color:'#f2c200'},{i:2,name:'蓝',corner:'右上',color:'#4a8fe0'},{i:0,name:'红',corner:'左下',color:'#e0485e'},{i:3,name:'绿',corner:'右下',color:'#4cae4c'}],
  tokens:function(kind){
   if(kind==='tk')return TOKNAMES.tk.map(function(n,i){return{i:i,name:n,color:TKCOL[i],svg:tokSVG('tk',i)}});
   if(kind==='plane')return Players.palettes.flight.map(function(p,i){return{i:i,name:p[0]+'色飞机',color:p[1],svg:tokSVG('plane',i,p[1])}});
@@ -369,26 +374,57 @@ var Select=GC.Select={
   var b=document.createElement('div');b.className='selbub';b.textContent=txt;card.appendChild(b);
   setTimeout(function(){b.classList.add('out');setTimeout(function(){b.remove();card.classList.remove('talk')},250)},2600);
  },
- /* full "choose your character" screen. o:{kind,title,sub,min,max,pre:[{tok,name}],ok,onDone(list),extra(html)} */
+ /* full "choose your character" screen. o:{kind,title,sub,min,max,pre:[{tok,name,seat}],ok,onDone(list),extra(html),bindSeat} */
  screen:function(host,o){
-  var T=Select.tokens(o.kind),sel=(o.pre||[]).map(function(x){return{tok:x.tok,name:x.name||''}});
-  var el=document.createElement('div');el.className='selv';host.appendChild(el);UI.enter(el,'r');
+  var T=Select.tokens(o.kind),SEATS=o.bindSeat?Select.SEATS:null,focus=-1;
+  var sel=(o.pre||[]).map(function(x){return{tok:x.tok,name:x.name||'',seat:x.seat}});
+  var el=document.createElement('div');el.className='selv'+(SEATS?' bindseat':'');host.appendChild(el);UI.enter(el,'r');
+  function seatMeta(si){var r=null;if(SEATS)SEATS.forEach(function(s){if(s.i===si)r=s});return r}
+  function ready(){if(sel.length<o.min)return false;if(SEATS&&sel.some(function(s){return s.seat==null||s.seat<0||s.seat>3}))return false;return true}
   function draw(){
-   var h='<div class="selh"><h1>'+(o.title||'选择你的角色')+'</h1><p>'+(o.sub||'每位玩家点一个自己的棋子;点第一个的人先走')+'</p></div><div class="selg k'+T.length+'">';
+   var h='<div class="selh"><h1>'+(o.title||'选择你的角色')+'</h1><p>'+(o.sub||'每位玩家点一个自己的棋子;点第一个的人先走')+'</p></div>';
+   if(SEATS){
+    var who=null;sel.forEach(function(s){if(s.tok===focus)who=s});
+    if(!who)sel.forEach(function(s){if(who)return;if(s.seat==null)who=s});
+    h+='<div class="seatbar'+(who&&(who.seat==null||who.seat===undefined)?' need':'')+'"><div class="seatbar-l">飞机颜色'+(who?' · 给 <b>'+UI.esc(T[who.tok]?T[who.tok].name:('玩家'))+'</b>':' · 先点角色再选颜色')+'</div><div class="seatbar-r">';
+    SEATS.forEach(function(st){
+     var own=null;sel.forEach(function(s){if(s.seat===st.i)own=s});
+     var mine=who&&who.seat===st.i,taken=!!own&&!mine;
+     h+='<button type="button" class="seatsw'+(mine?' on':'')+(taken?' taken':'')+'" data-seat="'+st.i+'" style="--sc:'+st.color+'" '+(taken?'disabled':'')+' aria-label="'+st.name+'色飞机 '+st.corner+'">'+(mine?'✓ ':'')+st.name+'<small>'+st.corner+'</small></button>';
+    });
+    h+='</div></div>';
+   }
+   h+='<div class="selg k'+T.length+'">';
    T.forEach(function(t){
     var k=-1;sel.forEach(function(s,j){if(s.tok===t.i)k=j});
-    h+='<div class="tkc'+(k>=0?' on':'')+'" data-i="'+t.i+'" style="--tc:'+t.color+'"><button class="tkb" data-i="'+t.i+'" aria-label="'+t.name+'"><div class="tkav">'+t.svg+'</div><div class="tkn">'+t.name+'</div>'+(k>=0?'<span class="tkbadge">'+(k+1)+'</span>':'')+'</button>'+(k>=0?NameField.html({ph:t.name,val:sel[k].name,attrs:'data-i="'+t.i+'"',tok:t.color}):'')+'</div>';
+    var sm=k>=0&&SEATS?seatMeta(sel[k].seat):null;
+    h+='<div class="tkc'+(k>=0?' on':'')+(k>=0&&focus===t.i?' focus':'')+'" data-i="'+t.i+'" style="--tc:'+(sm?sm.color:t.color)+'"><button class="tkb" data-i="'+t.i+'" aria-label="'+t.name+'"><div class="tkav">'+t.svg+'</div><div class="tkn">'+t.name+'</div>'+(k>=0?'<span class="tkbadge">'+(k+1)+'</span>':'')+(k>=0&&SEATS?(sm?'<span class="tkseat" style="background:'+sm.color+'">'+sm.name+'色</span>':'<span class="tkseat wait">选颜色</span>'):'')+'</button>'+(k>=0?NameField.html({ph:t.name,val:sel[k].name,attrs:'data-i="'+t.i+'"',tok:sm?sm.color:t.color}):'')+'</div>';
    });
-   h+='</div>'+(o.extra||'')+'<div class="self"><button class="btn big" id="selOk"'+(sel.length<o.min?' disabled':'')+'>'+(o.ok||'开始游戏')+' ▶ <small>'+sel.length+'/'+o.max+'</small></button></div>';
+   h+='</div>'+(o.extra||'')+'<div class="self"><button class="btn big" id="selOk"'+(ready()?'':' disabled')+'>'+(o.ok||'开始游戏')+' ▶ <small>'+sel.length+'/'+o.max+'</small></button></div>';
    el.innerHTML=h;o.onDraw&&o.onDraw(el);
    Array.prototype.forEach.call(el.querySelectorAll('.tkb'),function(b){b.onclick=function(){
     var i=+b.getAttribute('data-i'),k=-1;sel.forEach(function(s,j){if(s.tok===i)k=j});
-    if(k>=0){sel.splice(k,1);Sound.tap()}else{if(sel.length>=o.max){UI.toast('最多 '+o.max+' 位玩家',1500,'warn');return}sel.push({tok:i,name:''});Sound.pop();Sound.vib(15)}
+    if(k>=0){
+     if(SEATS&&focus!==i){focus=i;Sound.tap();draw();return}
+     sel.splice(k,1);if(focus===i)focus=-1;Sound.tap()
+    }else{
+     if(sel.length>=o.max){UI.toast('最多 '+o.max+' 位玩家',1500,'warn');return}
+     sel.push({tok:i,name:'',seat:null});focus=i;Sound.pop();Sound.vib(15)
+    }
     draw();var nb=el.querySelector('.tkc[data-i="'+i+'"]');if(nb&&k<0){nb.classList.add('pick');Select.cheer(o.kind,i,nb,o)}}});
+   if(SEATS)Array.prototype.forEach.call(el.querySelectorAll('.seatsw'),function(b){b.onclick=function(){
+    var si=+b.getAttribute('data-seat'),who=null;
+    sel.forEach(function(s){if(s.tok===focus)who=s});
+    if(!who)sel.forEach(function(s){if(who)return;if(s.seat==null)who=s});
+    if(!who){UI.toast('先点一个角色,再选飞机颜色',1600,'warn');return}
+    if(sel.some(function(s){return s!==who&&s.seat===si})){UI.toast('这个颜色已经有人选了',1500,'warn');return}
+    who.seat=si;focus=who.tok;Sound.pop();Sound.vib(12);draw();
+   }});
    NameField.bind(el,function(inp,v){var i=+inp.getAttribute('data-i');sel.forEach(function(s){if(s.tok===i)s.name=v})});
    $('selOk').onclick=function(){
     if(sel.length<o.min){UI.toast('至少 '+o.min+' 位玩家',1500,'warn');return}
-    Sound.hi();el.classList.add('out');var list=sel.map(function(s){return{tok:s.tok,name:s.name.trim()}});
+    if(SEATS&&sel.some(function(s){return s.seat==null||s.seat<0||s.seat>3})){UI.toast('每位玩家都要选一个飞机颜色',1800,'warn');return}
+    Sound.hi();el.classList.add('out');var list=sel.map(function(s){return{tok:s.tok,name:s.name.trim(),seat:s.seat}});
     setTimeout(function(){el.remove();o.onDone(list)},UI.reduce()?0:260);
    };
   }
@@ -525,6 +561,24 @@ function playZoomOut(color,icon,tile){
  var a=x.animate([{left:'0px',top:'0px',width:W+'px',height:H+'px',borderRadius:'0px',opacity:1},{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',borderRadius:'34px',opacity:1,offset:.8},{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',borderRadius:'34px',opacity:0}],{duration:420,easing:'cubic-bezier(.5,0,.2,1)',fill:'forwards'});
  a.onfinish=function(){tile.style.visibility='';tile.classList.add('popped');xfHide()};
 }
+function navInGame(){var r=document.body.getAttribute('data-route');return !!(r&&r!=='home')}
+function syncNavFold(){
+ var ingame=navInGame(),hid=ingame&&!!Store.get('navHidden',false),b=$('navFold');
+ document.body.classList.toggle('nav-hid',hid);
+ if(!b)return;
+ b.setAttribute('aria-expanded',hid?'false':'true');
+ b.setAttribute('aria-label',hid?'展开顶栏,回到首页和设置':'收起顶栏,棋盘更大');
+ b.innerHTML=hid
+  ?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg><span>菜单</span>'
+  :'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg><span>收起</span>';
+}
+function toggleNavFold(){
+ if(!navInGame())return;
+ var hid=!document.body.classList.contains('nav-hid');
+ Store.set('navHidden',hid);Sound.tap();syncNavFold();
+ UI.toast(hid?'顶栏收起来啦 · 再点上面「菜单」可以打开':'顶栏回来了',1600,'info');
+ requestAnimationFrame(function(){try{window.dispatchEvent(new Event('resize'))}catch(e){}});
+}
 function route(){
  var id=(location.hash||'').replace(/^#\/?/,''),g=null;
  if(id==='bank'){location.replace('#/china');return}
@@ -535,19 +589,21 @@ function route(){
  view.innerHTML='';$('navslot').innerHTML='';
  if(!g){
   document.body.setAttribute('data-route','home');$('nTitle').innerHTML='';document.title='游戏中心';renderHome();
-  prevId='home';
+  prevId='home';syncNavFold();
   if(fromG&&from!=='home'){var tile=view.querySelector('.tile[data-id="'+from+'"]');playZoomOut(fromG.color,fromG.icon,tile)}
   return;
  }
  document.body.setAttribute('data-route',g.id);$('nTitle').innerHTML='<span class="tic">'+g.icon+'</span>'+esc(g.name);document.title=g.name;
  var root=document.createElement('div');root.className='gm gm-'+g.id;view.appendChild(root);
  current=g;g.mount(root,buildCtx($('navslot')));
- prevId=g.id;
+ prevId=g.id;syncNavFold();
  if(zoom&&zoom.id===g.id){playZoomIn(zoom)}else if(from==='home'||from===''){if(from==='home')root.classList.add('fadein')}
  zoom=null;
 }
 window.addEventListener('hashchange',route);
 $('nHome').onclick=function(){Sound.tap();if(backFn)backFn();else location.hash='#/'};
+if($('navFold'))$('navFold').onclick=function(){toggleNavFold()};
+GC.navFold={sync:syncNavFold,toggle:toggleNavFold,hidden:function(){return document.body.classList.contains('nav-hid')}};
 function syncSnd(){var b=$('nSnd');b.innerHTML=(Sound.on?UI.ICO.snd:UI.ICO.mute)+'<span>'+(Sound.on?'声音':'静音')+'</span>';b.classList.toggle('off',!Sound.on)}
 $('nSnd').onclick=function(){Sound.cfg.sound=!Sound.on;Sound.save();if(!Sound.on&&GC.Voice)GC.Voice.cancel();syncSnd();if(Sound.on)Sound.pop();UI.toast(Sound.on?'声音已开启':'已静音',1200,Sound.on?'snd':'mute')};
 $('nSet').innerHTML=UI.ICO.gear+'<span>设置</span>';

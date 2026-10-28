@@ -22,7 +22,21 @@ button,input{font-family:inherit}
 #shell{position:absolute;inset:0;display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 #view{flex:1;min-height:0;position:relative;overflow:hidden}
 /* nav: candy buttons with icon + text */
-#nav{display:flex;align-items:center;gap:8px;padding:8px 10px;flex:none;position:relative;z-index:5}
+#nav{display:flex;align-items:center;gap:8px;padding:8px 10px;flex:none;position:relative;z-index:16;overflow:visible}
+.navfold{display:none;position:absolute;left:50%;bottom:0;transform:translate(-50%,62%);z-index:20;align-items:center;justify-content:center;gap:4px;
+ min-width:110px;min-height:40px;padding:6px 16px 8px;border:3px solid #fff;border-radius:0 0 20px 20px;cursor:pointer;font-family:inherit;
+ color:#fff;font-weight:900;font-size:14px;letter-spacing:.4px;line-height:1;
+ background:linear-gradient(180deg,#ff8ec4 0%,#ff5fa8 100%);
+ box-shadow:0 5px 0 #c44880,0 8px 12px rgba(60,30,90,.22),inset 0 2px 0 rgba(255,255,255,.4)}
+.navfold svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.navfold:active{transform:translate(-50%,70%) scale(.96);box-shadow:0 2px 0 #c44880}
+body:not([data-route=home]) .navfold{display:inline-flex}
+body.nav-hid #nav{height:0;min-height:0;padding:0!important;margin:0;border:0;overflow:visible}
+body.nav-hid #nav>:not(.navfold){display:none}
+body.nav-hid .navfold{top:0;bottom:auto;transform:translate(-50%,0);border-radius:0 0 20px 20px}
+body.nav-hid .navfold:active{transform:translate(-50%,4px) scale(.96)}
+body.nav-hid #toast{top:calc(env(safe-area-inset-top) + 52px)}
+@media (prefers-reduced-motion:reduce){.navfold{transition:none}}
 #nav .ttl{flex:1;min-width:0;font-weight:900;font-size:21px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:8px}
 #nav .ttl .tic{width:30px;height:30px;flex:none;display:inline-block;filter:drop-shadow(0 2px 0 rgba(0,0,0,.15))}
 #nav .ttl .tic svg{width:100%;height:100%}
@@ -126,6 +140,26 @@ body[data-route=home] #nHome{visibility:hidden}
 @media (prefers-reduced-motion:reduce){.nf,.nf *{transition:none!important}.nf:focus-within{transform:none}}
 .self{position:sticky;bottom:0;padding:10px 0 4px;width:min(100%,420px);margin-top:auto}
 .self .btn{width:100%;max-width:none}.self .btn small{font-size:14px;opacity:.85;margin-left:6px}
+/* 飞行棋选角色时绑定飞机颜色（黄TL · 蓝TR · 红BL · 绿BR） */
+.seatbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;width:min(100%,640px);margin:0 0 10px;padding:8px 10px;background:#fff8;border:3px solid #fff;border-radius:18px;box-shadow:0 4px 0 rgba(60,30,90,.12)}
+.seatbar-l{font-weight:900;font-size:14px;color:#5a3ea0;text-align:center}
+.seatbar-l b{color:#e0485e}
+.seatbar-r{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.seatsw{min-width:58px;height:52px;padding:4px 8px;border-radius:16px;border:3px solid #fff;background:var(--sc,#ccc);color:#fff;font-weight:900;font-size:18px;font-family:inherit;line-height:1.05;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.18);text-shadow:0 1px 0 rgba(0,0,0,.25)}
+.seatsw small{display:block;font-size:11px;font-weight:800;opacity:.92}
+.seatsw.on{outline:3px solid #5a3ea0;outline-offset:2px;transform:scale(1.08)}
+.seatsw.taken{opacity:.38;filter:grayscale(.35);cursor:not-allowed;box-shadow:none}
+.seatbar.need{box-shadow:0 0 0 3px #ffd23f,0 4px 0 rgba(60,30,90,.12);animation:seatneed 1s ease-in-out infinite}
+@keyframes seatneed{50%{box-shadow:0 0 0 5px #ff9a40,0 4px 0 rgba(60,30,90,.12)}}
+.tkseat{position:absolute;left:8px;bottom:6px;padding:2px 7px;border-radius:999px;background:#888;color:#fff;font-size:11px;font-weight:900;border:2px solid #fff;box-shadow:0 2px 0 rgba(0,0,0,.15)}
+.tkseat.wait{background:#ff7a1f;animation:seatneed .9s ease-in-out infinite}
+.tkc.focus .tkb{box-shadow:0 8px 0 rgba(60,30,90,.2),0 0 0 4px #fff,0 0 0 8px #ffd23f}
+@media (orientation:landscape) and (max-height:560px){
+ .selv.bindseat .selh p{display:block!important;font-size:13px;margin:0}
+ .seatbar{margin:2px 0 6px;padding:6px 8px;gap:6px}
+ .seatsw{min-width:48px;height:44px;font-size:15px}
+ .tkseat{font-size:10px;left:4px;bottom:4px;padding:1px 5px}
+}
 .mplist{margin:8px 0}.mprow{display:flex;align-items:center;gap:10px;padding:6px;border-radius:16px;background:#f7f4ff;margin:6px 0}.mprow .pl{flex:none;transform:none}.mpn{flex:1;text-align:left;font-weight:900;font-size:18px}.mpn small{display:block;font-size:12px;color:#8a7aaa}
 .sec{margin:12px 0;text-align:left}
 .sec h3{margin:0 0 6px;font-size:18px;color:#5a3ea0}
@@ -302,6 +336,7 @@ body[data-route=home] #nHome{visibility:hidden}
   <div id="navslot"></div>
   <button class="nb snd" id="nSnd" aria-label="声音"></button>
   <button class="nb set" id="nSet" aria-label="设置与进度"></button>
+  <button type="button" class="navfold" id="navFold" aria-controls="nav" aria-expanded="true" aria-label="收起顶栏"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg><span>收起</span></button>
  </div>
  <div id="view"></div>
 </div>
@@ -1433,9 +1468,9 @@ html.gq-eco .moodfs{display:none!important}
 .fllay{position:absolute;inset:0;display:flex;flex-direction:column;gap:4px;padding:4px}
 .gm-fly.land .fllay{flex-direction:row;align-items:stretch;gap:8px;padding:4px 6px}
 .flbw{flex:1;min-width:0;min-height:0;display:flex;align-items:center;justify-content:center}
-.gm-fly.land .flbw{flex:0 0 82%;max-width:82%}
+.gm-fly.land .flbw{flex:0 0 78%;max-width:78%}
 .flside{flex:none;display:flex;flex-direction:column;gap:6px;min-height:0}
-.gm-fly.land .flside{flex:0 0 18%;width:18%;max-width:200px;height:100%}
+.gm-fly.land .flside{flex:0 0 22%;width:22%;max-width:248px;height:100%}
 
 /* Square classic board — wood trim + soft clay plate */
 .flb{position:relative;width:min(100%,100%);height:min(100%,100%);aspect-ratio:1/1;
@@ -1527,11 +1562,26 @@ html.gq-eco .moodfs{display:none!important}
 .flhome .flmark{width:58%;height:58%;background:radial-gradient(circle at 40% 35%,#fff 0%,#f5f0e8 70%,#e8e0d4 100%);
  box-shadow:inset 0 2px 4px rgba(0,0,0,.18),inset 0 -1px 0 #fff8,0 1px 0 #fff6}
 
-/* Hangar label overlay */
-.flbase{position:absolute;border-radius:14px;background:transparent;border:0;
- z-index:1;display:flex;align-items:flex-start;justify-content:center;padding-top:1.8%;pointer-events:none}
-.flbase span{font-size:10px;font-weight:900;color:#fff;background:var(--bc);padding:2px 8px;border-radius:9px;z-index:2;
+/* Hangar label overlay — 角色铭牌贴在机库外角，棋子仍是飞机 */
+.flbase{position:absolute;border-radius:14px;background:transparent;border:0;overflow:visible;
+ z-index:5;display:flex;align-items:flex-start;justify-content:center;padding-top:1.8%;pointer-events:none}
+.flbase .flcname{font-size:10px;font-weight:900;color:#fff;background:var(--bc);padding:2px 8px;border-radius:9px;z-index:2;
  box-shadow:0 2px 0 rgba(0,0,0,.22),inset 0 1px 0 #fff6;opacity:.95;letter-spacing:.04em}
+/* 圆形角色铭牌贴在机库外角草地，棋子仍是飞机；铭牌宽锁定头像，名字绝对定位向外挂，不盖四坑 */
+.flhplate{position:absolute;z-index:1;display:block;width:64px;height:64px;
+ background:transparent;border:0;padding:0;box-shadow:none;pointer-events:none}
+.flhplate .tkm.hav{width:64px!important;height:64px!important;border-radius:50%;overflow:hidden;
+ box-shadow:0 0 0 4px #fff,0 0 0 8px var(--bc),0 6px 0 rgba(0,0,0,.22)}
+.flhplate .flhnm{position:absolute;bottom:-2px;font-size:12px;font-weight:900;color:#3a2a5c;line-height:1.1;white-space:nowrap;letter-spacing:.02em;
+ background:#fff;border:2.5px solid var(--bc);border-radius:11px;padding:2px 7px;box-shadow:0 2px 0 rgba(0,0,0,.18);z-index:1}
+.flbase[data-p="1"] .flhplate{top:-22%;left:-22%}
+.flbase[data-p="1"] .flhnm{left:0;transform:translate(-18%,0)}
+.flbase[data-p="2"] .flhplate{top:-22%;right:-22%;left:auto}
+.flbase[data-p="2"] .flhnm{right:0;left:auto;transform:translate(18%,0)}
+.flbase[data-p="0"] .flhplate{top:auto;bottom:-22%;left:-22%}
+.flbase[data-p="0"] .flhnm{left:0;transform:translate(-18%,0)}
+.flbase[data-p="3"] .flhplate{top:auto;bottom:-22%;right:-22%;left:auto}
+.flbase[data-p="3"] .flhnm{right:0;left:auto;transform:translate(18%,0)}
 
 /* Center finish — 极小中心点标，四色三角对顶清晰可见 */
 .flfin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;z-index:4;pointer-events:none;width:auto}
@@ -1545,9 +1595,10 @@ html.gq-eco .moodfs{display:none!important}
   0 0 0 2px rgba(255,255,255,.75);
  letter-spacing:0}
 
-#fltok{position:absolute;inset:0;z-index:6;pointer-events:none}
+#fltok{position:absolute;inset:0;z-index:8;pointer-events:none;overflow:visible}
+#fltok .fltok{pointer-events:auto}
 /* track tokens ~5.5%; base tokens ~4.5% ≈ pit diameter so they sit in X slots */
-.fltok{position:absolute;width:5.5%;height:5.5%;transform:translate(-50%,-50%);border:0;background:transparent;padding:0;cursor:pointer;pointer-events:auto;
+.fltok{position:absolute;width:5.5%;height:5.5%;transform:translate(-50%,-50%);border:0;background:transparent;padding:0;cursor:pointer;pointer-events:auto;overflow:visible;
  filter:drop-shadow(0 4px 3px rgba(0,0,0,.42));transition:left .28s ease-out,top .28s ease-out,transform .2s}
 .fltok .fl-plane,.fltok .fl-plane-img{width:100%;height:100%;display:block;object-fit:contain}
 /* no PNG translate on base — avoid pushing wings past hangar white rim */
@@ -1567,7 +1618,26 @@ html.gq-eco .moodfs{display:none!important}
 .fltok.go{z-index:8;animation:flgo 1s ease-in-out infinite;outline:3px solid #ffd23f;outline-offset:2px;border-radius:50%}
 .fltok.takeoff-lit{z-index:7;outline:3px solid #7ef0a0;outline-offset:2px;border-radius:50%;animation:flgo 1s ease-in-out infinite}
 @keyframes flgo{50%{transform:translate(-50%,-58%) scale(1.08)}}
+.fltok .flglow{position:absolute;left:50%;top:50%;width:210%;height:210%;margin:0;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:0;
+ background:radial-gradient(circle,#fff 0 18%,#ffd23f 42%,rgba(255,210,63,0) 70%);
+ box-shadow:0 0 0 3px #fff,0 0 0 8px #ffd23f,0 0 28px 12px #ffd23fcc;
+ animation:flhalopulse .85s ease-in-out infinite}
+.fltok.takeoff-lit .flglow{background:radial-gradient(circle,#fff 0 18%,#7ef0a0 42%,rgba(126,240,160,0) 70%);
+ box-shadow:0 0 0 3px #fff,0 0 0 8px #7ef0a0,0 0 28px 12px #7ef0a0cc}
+.fltok.go .fl-plane,.fltok.go .fl3d-tok,.fltok.takeoff-lit .fl-plane,.fltok.takeoff-lit .fl3d-tok,.fltok.go .fl-plane-img,.fltok.takeoff-lit .fl-plane-img{position:relative;z-index:1}
+@keyframes flhalopulse{0%,100%{transform:translate(-50%,-50%) scale(.88);opacity:.82}50%{transform:translate(-50%,-50%) scale(1.12);opacity:1}}
 .gq-eco .fltok.go,.gq-eco .fltok.takeoff-lit{animation:none}
+.gq-eco .fltok .flglow{animation:none;opacity:1;transform:translate(-50%,-50%) scale(1)}
+.fltok.poked{animation:flpoke .38s ease-out}
+.fltok.poked-mad{animation:flpokemad .46s ease-in-out}
+@keyframes flpoke{0%{transform:translate(-50%,-50%) scale(1)}40%{transform:translate(-50%,-60%) scale(1.14) rotate(-8deg)}100%{transform:translate(-50%,-50%)}}
+@keyframes flpokemad{0%,100%{transform:translate(-50%,-50%)}30%{transform:translate(-56%,-50%) rotate(-12deg)}70%{transform:translate(-44%,-50%) rotate(12deg)}}
+.fltbub{position:absolute;left:50%;bottom:110%;transform:translateX(-50%);z-index:12;pointer-events:none;
+ background:#fff;color:#3a2a5c;border:2.5px solid var(--pc,#ff6fae);border-radius:12px;padding:3px 8px;
+ font-size:11px;font-weight:900;line-height:1.2;white-space:nowrap;max-width:150px;overflow:hidden;text-overflow:ellipsis;
+ box-shadow:0 3px 0 rgba(0,0,0,.16)}
+.fltbub::after{content:'';position:absolute;left:50%;top:100%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--pc,#ff6fae)}
+.gq-eco .fltok.poked,.gq-eco .fltok.poked-mad{animation:none}
 
 .flfx{position:absolute;inset:0;pointer-events:none;z-index:9;overflow:hidden}
 .flsp{position:absolute;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:hsl(var(--h,50) 90% 60%);box-shadow:0 0 6px hsl(var(--h,50) 90% 70%);
@@ -1585,18 +1655,77 @@ html.gq-eco .moodfs{display:none!important}
 .flpc .pbub{font-size:11px;padding:4px 6px;bottom:4px;z-index:6}
 .gm-fly.fl-island .flpc .pbub{background:#fffef8}
 .flpc .bd{display:inline-block;color:#fff;font-size:11px;font-weight:900;padding:1px 6px;border-radius:8px}
-.fldock{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 4px 8px}
-.fldie-wrap{position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center}
-.fldie-wrap::before{content:'';position:absolute;left:50%;bottom:2px;transform:translateX(-50%);width:70px;height:18px;border-radius:50%;
- background:radial-gradient(ellipse,#ffd23fcc,#ff9a4044 55%,transparent 70%);box-shadow:0 0 18px #ffd23faa;z-index:0}
-.fldie{position:relative;z-index:1;width:68px;height:68px;cursor:pointer;filter:drop-shadow(0 8px 6px rgba(0,0,0,.35))}
+/* Compact floating die — follows the active hangar; no card, center star stays clear */
+.fldock{display:flex;flex-direction:column-reverse;align-items:center;gap:3px;padding:0;
+ background:none;border:0;box-shadow:none;overflow:visible;pointer-events:none}
+.fldock-c{position:absolute;left:28%;top:20%;z-index:12;
+ width:auto;min-width:0;max-width:none;box-sizing:border-box;margin:0;
+ --ox:-50%;--oy:-100%;
+ transform:translate(var(--ox),var(--oy));transform-origin:50% 100%;
+ transition:left .5s cubic-bezier(.22,.8,.28,1),top .5s cubic-bezier(.22,.8,.28,1),transform .28s ease,opacity .28s ease}
+.fldock-c.s-tl,.fldock-c.s-tr{--ox:-50%;--oy:-100%;flex-direction:column-reverse;transform-origin:50% 100%}
+.fldock-c.s-bl,.fldock-c.s-br{--ox:-50%;--oy:0%;flex-direction:column;transform-origin:50% 0}
+.fldock-c .fldie,.fldock-c .flroll,.fldock-c .btn{pointer-events:auto}
+.fldock.want{background:none;border:0;box-shadow:none;animation:none}
+.fldock-c.idle{opacity:.88;transform:translate(var(--ox),var(--oy)) scale(.9);pointer-events:none;z-index:8;
+ animation:none;box-shadow:none;background:none}
+.fldock-c.idle .flroll,.fldock-c.idle .flhint{display:none}
+.fldock-c.duck{opacity:.12;transform:translate(var(--ox),var(--oy)) scale(.45);pointer-events:none;z-index:3;animation:none}
+.fldock-c.over{z-index:12;opacity:1;transform:translate(var(--ox),var(--oy));pointer-events:auto}
+.fldock-c.rolling .flroll,.fldock-c.rolling .flhint{visibility:hidden}
+html.gq-eco .fldock-c,.fldock-c.no-slide{transition:none}
+@media (prefers-reduced-motion:reduce){.fldock-c{transition:none}}
+.fldie-wrap{position:relative;width:58px;height:58px;display:flex;align-items:center;justify-content:center;perspective:520px;overflow:visible}
+.fldock-c.want .fldie-wrap{width:64px;height:64px}
+.fldie-wrap::before{content:'';position:absolute;left:50%;bottom:2px;transform:translateX(-50%);width:46px;height:14px;border-radius:50%;
+ background:radial-gradient(ellipse,#ffd23fcc,#ff9a4044 55%,transparent 70%);box-shadow:0 0 14px #ffd23faa;z-index:0}
+.fldie-wrap.want::before{width:58px;height:18px;animation:fldieglow .7s ease-in-out infinite}
+.fldie-wrap.rolling::before{width:88px;height:24px;animation:fldieglow .35s ease-in-out infinite}
+@keyframes fldieglow{50%{opacity:.55;transform:translateX(-50%) scaleX(1.18)}}
+.fldie{position:relative;z-index:1;width:50px;height:50px;cursor:pointer;filter:drop-shadow(0 6px 5px rgba(0,0,0,.35));transform-style:preserve-3d}
+.fldock-c.want .fldie{width:56px;height:56px;
+ filter:drop-shadow(0 6px 5px rgba(0,0,0,.35)) drop-shadow(0 0 12px #ffd23fcc)}
+.fldie.rolling,.fldock-c.want .fldie.rolling{width:84px;height:84px;z-index:5}
+.fldie-wrap.rolling,.fldock-c.want .fldie-wrap.rolling{width:92px;height:92px}
 .fldie.pulse{animation:dieidle 1.6s ease-in-out infinite}
 .fldie svg,.fldie .die{width:100%;height:100%}
-.fldie .ctdw{width:100%;height:100%}
-.flhint{font-size:13px;font-weight:900;text-align:center;line-height:1.25;color:#5a3ea0;min-height:2.4em}
-.fldock .btn.big{min-height:48px;font-size:18px;padding:0 14px;width:100%;max-width:none}
-.gq-eco .fldie.pulse{animation:none}
-@media (max-width:700px){.flpc .tkm.av{width:56px!important;height:56px!important}.fldie-wrap{width:68px;height:68px}.fldie{width:54px;height:54px}}
+.fldie .ctdw{width:100%;height:100%;transform-style:preserve-3d}
+.gm-fly .fldie .die.flyroll,.gm-fly .fldie .die.roll.flyroll{
+ animation:fltumble .55s linear infinite!important;transform-origin:50% 60%}
+@keyframes fltumble{
+ 0%{transform:translate3d(-10px,4px,0) rotateX(12deg) rotateY(-20deg) rotateZ(0) scale(1)}
+ 18%{transform:translate3d(18px,-38px,20px) rotateX(80deg) rotateY(-70deg) rotateZ(110deg) scale(1.32)}
+ 36%{transform:translate3d(-20px,-8px,0) rotateX(165deg) rotateY(55deg) rotateZ(200deg) scale(.88)}
+ 54%{transform:translate3d(14px,-46px,24px) rotateX(250deg) rotateY(-40deg) rotateZ(290deg) scale(1.38)}
+ 72%{transform:translate3d(-16px,-14px,0) rotateX(310deg) rotateY(75deg) rotateZ(340deg) scale(1.12)}
+ 100%{transform:translate3d(-10px,4px,0) rotateX(372deg) rotateY(-20deg) rotateZ(360deg) scale(1)}
+}
+.gm-fly .fldie .die.land{animation:flland .48s cubic-bezier(.2,1.5,.3,1)}
+@keyframes flland{
+ 0%{transform:scale(1.55) rotate(-22deg) translateY(-18px)}
+ 40%{transform:scale(.86) rotate(10deg) translateY(6px)}
+ 70%{transform:scale(1.16) rotate(-6deg)}
+ 100%{transform:none}
+}
+.gm-fly .fldie .die.flyroll-eco,.gm-fly .fldie .die.roll.flyroll-eco{
+ animation:fltumble-eco .48s linear infinite!important}
+@keyframes fltumble-eco{
+ 0%{transform:rotate(0) scale(1)}
+ 50%{transform:rotate(180deg) scale(1.12)}
+ 100%{transform:rotate(360deg) scale(1)}
+}
+html.gq-std .fldie .die.roll,html.gq-std .fldie .die.flyroll,html.gq-eco .fldie .die.roll,html.gq-eco .fldie .die.flyroll,html.gq-eco .fldie .die.flyroll-eco{
+ animation-iteration-count:infinite!important}
+@media (prefers-reduced-motion:reduce){
+ .gm-fly .fldie .die.flyroll,.gm-fly .fldie .die.roll{animation:fltumble-eco .5s linear infinite!important}
+ .fltok .flglow,.seatbar.need,.tkseat.wait,.fldock.want,.fldie.pulse,.fltok.poked,.fltok.poked-mad{animation:none}
+}
+.flhint{font-size:11px;font-weight:900;text-align:center;line-height:1.15;color:#5a3ea0;min-height:0;
+ background:#fffef8ee;border-radius:8px;padding:1px 7px;box-shadow:0 1px 0 rgba(0,0,0,.12);white-space:nowrap}
+.fldock .btn.big,.fldock .btn.flroll{min-height:28px;font-size:13px;padding:2px 12px;width:auto;max-width:none;letter-spacing:.04em;border-radius:999px}
+.gq-eco .fldie.pulse,.gq-eco .fldock.want,.gq-eco .fldie-wrap.want::before{animation:none}
+@media (prefers-reduced-motion:reduce){.fldock.want,.fldie.pulse,.fldie-wrap.want::before{animation:none}}
+@media (max-width:700px){.flpc .tkm.av{width:56px!important;height:56px!important}.fldie-wrap{width:52px;height:52px}.fldie{width:46px;height:46px}.fldie.rolling{width:72px;height:72px}.fldock .btn.big{min-height:26px;font-size:12px}.flhplate{width:52px;height:52px}.flhplate .tkm.hav{width:52px!important;height:52px!important}}
 
 /* Always-visible fly rule tip — under sidebar, kid glance */
 .flruletip{flex:none;margin:2px 4px 4px;padding:7px 8px;border-radius:12px;font-size:11px;font-weight:800;line-height:1.35;color:#5a3ea0;text-align:center;
@@ -1680,9 +1809,10 @@ html.gq-eco .moodfs{display:none!important}
 .gm-fly.fl-island .fl3d-plate{z-index:1}
 .gm-fly.fl-island .flc,.gm-fly.fl-island .flhome{background:transparent!important;border:0!important;box-shadow:none!important;outline:none!important;border-radius:24%;pointer-events:none}
 .gm-fly.fl-island .flc.entry.lit{box-shadow:0 0 0 3px #fff,0 0 0 6px #ffd23f,0 0 18px #ffd23f!important;animation:fllit 1s ease-in-out infinite}
-.gm-fly.fl-island .flbase{border-radius:9%}
+.gm-fly.fl-island .flbase{border-radius:9%;overflow:visible}
 .gm-fly.fl-island .flbase.lit{box-shadow:0 0 0 4px #fff,0 0 0 8px #ffd23f,0 0 26px #ffd23fcc;animation:fllit 1s ease-in-out infinite}
-.gm-fly.fl-island .flbase span{display:none}
+.gm-fly.fl-island .flbase .flcname{display:none}
+.gm-fly.fl-island .flb{overflow:visible}
 .gm-fly.fl-island .flfin{display:none}
 .gm-fly.fl-island .fl3d-dash{z-index:4}
 .gm-fly.fl-island .fl3d-dash .fldash-path{opacity:0;transition:opacity .25s}
@@ -1693,9 +1823,13 @@ html.gq-eco .moodfs{display:none!important}
 .gm-fly.fl-island .fltok.done-pose{width:4.7%;height:4.7%;outline:0;transform:translate(-50%,-50%);--tb:#ffd23f;--tr:#c98a00;
  filter:drop-shadow(0 0 4px #ffe58acc) drop-shadow(0 1.5px 1px rgba(0,0,0,.22))}
 .gm-fly.fl-island .fl-done-badge{display:none}
-.gm-fly.fl-island .fltok.go,.gm-fly.fl-island .fltok.takeoff-lit{outline:0;border-radius:50%;
- filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 5px #fff) drop-shadow(0 0 9px #ffd23f)}
+.gm-fly.fl-island .fltok.go,.gm-fly.fl-island .fltok.takeoff-lit{outline:0;border-radius:50%;overflow:visible;z-index:10;
+ filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 10px #ffd23f) drop-shadow(0 0 18px #ff9a40)}
+.gm-fly.fl-island .fltok.takeoff-lit{filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 10px #7ef0a0) drop-shadow(0 0 16px #2ad0a0)}
+.gm-fly.fl-island .fltok.go .flglow,.gm-fly.fl-island .fltok.takeoff-lit .flglow{display:block}
 .gm-fly.fl-island .fl3d-tok{width:100%;height:100%;display:block;overflow:visible}
+html.gq-std .fltok.go,html.gq-std .fltok.go .flglow,html.gq-std .fltok.takeoff-lit,html.gq-std .fltok.takeoff-lit .flglow{
+ animation-iteration-count:infinite!important}
 /* ===== 兔子棋 QA-v1 · 一体山体 + 粘土兔 · iPad 横屏 ~82/18 ===== */
 .gm-rabbit{padding:0;gap:0;background:linear-gradient(#f3e2c8,#e8f5d0 40%,#c8efb0);position:absolute;inset:0;overflow:hidden}
 .rblay{position:absolute;inset:0;display:flex;flex-direction:column;gap:4px;padding:4px}
@@ -1993,15 +2127,18 @@ var Dice=GC.Dice={
   var w=st.clientWidth,h=st.clientHeight,gap=Math.max(10,Math.min(w,h)*.06),a=Math.min((w-gap*(n-1))/n,h),b=Math.min(w,(h-gap*(n-1))/n),col=b>a,best=Math.max(40,Math.min((col?b:a)-8,260));
   st.style.setProperty('--ds',best+'px');st.style.setProperty('--gap',gap+'px');st.style.flexDirection=col?'column':'row';
  },
- /* animate the dice in stage, settle on results; cb when all stopped */
- roll:function(stage,res,cb){
+ /* animate the dice in stage, settle on results; cb when all stopped.
+    opts:{ms,stagger,tail,tick,cls} — 飞行棋传更长 ms + flyroll 做出明显翻滚 */
+ roll:function(stage,res,cb,opts){
+  opts=opts||{};
   var nodes=stage.children,i,iv,tm=[];
-  for(i=0;i<nodes.length;i++){nodes[i].classList.remove('land');nodes[i].removeAttribute('data-done');nodes[i].classList.add('roll')}
+  var spin=opts.ms!=null?opts.ms:650,stag=opts.stagger!=null?opts.stagger:260,tail=opts.tail!=null?opts.tail:380,tickMs=opts.tick!=null?opts.tick:75,extra=opts.cls||'';
+  for(i=0;i<nodes.length;i++){nodes[i].classList.remove('land');nodes[i].removeAttribute('data-done');nodes[i].classList.add('roll');if(extra)nodes[i].classList.add(extra)}
   Sound.vib(30);var tick=0;
-  iv=setInterval(function(){tick++;for(var i=0;i<nodes.length;i++){if(nodes[i].getAttribute('data-done'))continue;nodes[i].innerHTML=Dice.svg(Dice.int(6)+1)}if(tick%2===0)Sound.beep(300+Dice.int(200),.04)},75);
-  function stop(i){if(!nodes[i])return;nodes[i].setAttribute('data-done',1);nodes[i].classList.remove('roll');nodes[i].innerHTML=Dice.svg(res[i]);nodes[i].classList.add('land');Sound.beep(220,.12);Sound.vib(20)}
-  for(i=0;i<res.length;i++)(function(i){tm.push(setTimeout(function(){stop(i)},650+i*260))})(i);
-  tm.push(setTimeout(function(){clearInterval(iv);cb&&cb()},650+(res.length-1)*260+380));
+  iv=setInterval(function(){tick++;for(var i=0;i<nodes.length;i++){if(nodes[i].getAttribute('data-done'))continue;nodes[i].innerHTML=Dice.svg(Dice.int(6)+1)}if(tick%2===0)Sound.beep(300+Dice.int(200),.04)},tickMs);
+  function stop(i){if(!nodes[i])return;nodes[i].setAttribute('data-done',1);nodes[i].classList.remove('roll');if(extra)nodes[i].classList.remove(extra);nodes[i].innerHTML=Dice.svg(res[i]);nodes[i].classList.add('land');Sound.beep(220,.12);Sound.vib(20)}
+  for(i=0;i<res.length;i++)(function(i){tm.push(setTimeout(function(){stop(i)},spin+i*stag))})(i);
+  tm.push(setTimeout(function(){clearInterval(iv);cb&&cb()},spin+(res.length-1)*stag+tail));
   return function(){clearInterval(iv);tm.forEach(clearTimeout)};
  },
  /* shake-to-roll (shared). handler is set by the page that is mounted */
@@ -2414,6 +2551,8 @@ GC.FX=(function(){
 })();
 
 var Select=GC.Select={
+ /* 飞行棋四角：黄TL · 蓝TR · 红BL · 绿BR（与引擎 seat 0红 1黄 2蓝 3绿 一致） */
+ SEATS:[{i:1,name:'黄',corner:'左上',color:'#f2c200'},{i:2,name:'蓝',corner:'右上',color:'#4a8fe0'},{i:0,name:'红',corner:'左下',color:'#e0485e'},{i:3,name:'绿',corner:'右下',color:'#4cae4c'}],
  tokens:function(kind){
   if(kind==='tk')return TOKNAMES.tk.map(function(n,i){return{i:i,name:n,color:TKCOL[i],svg:tokSVG('tk',i)}});
   if(kind==='plane')return Players.palettes.flight.map(function(p,i){return{i:i,name:p[0]+'色飞机',color:p[1],svg:tokSVG('plane',i,p[1])}});
@@ -2435,26 +2574,57 @@ var Select=GC.Select={
   var b=document.createElement('div');b.className='selbub';b.textContent=txt;card.appendChild(b);
   setTimeout(function(){b.classList.add('out');setTimeout(function(){b.remove();card.classList.remove('talk')},250)},2600);
  },
- /* full "choose your character" screen. o:{kind,title,sub,min,max,pre:[{tok,name}],ok,onDone(list),extra(html)} */
+ /* full "choose your character" screen. o:{kind,title,sub,min,max,pre:[{tok,name,seat}],ok,onDone(list),extra(html),bindSeat} */
  screen:function(host,o){
-  var T=Select.tokens(o.kind),sel=(o.pre||[]).map(function(x){return{tok:x.tok,name:x.name||''}});
-  var el=document.createElement('div');el.className='selv';host.appendChild(el);UI.enter(el,'r');
+  var T=Select.tokens(o.kind),SEATS=o.bindSeat?Select.SEATS:null,focus=-1;
+  var sel=(o.pre||[]).map(function(x){return{tok:x.tok,name:x.name||'',seat:x.seat}});
+  var el=document.createElement('div');el.className='selv'+(SEATS?' bindseat':'');host.appendChild(el);UI.enter(el,'r');
+  function seatMeta(si){var r=null;if(SEATS)SEATS.forEach(function(s){if(s.i===si)r=s});return r}
+  function ready(){if(sel.length<o.min)return false;if(SEATS&&sel.some(function(s){return s.seat==null||s.seat<0||s.seat>3}))return false;return true}
   function draw(){
-   var h='<div class="selh"><h1>'+(o.title||'选择你的角色')+'</h1><p>'+(o.sub||'每位玩家点一个自己的棋子;点第一个的人先走')+'</p></div><div class="selg k'+T.length+'">';
+   var h='<div class="selh"><h1>'+(o.title||'选择你的角色')+'</h1><p>'+(o.sub||'每位玩家点一个自己的棋子;点第一个的人先走')+'</p></div>';
+   if(SEATS){
+    var who=null;sel.forEach(function(s){if(s.tok===focus)who=s});
+    if(!who)sel.forEach(function(s){if(who)return;if(s.seat==null)who=s});
+    h+='<div class="seatbar'+(who&&(who.seat==null||who.seat===undefined)?' need':'')+'"><div class="seatbar-l">飞机颜色'+(who?' · 给 <b>'+UI.esc(T[who.tok]?T[who.tok].name:('玩家'))+'</b>':' · 先点角色再选颜色')+'</div><div class="seatbar-r">';
+    SEATS.forEach(function(st){
+     var own=null;sel.forEach(function(s){if(s.seat===st.i)own=s});
+     var mine=who&&who.seat===st.i,taken=!!own&&!mine;
+     h+='<button type="button" class="seatsw'+(mine?' on':'')+(taken?' taken':'')+'" data-seat="'+st.i+'" style="--sc:'+st.color+'" '+(taken?'disabled':'')+' aria-label="'+st.name+'色飞机 '+st.corner+'">'+(mine?'✓ ':'')+st.name+'<small>'+st.corner+'</small></button>';
+    });
+    h+='</div></div>';
+   }
+   h+='<div class="selg k'+T.length+'">';
    T.forEach(function(t){
     var k=-1;sel.forEach(function(s,j){if(s.tok===t.i)k=j});
-    h+='<div class="tkc'+(k>=0?' on':'')+'" data-i="'+t.i+'" style="--tc:'+t.color+'"><button class="tkb" data-i="'+t.i+'" aria-label="'+t.name+'"><div class="tkav">'+t.svg+'</div><div class="tkn">'+t.name+'</div>'+(k>=0?'<span class="tkbadge">'+(k+1)+'</span>':'')+'</button>'+(k>=0?NameField.html({ph:t.name,val:sel[k].name,attrs:'data-i="'+t.i+'"',tok:t.color}):'')+'</div>';
+    var sm=k>=0&&SEATS?seatMeta(sel[k].seat):null;
+    h+='<div class="tkc'+(k>=0?' on':'')+(k>=0&&focus===t.i?' focus':'')+'" data-i="'+t.i+'" style="--tc:'+(sm?sm.color:t.color)+'"><button class="tkb" data-i="'+t.i+'" aria-label="'+t.name+'"><div class="tkav">'+t.svg+'</div><div class="tkn">'+t.name+'</div>'+(k>=0?'<span class="tkbadge">'+(k+1)+'</span>':'')+(k>=0&&SEATS?(sm?'<span class="tkseat" style="background:'+sm.color+'">'+sm.name+'色</span>':'<span class="tkseat wait">选颜色</span>'):'')+'</button>'+(k>=0?NameField.html({ph:t.name,val:sel[k].name,attrs:'data-i="'+t.i+'"',tok:sm?sm.color:t.color}):'')+'</div>';
    });
-   h+='</div>'+(o.extra||'')+'<div class="self"><button class="btn big" id="selOk"'+(sel.length<o.min?' disabled':'')+'>'+(o.ok||'开始游戏')+' ▶ <small>'+sel.length+'/'+o.max+'</small></button></div>';
+   h+='</div>'+(o.extra||'')+'<div class="self"><button class="btn big" id="selOk"'+(ready()?'':' disabled')+'>'+(o.ok||'开始游戏')+' ▶ <small>'+sel.length+'/'+o.max+'</small></button></div>';
    el.innerHTML=h;o.onDraw&&o.onDraw(el);
    Array.prototype.forEach.call(el.querySelectorAll('.tkb'),function(b){b.onclick=function(){
     var i=+b.getAttribute('data-i'),k=-1;sel.forEach(function(s,j){if(s.tok===i)k=j});
-    if(k>=0){sel.splice(k,1);Sound.tap()}else{if(sel.length>=o.max){UI.toast('最多 '+o.max+' 位玩家',1500,'warn');return}sel.push({tok:i,name:''});Sound.pop();Sound.vib(15)}
+    if(k>=0){
+     if(SEATS&&focus!==i){focus=i;Sound.tap();draw();return}
+     sel.splice(k,1);if(focus===i)focus=-1;Sound.tap()
+    }else{
+     if(sel.length>=o.max){UI.toast('最多 '+o.max+' 位玩家',1500,'warn');return}
+     sel.push({tok:i,name:'',seat:null});focus=i;Sound.pop();Sound.vib(15)
+    }
     draw();var nb=el.querySelector('.tkc[data-i="'+i+'"]');if(nb&&k<0){nb.classList.add('pick');Select.cheer(o.kind,i,nb,o)}}});
+   if(SEATS)Array.prototype.forEach.call(el.querySelectorAll('.seatsw'),function(b){b.onclick=function(){
+    var si=+b.getAttribute('data-seat'),who=null;
+    sel.forEach(function(s){if(s.tok===focus)who=s});
+    if(!who)sel.forEach(function(s){if(who)return;if(s.seat==null)who=s});
+    if(!who){UI.toast('先点一个角色,再选飞机颜色',1600,'warn');return}
+    if(sel.some(function(s){return s!==who&&s.seat===si})){UI.toast('这个颜色已经有人选了',1500,'warn');return}
+    who.seat=si;focus=who.tok;Sound.pop();Sound.vib(12);draw();
+   }});
    NameField.bind(el,function(inp,v){var i=+inp.getAttribute('data-i');sel.forEach(function(s){if(s.tok===i)s.name=v})});
    $('selOk').onclick=function(){
     if(sel.length<o.min){UI.toast('至少 '+o.min+' 位玩家',1500,'warn');return}
-    Sound.hi();el.classList.add('out');var list=sel.map(function(s){return{tok:s.tok,name:s.name.trim()}});
+    if(SEATS&&sel.some(function(s){return s.seat==null||s.seat<0||s.seat>3})){UI.toast('每位玩家都要选一个飞机颜色',1800,'warn');return}
+    Sound.hi();el.classList.add('out');var list=sel.map(function(s){return{tok:s.tok,name:s.name.trim(),seat:s.seat}});
     setTimeout(function(){el.remove();o.onDone(list)},UI.reduce()?0:260);
    };
   }
@@ -2591,6 +2761,24 @@ function playZoomOut(color,icon,tile){
  var a=x.animate([{left:'0px',top:'0px',width:W+'px',height:H+'px',borderRadius:'0px',opacity:1},{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',borderRadius:'34px',opacity:1,offset:.8},{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',borderRadius:'34px',opacity:0}],{duration:420,easing:'cubic-bezier(.5,0,.2,1)',fill:'forwards'});
  a.onfinish=function(){tile.style.visibility='';tile.classList.add('popped');xfHide()};
 }
+function navInGame(){var r=document.body.getAttribute('data-route');return !!(r&&r!=='home')}
+function syncNavFold(){
+ var ingame=navInGame(),hid=ingame&&!!Store.get('navHidden',false),b=$('navFold');
+ document.body.classList.toggle('nav-hid',hid);
+ if(!b)return;
+ b.setAttribute('aria-expanded',hid?'false':'true');
+ b.setAttribute('aria-label',hid?'展开顶栏,回到首页和设置':'收起顶栏,棋盘更大');
+ b.innerHTML=hid
+  ?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg><span>菜单</span>'
+  :'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg><span>收起</span>';
+}
+function toggleNavFold(){
+ if(!navInGame())return;
+ var hid=!document.body.classList.contains('nav-hid');
+ Store.set('navHidden',hid);Sound.tap();syncNavFold();
+ UI.toast(hid?'顶栏收起来啦 · 再点上面「菜单」可以打开':'顶栏回来了',1600,'info');
+ requestAnimationFrame(function(){try{window.dispatchEvent(new Event('resize'))}catch(e){}});
+}
 function route(){
  var id=(location.hash||'').replace(/^#\/?/,''),g=null;
  if(id==='bank'){location.replace('#/china');return}
@@ -2601,19 +2789,21 @@ function route(){
  view.innerHTML='';$('navslot').innerHTML='';
  if(!g){
   document.body.setAttribute('data-route','home');$('nTitle').innerHTML='';document.title='游戏中心';renderHome();
-  prevId='home';
+  prevId='home';syncNavFold();
   if(fromG&&from!=='home'){var tile=view.querySelector('.tile[data-id="'+from+'"]');playZoomOut(fromG.color,fromG.icon,tile)}
   return;
  }
  document.body.setAttribute('data-route',g.id);$('nTitle').innerHTML='<span class="tic">'+g.icon+'</span>'+esc(g.name);document.title=g.name;
  var root=document.createElement('div');root.className='gm gm-'+g.id;view.appendChild(root);
  current=g;g.mount(root,buildCtx($('navslot')));
- prevId=g.id;
+ prevId=g.id;syncNavFold();
  if(zoom&&zoom.id===g.id){playZoomIn(zoom)}else if(from==='home'||from===''){if(from==='home')root.classList.add('fadein')}
  zoom=null;
 }
 window.addEventListener('hashchange',route);
 $('nHome').onclick=function(){Sound.tap();if(backFn)backFn();else location.hash='#/'};
+if($('navFold'))$('navFold').onclick=function(){toggleNavFold()};
+GC.navFold={sync:syncNavFold,toggle:toggleNavFold,hidden:function(){return document.body.classList.contains('nav-hid')}};
 function syncSnd(){var b=$('nSnd');b.innerHTML=(Sound.on?UI.ICO.snd:UI.ICO.mute)+'<span>'+(Sound.on?'声音':'静音')+'</span>';b.classList.toggle('off',!Sound.on)}
 $('nSnd').onclick=function(){Sound.cfg.sound=!Sound.on;Sound.save();if(!Sound.on&&GC.Voice)GC.Voice.cancel();syncSnd();if(Sound.on)Sound.pop();UI.toast(Sound.on?'声音已开启':'已静音',1200,Sound.on?'snd':'mute')};
 $('nSet').innerHTML=UI.ICO.gear+'<span>设置</span>';
@@ -3095,9 +3285,23 @@ function nextSameColor(idx){return (idx+4)%TRACK}
 function newState(){
  return{phase:'setup',players:[],turn:0,roll:null,pending:null,winner:null,hist:[],again:false,sixes:0,sv:0};
 }
+function seatOf(p){
+ if(!p)return 0;
+ var s=p.seat;
+ if(s==null||s<0||s>3)s=p.id;
+ return ((s%4)+4)%4;
+}
 function startGame(S,list){
+ var used={};
  S.players=list.slice(0,4).map(function(p,i){
-  return{id:i,tok:p.tok,name:p.name||TKN[p.tok],color:COLORS[i],cname:CNAMES[i],
+  var seat=p.seat;
+  if(seat==null||seat<0||seat>3||used[seat]){
+   seat=null;
+   for(var s=0;s<4;s++)if(!used[s]){seat=s;break}
+   if(seat==null)seat=i%4;
+  }
+  used[seat]=1;
+  return{id:i,seat:seat,tok:p.tok,name:p.name||TKN[p.tok],color:COLORS[seat],cname:CNAMES[seat],
    planes:[0,1,2,3].map(function(k){return{id:k,where:'base',idx:0,lap:0}})};
  });
  S.phase='play';S.turn=0;S.roll=null;S.pending=null;S.winner=null;S.again=false;S.sixes=0;S.hist=[];S.sv=Date.now();
@@ -3136,7 +3340,7 @@ function dashEatCells(from,to){
 }
 
 function movable(S,v){
- var p=cur(S),out=[];
+ var p=cur(S),seat=seatOf(p),out=[];
  p.planes.forEach(function(pl){
   if(pl.where==='done')return;
   if(pl.where==='base'){if(v===6)out.push(pl.id);return}
@@ -3147,21 +3351,21 @@ function movable(S,v){
   }
   var idx=pl.idx,lap=pl.lap||0,ok=true;
   for(var s=0;s<v;s++){
-   if(lap>=1&&idx===HOME_GATE[p.id]){
+   if(lap>=1&&idx===HOME_GATE[seat]){
     var rem=v-s-1;
     if(rem+1>HOME){ok=false}
     break;
    }
    idx=(idx+1)%TRACK;
-   if(idx===ENTRY[p.id])lap++;
+   if(idx===ENTRY[seat])lap++;
   }
   if(ok)out.push(pl.id);
  });
  return out;
 }
 function pathFor(S,plId,v){
- var p=cur(S),pl=p.planes[plId],path=[];
- if(pl.where==='base'){path.push({where:'track',idx:ENTRY[p.id],lap:0,kind:'takeoff'});return path}
+ var p=cur(S),seat=seatOf(p),pl=p.planes[plId],path=[];
+ if(pl.where==='base'){path.push({where:'track',idx:ENTRY[seat],lap:0,kind:'takeoff'});return path}
  if(pl.where==='home'){
   for(var i=1;i<=v;i++){
    var d=pl.idx+i;
@@ -3172,7 +3376,7 @@ function pathFor(S,plId,v){
  }
  var idx=pl.idx,lap=pl.lap||0;
  for(var s=0;s<v;s++){
-  if(lap>=1&&idx===HOME_GATE[p.id]){
+  if(lap>=1&&idx===HOME_GATE[seat]){
    var rem=v-s;
    for(var h=0;h<rem;h++){
     if(h+1>HOME)break;
@@ -3182,7 +3386,7 @@ function pathFor(S,plId,v){
    return path;
   }
   idx=(idx+1)%TRACK;
-  if(idx===ENTRY[p.id])lap++;
+  if(idx===ENTRY[seat])lap++;
   path.push({where:'track',idx:idx,lap:lap,kind:'step'});
  }
  return path;
@@ -3190,28 +3394,28 @@ function pathFor(S,plId,v){
 function applyBonuses(S,p,pl,ev,sent,arrivedBy){
  /* 起飞落点不触发同色跳/横飞（经典规则） */
  if(arrivedBy==='takeoff')return;
- var guard=0;
+ var seat=seatOf(p),guard=0;
  while(guard++<4){
   if(pl.where!=='track')return;
-  if(isFlyPad(p.id,pl.idx)&&(arrivedBy==='roll'||arrivedBy==='jump')){
-   var from=pl.idx,to=FLY_TO[p.id];
+  if(isFlyPad(seat,pl.idx)&&(arrivedBy==='roll'||arrivedBy==='jump')){
+   var from=pl.idx,to=FLY_TO[seat];
    var eat=dashEatCells(from,to);
    eat.forEach(function(ci){
     if(ci===to)return;
     captureAt(S,p.id,pl.id,'track',ci,ev,sent);
    });
    pl.idx=to;
-   if(to===ENTRY[p.id])pl.lap=(pl.lap||0)+1;
-   ev.push({k:'fly',pid:p.id,pl:pl.id,from:from,to:to});
+   if(to===ENTRY[seat])pl.lap=(pl.lap||0)+1;
+   ev.push({k:'fly',pid:p.id,pl:pl.id,from:from,to:to,seat:seat});
    captureAt(S,p.id,pl.id,'track',to,ev,sent);
    arrivedBy='fly';
    continue;
   }
-  if(cellColor(pl.idx)===p.id&&arrivedBy!=='jump'){
+  if(cellColor(pl.idx)===seat&&arrivedBy!=='jump'){
    var jfrom=pl.idx,jto=nextSameColor(pl.idx);
    pl.idx=jto;
-   if(jto===ENTRY[p.id])pl.lap=(pl.lap||0)+1;
-   ev.push({k:'jump',pid:p.id,pl:pl.id,from:jfrom,to:jto});
+   if(jto===ENTRY[seat])pl.lap=(pl.lap||0)+1;
+   ev.push({k:'jump',pid:p.id,pl:pl.id,from:jfrom,to:jto,seat:seat});
    captureAt(S,p.id,pl.id,'track',jto,ev,sent);
    arrivedBy='jump';
    continue;
@@ -3237,15 +3441,15 @@ function sendOwnPlaneHome(S,pid){
 }
 function applyMove(S,plId){
  if(S.phase!=='play'||S.winner!=null||S.roll==null)return{ok:false,err:'还不能走'};
- var v=S.roll,p=cur(S),pl=p.planes[plId];
+ var v=S.roll,p=cur(S),seat=seatOf(p),pl=p.planes[plId];
  if(!pl)return{ok:false,err:'没有这架飞机'};
  var mov=movable(S,v);
  if(mov.indexOf(plId)<0)return{ok:false,err:'这架不能走'};
  var ev=[],sent=[],path=pathFor(S,plId,v);
  var fromBase=pl.where==='base';
  if(fromBase){
-  pl.where='track';pl.idx=ENTRY[p.id];pl.lap=0;
-  ev.push({k:'takeoff',pid:p.id,pl:plId,idx:ENTRY[p.id]});
+  pl.where='track';pl.idx=ENTRY[seat];pl.lap=0;
+  ev.push({k:'takeoff',pid:p.id,pl:plId,idx:ENTRY[seat],seat:seat});
  }else{
   path.forEach(function(step){
    pl.where=step.where;pl.idx=step.idx;
@@ -3301,7 +3505,7 @@ function restore(S,snap){Object.keys(snap).forEach(function(k){S[k]=snap[k]});re
 var API={COLORS:COLORS,CNAMES:CNAMES,TKN:TKN,TRACK:TRACK,HOME:HOME,ENTRY:ENTRY,HOME_GATE:HOME_GATE,PLANES:PLANES,
  FLY_FROM:FLY_FROM,FLY_TO:FLY_TO,RING:RING,HOME_CELLS:HOME_CELLS,BASE_SLOTS:BASE_SLOTS,BASE_RECT:BASE_RECT,HANGAR_INSET:HANGAR_INSET,LANE_NUDGE:LANE_NUDGE,TAKEOFF_CELLS:TAKEOFF_CELLS,baseSlotsFromRect:baseSlotsFromRect,ringNudge:ringNudge,homeNudge:homeNudge,takeoffCell:takeoffCell,
  gridPct:gridPct,ringPos:ringPos,homePos:homePos,basePos:basePos,donePos:donePos,takeoffPos:takeoffPos,
- cellColor:cellColor,isFlyPad:isFlyPad,nextSameColor:nextSameColor,
+ cellColor:cellColor,isFlyPad:isFlyPad,nextSameColor:nextSameColor,seatOf:seatOf,
  newState:newState,startGame:startGame,cur:cur,movable:movable,pathFor:pathFor,applyMove:applyMove,roll:roll,
  planesAt:planesAt,isSafe:isSafe,snapshot:snapshot,restore:restore,dashEatCells:dashEatCells};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
@@ -3737,30 +3941,64 @@ function flyOverlay(){
  return h+'</svg>';
 }
 
-/* ---------- 棋子：圆形玩具棋子 + 本色小飞机印花（安静、不抢棋盘；整块盖住格子上的宝石/白点） ---------- */
-function tokenDefs(){
- var h='<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>',i,p;
- var body='<path d="M-46-2C-46-9-40-12-33-12H-12V-34C-12-44-6-50 0-50C6-50 12-44 12-34V-12H33C40-12 46-9 46-2V6C46 12 41 14 35 13L12 9V26H24C30 26 32 30 32 34V38C32 42 29 44 24 44H-24C-29 44-32 42-32 38V34C-32 30-30 26-24 26H-12V9L-35 13C-41 14-46 12-46 6Z"';
- for(i=0;i<4;i++){
-  p=PAL[i];
-  h+='<linearGradient id="f3k'+i+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+p.top+'"/><stop offset=".6" stop-color="'+p.base+'"/><stop offset="1" stop-color="'+p.side+'"/></linearGradient>';
-  h+='<symbol id="f3tok'+i+'" viewBox="-56 -60 112 120">';
-  h+='<ellipse cx="2" cy="53" rx="42" ry="7" fill="#000" opacity=".16"/>';
-  /* --tb/--tr 由 CSS 覆盖：到达终点 = 金色棋子 */
-  h+='<circle cy="7" r="50" style="fill:var(--tr,'+p.side+')"/>';
-  h+='<circle r="50" style="fill:var(--tb,#fffaf0)" stroke="#fff" stroke-width="2.5"/>';
-  h+='<circle r="43" fill="none" stroke="'+p.base+'" stroke-opacity=".45" stroke-width="3"/>';
-  h+='<g transform="translate(0,3) scale(.7)">';
-  h+='<g transform="translate(0,5)">'+body+' fill="'+p.side+'"/></g>';
-  h+=body+' fill="url(#f3k'+i+')" stroke="'+p.side+'" stroke-width="2" stroke-linejoin="round"/>';
-  h+='<polygon points="'+starPts(9,4.3)+'" fill="#fff" fill-opacity=".9" stroke="#fff" stroke-opacity=".9" stroke-width="2" stroke-linejoin="round"/>';
-  h+='</g>';
-  h+='<ellipse cx="-20" cy="-30" rx="13" ry="5.5" transform="rotate(-32 -20 -30)" fill="#fff" opacity=".55"/>';
-  h+='</symbol>';
+/* ---------- 棋子：玩具飞机剪影（座位色机身）+ 角色涂装点缀。人脸在机库铭牌，不画在棋子上 ---------- */
+function tokenDefs(){return ''}
+var PLANE_BODY='M0-28C6.2-28 9.2-18 9.2-10.2L28 6.2V12.2L9.2 4.2V18.2L18.4 26.2V30.4L0 26.4-18.4 30.4V26.2L-9.2 18.2V4.2L-28 12.2V6.2L-9.2-10.2C-9.2-18-6.2-28 0-28Z';
+function planeTrim(tok,pal){
+ /* 涂装只点缀机翼/机尾，剪影始终是飞机 */
+ if(tok===0){ /* 小狗：爪印 + 骨头尾 */
+  return '<ellipse cx="-16" cy="2" rx="3.2" ry="2.4" fill="#8a4e1c" opacity=".85"/>'+
+   '<circle cx="-19" cy="-1.2" r="1.15" fill="#8a4e1c"/><circle cx="-13.4" cy="-1.4" r="1.15" fill="#8a4e1c"/><circle cx="-16" cy="-2.4" r="1.1" fill="#8a4e1c"/>'+
+   '<rect x="-2.2" y="22" width="4.4" height="8" rx="1.4" fill="#fff8e6" stroke="#c9a36b" stroke-width="0.8"/>'+
+   '<circle cx="-3.6" cy="22" r="2.1" fill="#fff8e6" stroke="#c9a36b" stroke-width="0.8"/>'+
+   '<circle cx="3.6" cy="22" r="2.1" fill="#fff8e6" stroke="#c9a36b" stroke-width="0.8"/>';
  }
- return h+'</defs></svg>';
+ if(tok===1){ /* 小狮子：鬃毛条 + 小皇冠 */
+  return '<path d="M-4-8 L-7-14 L-1-10 L0-16 L1-10 L7-14 L4-8" fill="#ffb020" stroke="#e07800" stroke-width="0.9" stroke-linejoin="round"/>'+
+   '<path d="M-22 6 L-26 2 M22 6 L26 2 M-20 10 L-24 7 M20 10 L24 7" stroke="#ff9a1a" stroke-width="1.8" stroke-linecap="round"/>';
+ }
+ if(tok===2){ /* 不不奥特曼：银红能量条 + 计时器 */
+  return '<path d="M-6-2 H6" stroke="#eef3f8" stroke-width="3.4" stroke-linecap="round"/>'+
+   '<path d="M-6-2 H6" stroke="#e0485e" stroke-width="1.6" stroke-linecap="round"/>'+
+   '<circle cy="8" r="4.4" fill="#e0485e" stroke="#fff" stroke-width="1.3"/>'+
+   '<circle cy="8" r="1.7" fill="#ffd23f"/>'+
+   '<path d="M-24 7 L-18 3 M24 7 L18 3" stroke="#e0485e" stroke-width="2.2" stroke-linecap="round"/>';
+ }
+ if(tok===3){ /* 哎呀公主：冰晶翼尖 + 雪花尾 */
+  return '<polygon points="-28,7 -32,2 -26,4" fill="#e7f6ff" stroke="#7ec8ff" stroke-width="0.9"/>'+
+   '<polygon points="28,7 32,2 26,4" fill="#e7f6ff" stroke="#7ec8ff" stroke-width="0.9"/>'+
+   '<g transform="translate(0,22)" stroke="#9ad8ff" stroke-width="1.3" stroke-linecap="round">'+
+   '<path d="M0-4 V4 M-4 0 H4 M-2.8-2.8 L2.8 2.8 M2.8-2.8 L-2.8 2.8"/>'+
+   '</g>'+
+   '<circle cx="-12" cy="-6" r="1.3" fill="#fff"/><circle cx="14" cy="10" r="1.1" fill="#d8f4ff"/>';
+ }
+ if(tok===4){ /* 温柔喷火龙：小角 + 翼膜纹，火只在生气 Mood 里喷 */
+  return '<path d="M-3.2-18 L-5.4-24 L-1-19" fill="#ffe0c8" stroke="#d4a07a" stroke-width="0.9"/>'+
+   '<path d="M3.2-18 L5.4-24 L1-19" fill="#ffe0c8" stroke="#d4a07a" stroke-width="0.9"/>'+
+   '<path d="M-22 10 Q-16 14 -10 10" fill="none" stroke="#f0b090" stroke-width="1.6" stroke-linecap="round"/>'+
+   '<path d="M22 10 Q16 14 10 10" fill="none" stroke="#f0b090" stroke-width="1.6" stroke-linecap="round"/>';
+ }
+ /* 猪肉战神：厨帽 + 金星；猪只作为机翼食物道具 */
+ return '<ellipse cx="0" cy="-20.5" rx="6.2" ry="2.4" fill="#fff" stroke="#d8d0c4" stroke-width="0.9"/>'+
+  '<rect x="-4.4" y="-20" width="8.8" height="3.2" rx="0.8" fill="#fff" stroke="#c8c0b4" stroke-width="0.8"/>'+
+  '<polygon points="6,8 3,12 9,12" fill="#ffd23f" stroke="#e0a800" stroke-width="0.7"/>'+
+  '<g transform="rotate(-28 16 8)"><rect x="12" y="7" width="12" height="1.6" rx=".7" fill="#c0a070"/>'+
+  '<ellipse cx="16" cy="7.8" rx="2.4" ry="1.7" fill="#c47848"/></g>';
 }
-function tokenSVG(pid){return '<svg class="fl-plane fl3d-tok" viewBox="0 0 112 120" aria-hidden="true"><use href="#f3tok'+(pid%4)+'" width="112" height="120"/></svg>'}
+function tokenSVG(pid,tok){
+ tok=(tok==null?0:tok)|0;if(tok<0)tok=0;if(tok>5)tok=tok%6;
+ var pal=PAL[((pid%4)+4)%4];
+ return '<svg class="fl-plane fl3d-tok" viewBox="-40 -40 80 80" aria-hidden="true">'+
+  '<ellipse cx="2" cy="34" rx="16" ry="4.5" fill="#000" opacity=".2"/>'+
+  '<path d="'+PLANE_BODY+'" fill="'+pal.side+'" transform="translate(1.4,1.8)"/>'+
+  '<path class="fl-plane-body" d="'+PLANE_BODY+'" fill="'+pal.base+'" stroke="#fff" stroke-width="2.1" stroke-linejoin="round"/>'+
+  '<path d="M0-26C3.6-26 5.2-18 5.2-11V16" fill="none" stroke="'+pal.light+'" stroke-width="2.8" stroke-linecap="round" opacity=".75"/>'+
+  '<ellipse cy="-12" rx="5" ry="6.2" fill="#b8ecff" stroke="#fff" stroke-width="1.3"/>'+
+  '<ellipse cx="-1.3" cy="-14" rx="1.9" ry="2.3" fill="#fff" opacity=".55"/>'+
+  '<circle cy="-26.5" r="3" fill="'+pal.top+'" stroke="#fff" stroke-width="1"/>'+
+  planeTrim(tok,pal)+
+  '</svg>';
+}
 
 /* ---------- 整盘 ---------- */
 function boardSVG(opt){
@@ -3810,6 +4048,7 @@ var FLY=(function(){
 var E=window.FLYE,Store=GC.Store,Sound=GC.Sound,UI=GC.UI,Dice=GC.Dice,Select=GC.Select;
 var TKN=E.TKN,TKC=['#2f80ed','#f2b705','#e53935','#ff4fa3','#1fae5b','#8e44ec'];
 var root,S,busy=false,selv=null,timers=[],ro=null,lastDie=6,cancel=null,fxLayer=null,plateURL=null,bubs={},faceMood={};
+var pokeN={},pokeAt={},pokeLock=0,pokeBurst=0,pokeBurstT=0,duckUntil=0;
 function $q(s){return root.querySelector(s)}
 function later(f,ms){var t=setTimeout(f,ms);timers.push(t);return t}
 function esc(s){return UI.esc(s)}
@@ -3820,7 +4059,14 @@ function eco(){try{return GC.Gfx&&GC.Gfx.mode()==='eco'}catch(e){return false}}
 function save(){if(S)S.sv=Date.now();Store.set('fly',S)}
 function load(){var s=Store.get('fly',null);if(s&&s.players&&s.players.length){S=s;if(!S.phase)S.phase='play'}else{S=E.newState()}}
 function isl(){return !!(root&&root.classList.contains('fl-island')&&window.FLY3D)}
-function planeImg(pid){if(isl())return window.FLY3D.tokenSVG(pid);var keys=['red','yellow','blue','green'];var k=keys[pid%4];var src=(window.FL_PLANES&&window.FL_PLANES[k])||'';if(src)return '<img class="fl-plane-img" src="'+src+'" alt="" draggable="false" decoding="async">';return planeSVG(E.COLORS[pid%4])}
+function seatOf(p){return E.seatOf?E.seatOf(p):(p&&p.seat!=null?p.seat:((p&&p.id)||0))}
+function planeImg(p){
+ var seat=typeof p==='object'?seatOf(p):(p%4),tok=typeof p==='object'&&p.tok!=null?p.tok:0;
+ if(window.FLY3D&&window.FLY3D.tokenSVG)return window.FLY3D.tokenSVG(seat,tok);
+ var keys=['red','yellow','blue','green'];var k=keys[seat%4];var src=(window.FL_PLANES&&window.FL_PLANES[k])||'';
+ if(src)return '<img class="fl-plane-img" src="'+src+'" alt="" draggable="false" decoding="async">';
+ return planeSVG(E.COLORS[seat%4]);
+}
 function planeSVG(color){var gid='pg'+Math.random().toString(36).slice(2,8);return '<svg class="fl-plane" viewBox="-20 -20 40 40" aria-hidden="true"><defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".7"/><stop offset="42%" stop-color="'+color+'"/><stop offset="100%" stop-color="#000" stop-opacity=".28"/></linearGradient><filter id="'+gid+'s"><feDropShadow dx="0" dy="1" stdDeviation="0.7" flood-opacity=".3"/></filter></defs><ellipse cx="0" cy="12" rx="9" ry="2.8" fill="#00000028"/><g transform="translate(0,-1.2) rotate(18)" filter="url(#'+gid+'s)"><path d="M0-14C2.6-14 3.8-10 3.8-5.4L14 3.4V6.6L3.8 2.4V9.6L8.2 13.2V15.4L0 13.6-8.2 15.4V13.2L-3.8 9.6V2.4L-14 6.6V3.4L-3.8-5.4C-3.8-10-2.6-14 0-14Z" fill="url(#'+gid+')" stroke="#fff" stroke-width="1.9" stroke-linejoin="round"/><path d="M0-14C1.7-14 2.6-10.4 2.6-6.6V2.2" stroke="#fff" stroke-width="1.3" opacity=".5" fill="none"/><circle cy="-6.6" r="2.35" fill="#b8ecff" stroke="#fff" stroke-width="0.9"/><ellipse cx="0" cy="4" rx="2.2" ry="1.1" fill="#000" opacity=".12"/></g></svg>'}
 
 function ringPos(i){return isl()?window.FLY3D.ringPos(i):E.ringPos(i)}
@@ -3909,8 +4155,54 @@ function sayReact(pid,type,o){
  var txt='',LN=window.CTE_LINES;
  try{txt=(LN&&LN.pickFly)?LN.pickFly(p.tok,type,function(n){return Dice.int(n)}):''}catch(e){}
  if(txt){showBubble(p,txt,type);try{GC.Voice.say(txt,p.tok,{queue:1,prot:1})}catch(x){}}
- if(o.mood)mood(pid,o.mood,{tiny:!!o.tiny,noFs:!!o.tiny,key:o.key||('fl'+type+pid)});
+ if(o.mood)mood(pid,o.mood,{tiny:!!o.tiny,noFs:o.noFs!=null?!!o.noFs:!!o.tiny,key:o.key||('fl'+type+pid),plate:o.plate||txt||FLY_PLATE[o.mood]||''});
  return txt;
+}
+function playerAtSeat(seat){
+ if(!S||!S.players)return null;
+ var i,p=null;for(i=0;i<S.players.length;i++)if(seatOf(S.players[i])===seat)p=S.players[i];
+ return p;
+}
+function renderHangars(){
+ if(!root)return;
+ Array.prototype.forEach.call(root.querySelectorAll('.flbase'),function(el){
+  var seat=+el.getAttribute('data-p'),p=playerAtSeat(seat);
+  el.style.setProperty('--bc',E.COLORS[seat]);
+  if(!p){el.innerHTML='<span class="flcname">'+E.CNAMES[seat]+'</span>';return}
+  el.innerHTML='<div class="flhplate"><span class="flhav">'+tkAv(p.tok,64,'hav',persistMood(p))+'</span><b class="flhnm">'+esc(p.name)+'</b></div>';
+ });
+}
+function showTokBubble(el,txt){
+ if(!el||!txt)return;
+ var old=el.querySelector('.fltbub');if(old)old.remove();
+ var b=document.createElement('div');b.className='fltbub';b.textContent=txt;el.appendChild(b);
+ later(function(){try{b.remove()}catch(e){}},1800);
+}
+function pokePlane(pid,plId){
+ if(busy||!S||S.phase!=='play')return;
+ var now=Date.now();
+ if(now-pokeLock<420)return;
+ pokeLock=now;
+ if(now-pokeBurstT>2800){pokeBurst=0;pokeBurstT=now}
+ pokeBurst++;
+ if(pokeBurst>4)return;
+ var key=pid+'|'+plId;
+ if(!pokeAt[key]||now-pokeAt[key]>7000)pokeN[key]=0;
+ pokeAt[key]=now;
+ pokeN[key]=(pokeN[key]||0)+1;
+ var n=pokeN[key],p=P(pid);if(!p)return;
+ var type=n>=3?'pokeAngry':(n===2?'poke2':'poke');
+ var mk=n>=3?'angry':(n===2?'worried':'happy');
+ var heavy=n===3&&fxOn();
+ var tokEl=root&&root.querySelector('.fltok[data-p="'+pid+'"][data-pl="'+plId+'"]');
+ if(tokEl){
+  tokEl.classList.remove('poked','poked-mad');void tokEl.offsetWidth;
+  tokEl.classList.add(n>=3?'poked-mad':'poked');
+  later(function(){try{tokEl.classList.remove('poked','poked-mad')}catch(e){}},520);
+ }
+ Sound.tap();
+ var txt=sayReact(pid,type,{mood:mk,tiny:!heavy,noFs:!heavy,key:heavy?('flpokeA'+pid):('flpoke'+pid+n)});
+ showTokBubble(tokEl,txt||(n>=3?'哼!':'嘿!'));
 }
 function reactMove(r,before){
  if(!r||!r.ok)return;
@@ -4128,7 +4420,7 @@ function buildIslandBoard(){
   var r=F.hangarPct(pid);
   h+='<div class="flbase" data-p="'+pid+'" style="left:'+r.x+'%;top:'+r.y+'%;width:'+r.w+'%;height:'+r.h+'%;--bc:'+E.COLORS[pid]+'"><span>'+E.CNAMES[pid]+'</span></div>';
  }
- h+='<div id="fltok"></div><div class="flfx" aria-hidden="true"></div>';
+ h+='<div id="fltok"></div><div class="fldock fldock-c" id="fldock"></div><div class="flfx" aria-hidden="true"></div>';
  b.innerHTML=h;fxLayer=$q('.flfx');
 }
 function buildBoard(){
@@ -4283,6 +4575,7 @@ function buildBoard(){
  });
  h+='<div class="flfin" aria-label="终点">'+(root&&root.classList.contains('fl-print')?'':'<b>终</b>')+'</div>';
  h+='<div id="fltok"></div>';
+ h+='<div class="fldock fldock-c" id="fldock"></div>';
  h+='<div class="flfx" aria-hidden="true"></div>';
  b.innerHTML=h;fxLayer=$q('.flfx');
 }
@@ -4310,9 +4603,9 @@ function renderTokens(){
   g.forEach(function(item,ii){
    var p=item.p,pl=item.pl,pos,off;
    if(pl.where==='base'||pl.where==='done'){
-    pos=basePos(p.id,pl.id);off={dx:0,dy:0};
+    pos=basePos(seatOf(p),pl.id);off={dx:0,dy:0};
    }else{
-    pos=cellXY(pl.where,pl.idx,p.id);
+    pos=cellXY(pl.where,pl.idx,seatOf(p));
     off=stackOffset(ii,g.length);
    }
    var can=S.pending&&S.pending.mov&&S.turn===p.id&&S.pending.mov.indexOf(pl.id)>=0;
@@ -4320,21 +4613,27 @@ function renderTokens(){
    var pose=pl.where==='done'?' done-pose':(pl.where==='base'?' at-base':(pl.where==='track'||pl.where==='home'?' in-flight':''));
    var cls='fltok'+pose+(can?' go':'')+(lit?' takeoff-lit':'');
    var badge=pl.where==='done'?'<span class="fl-done-badge" aria-hidden="true">🏁</span>':'';
+   var halo=(can||lit)?'<i class="flglow" aria-hidden="true"></i>':'';
    var alabel=esc(p.cname)+'飞机'+(pl.id+1)+(pl.where==='done'?'已到达终点':'');
-   h+='<button type="button" class="'+cls+'" data-p="'+p.id+'" data-pl="'+pl.id+'" data-where="'+pl.where+'" style="left:'+(pos.x+off.dx)+'%;top:'+(pos.y+off.dy)+'%;--pc:'+p.color+'" aria-label="'+alabel+'">'+planeImg(p.id)+badge+'</button>';
+   h+='<button type="button" class="'+cls+'" data-p="'+p.id+'" data-pl="'+pl.id+'" data-tok="'+p.tok+'" data-seat="'+seatOf(p)+'" data-where="'+pl.where+'" style="left:'+(pos.x+off.dx)+'%;top:'+(pos.y+off.dy)+'%;--pc:'+p.color+'" aria-label="'+alabel+'">'+halo+planeImg(p)+badge+'</button>';
   });
  });
  el.innerHTML=h;
- Array.prototype.forEach.call(el.querySelectorAll('.fltok.go'),function(b){
-  b.onclick=function(){pickPlane(+b.getAttribute('data-pl'))};
+ Array.prototype.forEach.call(el.querySelectorAll('.fltok'),function(b){
+  b.onclick=function(){
+   var pid=+b.getAttribute('data-p'),plId=+b.getAttribute('data-pl');
+   var can=S.pending&&S.pending.mov&&S.turn===pid&&S.pending.mov.indexOf(plId)>=0;
+   if(can)pickPlane(plId);else pokePlane(pid,plId);
+  };
  });
- /* takeoff pads highlight */
+ /* takeoff pads highlight — hangar/entry 按座位色，不是加入顺序 */
+ var curSeat=S.players&&S.players[S.turn]?seatOf(S.players[S.turn]):-1;
  Array.prototype.forEach.call(root.querySelectorAll('.flbase'),function(el){
-  el.classList.toggle('lit',!!(S.roll===6&&S.turn===+el.getAttribute('data-p')));
+  el.classList.toggle('lit',!!(S.roll===6&&curSeat===+el.getAttribute('data-p')));
  });
  Array.prototype.forEach.call(root.querySelectorAll('.flc.entry'),function(el){
   var ent=E.ENTRY.indexOf(+el.getAttribute('data-i'));
-  el.classList.toggle('lit',!!(S.roll===6&&S.turn===ent));
+  el.classList.toggle('lit',!!(S.roll===6&&curSeat===ent));
  });
 }
 function renderPanel(){
@@ -4351,18 +4650,38 @@ function renderPanel(){
  el.innerHTML=h;
  restoreBubs();
 }
+function activeSeat(){
+ if(!S||!S.players||!S.players.length)return 1;
+ var p=(S.phase==='over'&&S.winner!=null)?S.players[S.winner]:E.cur(S);
+ return p?seatOf(p):1;
+}
+function dockAnchor(seat){
+ /* inner flank of each hangar — beside pits, not on avatar / not on the star */
+ var m={1:{l:28,t:20,k:'tl'},2:{l:72,t:20,k:'tr'},0:{l:28,t:80,k:'bl'},3:{l:72,t:80,k:'br'}};
+ return m[seat]||m[1];
+}
+function duckDock(ms){
+ duckUntil=Date.now()+(ms||1100);
+ var el=$q('#fldock');if(el)el.classList.add('duck');
+ later(function(){if(Date.now()>=duckUntil-40)try{renderDock()}catch(e){}},(ms||1100)+40);
+}
 function renderDock(){
  var el=$q('#fldock');if(!el)return;
+ var ready=S.phase==='play'&&S.roll==null&&!busy;
+ var duck=Date.now()<duckUntil;
+ var seat=activeSeat(),anc=dockAnchor(seat);
+ var noSlide=eco()||(UI.reduce&&UI.reduce());
  var hint='';
  if(S.phase==='over'){var w=S.players[S.winner];hint='🏆 '+esc(w.name)+' 获胜!';}
- else if(S.phase!=='play'){hint='选角色开始';}
- else if(S.roll!=null){hint='掷出 <b>'+S.roll+'</b> · 点发光飞机'+(S.roll===6?' · 可起飞':'')}
- else if(S.again){hint='再掷一次!'}
- else{hint='轮到 <b style="color:'+TKC[E.cur(S).tok]+'">'+esc(E.cur(S).name)+'</b>'}
- el.innerHTML='<div class="fldie-wrap"><div class="fldie'+(S.roll==null&&S.phase==='play'?' pulse':'')+'" id="flDie" role="button" aria-label="骰子">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
-  '<div class="flhint" id="flHint">'+hint+'</div>'+
-  (S.phase==='play'&&S.roll==null?'<button class="btn big" id="flRoll">🎲 掷骰子</button>':'')+
-  (S.phase==='over'?'<button class="btn pri" id="flAgain">再来一局</button>':'');
+ else if(ready&&S.again){hint='再掷一次!'}
+ else if(ready){hint='轮到 <b style="color:'+TKC[E.cur(S).tok]+'">'+esc(E.cur(S).name)+'</b>'}
+ el.style.left=anc.l+'%';el.style.top=anc.t+'%';
+ el.className='fldock fldock-c s-'+anc.k+(ready?' want':' idle')+(duck?' duck':'')+(S.phase==='over'?' over':'')+(noSlide?' no-slide':'');
+ el.setAttribute('data-seat',seat);
+ el.innerHTML='<div class="fldie-wrap'+(ready?' want':'')+'"><div class="fldie'+(ready?' pulse':'')+'" id="flDie" role="button" aria-label="掷骰子">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
+  (ready?'<button class="btn big flroll" id="flRoll">🎲 掷骰子</button>':'')+
+  (S.phase==='over'?'<button class="btn pri" id="flAgain">再来一局</button>':'')+
+  (hint?'<div class="flhint" id="flHint">'+hint+'</div>':'');
  var d=$q('#flDie'),r=$q('#flRoll'),a=$q('#flAgain');
  if(d)d.onclick=function(){if(S.phase==='play'&&S.roll==null&&!busy)doRoll()};
  if(r)r.onclick=function(){doRoll()};
@@ -4371,28 +4690,31 @@ function renderDock(){
 function render(){
  if(!root||!S)return;
  root.classList.toggle('over',S.phase==='over');
- renderTokens();renderPanel();renderDock();
+ renderTokens();renderHangars();renderPanel();renderDock();
 }
 function playMoveFx(r){
  if(!r||!r.ev)return;
  r.ev.forEach(function(e){
   if(e.k==='jump'){
    var a=ringPos(e.from),b=ringPos(e.to);
-   trailAlong([a,{x:(a.x+b.x)/2,y:(a.y+b.y)/2},b],E.COLORS[e.pid]);
+   trailAlong([a,{x:(a.x+b.x)/2,y:(a.y+b.y)/2},b],(S.players[e.pid]&&S.players[e.pid].color)||E.COLORS[e.pid]);
    UI.toast('同色跳跃!',900,'star');
   }else if(e.k==='fly'){
    var a2=ringPos(e.from),b2=ringPos(e.to);
-   if(isl()){var ft=window.FLY3D.flyTrail(e.pid,8);trailAlong(ft,'#ffd23f');sparkAt(ft[4].x,ft[4].y,'flyburst',14)}
+   var dashSeat=e.seat!=null?e.seat:(S.players[e.pid]?seatOf(S.players[e.pid]):e.pid);
+   if(isl()){var ft=window.FLY3D.flyTrail(dashSeat,8);trailAlong(ft,'#ffd23f');sparkAt(ft[4].x,ft[4].y,'flyburst',14)}
    else{trailAlong([a2,{x:50,y:50},b2],'#ffd23f');sparkAt(50,50,'flyburst',14)}
-   var dash=root&&root.querySelector('#fldash'+e.pid);
+   var dash=root&&root.querySelector('#fldash'+dashSeat);
    if(dash){dash.classList.add('lit');later(function(){try{dash.classList.remove('lit')}catch(err){}},1400)}
    UI.toast('✈️ 虚线横飞 +12!',1400,'star');
   }else if(e.k==='capture'){
    var pos=ringPos(e.at!=null?e.at:0);
    sparkAt(pos.x,pos.y,'boom',12);
   }else if(e.k==='takeoff'){
-   var tp=ringPos(e.idx!=null?e.idx:E.ENTRY[e.pid]);
+   var takeSeat=e.seat!=null?e.seat:(S.players[e.pid]?seatOf(S.players[e.pid]):e.pid);
+   var tp=ringPos(e.idx!=null?e.idx:E.ENTRY[takeSeat]);
    sparkAt(tp.x,tp.y,'take',8);
+   duckDock(900);
   }else if(e.k==='triple6'){
    UI.toast('三连6!一架飞机回基地',1600,'warn');
   }
@@ -4407,6 +4729,10 @@ function doRoll(forced){
  var v=forced!=null?forced:Dice.d6();lastDie=v;
  var die=$q('#flDie');
  if(die){
+  var light=eco()||(UI.reduce&&UI.reduce());
+  die.classList.add('rolling');
+  var wrap=die.closest('.fldie-wrap');if(wrap)wrap.classList.add('rolling');
+  var dock=$q('#fldock');if(dock)dock.classList.add('rolling');
   cancel=Dice.roll(wrapDie(die),[v],function(){
    var r=E.roll(S,v);
    busy=false;save();
@@ -4422,7 +4748,7 @@ function doRoll(forced){
     else if(r.v===1)sayReact(S.turn,'lowRoll',{mood:'worried',tiny:1});
    }
    if(r.mov.length===1){later(function(){pickPlane(r.mov[0])},280)}
-  });
+  },light?{ms:480,stagger:80,tail:220,tick:90,cls:'flyroll-eco'}:{ms:1250,stagger:160,tail:420,tick:70,cls:'flyroll'});
  }else{
   var r=E.roll(S,v);busy=false;save();render();
   if(r.ok&&!r.passed&&r.mov.length===1)later(function(){pickPlane(r.mov[0])},200);
@@ -4471,9 +4797,9 @@ function rulesModal(){
 }
 function startSelect(){
  if(selv){try{selv.remove()}catch(e){}selv=null}
- selv=Select.screen(root,{kind:'tk',min:2,max:4,title:'飞行棋 · 选角色',sub:'2–4 人 · 点角色入座 · 座位颜色=红黄蓝绿飞机',ok:'开始起飞',catchSet:'fly',theme:'fly',
+ selv=Select.screen(root,{kind:'tk',min:2,max:4,title:'飞行棋 · 选角色',sub:'2–4 人 · 点角色，再点飞机颜色（黄·蓝·红·绿）· 颜色不能重复 · 先点的人先走',ok:'开始起飞',catchSet:'fly',theme:'fly',bindSeat:true,
   onDone:function(list){
-   selv=null;S=E.newState();E.startGame(S,list.map(function(x){return{tok:x.tok,name:x.name||TKN[x.tok]}}));save();
+   selv=null;S=E.newState();E.startGame(S,list.map(function(x){return{tok:x.tok,name:x.name||TKN[x.tok],seat:x.seat}}));save();
    buildBoard();render();fit();
    var go=function(){try{GC.Intro.banner(S.players[0].tok,S.players[0].name,'先掷骰子!')}catch(e){}UI.toast(S.players[0].name+' 先掷!',1600,'star')};
    var did=false;try{did=GC.Intro.vs(S.players.map(function(p){return{tok:p.tok,name:p.name}}),go)}catch(e){}if(!did)go();
@@ -4488,6 +4814,7 @@ function fit(){
 }
 var api={
  state:function(){return S},engine:E,render:function(){render()},roll:function(v){return doRoll(v)},
+ poke:function(pid,pl){pokePlane(pid,pl)},
  setPrintMode:function(on){
   if(!root)return;
   root.classList.toggle('fl-print',!!on);
@@ -4506,7 +4833,7 @@ return{
   root=r;busy=false;selv=null;timers=[];fxLayer=null;load();
   /* v14：默认 3D 卡通海岛棋盘；setBoardStyle('print'|'plastic') 可切回旧外观 */
   r.classList.add('gm-fly',window.FLY3D?'fl-island':'fl-print');
-  r.innerHTML='<div class="fllay"><div class="flbw"><div id="flb" class="flb"></div></div><div class="flside"><div class="flp" id="flp"></div><div class="flruletip" title="虚线横飞规则"><b>本色✈飞机格</b><br>= 沿虚线横飞+12<br>★星星格安全 · 同色格跳跃<br><span>掷6起飞 · 起飞不触发跳/飞</span></div><div class="fldock" id="fldock"></div></div></div>';
+  r.innerHTML='<div class="fllay"><div class="flbw"><div id="flb" class="flb"></div></div><div class="flside"><div class="flp" id="flp"></div><div class="flruletip" title="虚线横飞规则"><b>本色✈飞机格</b><br>= 沿虚线横飞+12<br>★星星格安全 · 同色格跳跃<br><span>掷6起飞 · 起飞不触发跳/飞</span></div></div></div>';
   var nr=ctx.nav('list','规则',{id:'flRules'}),nn=ctx.nav('refresh','新局',{id:'flNew'}),ne=ctx.nav('star','省电',{id:'flEco'});
   ctx.slot.appendChild(nr);ctx.slot.appendChild(nn);ctx.slot.appendChild(ne);
   nr.onclick=function(){Sound.tap();rulesModal()};
@@ -4519,7 +4846,7 @@ return{
   if(window.ResizeObserver){ro=new ResizeObserver(function(){fit()});ro.observe(root)}else window.addEventListener('resize',fit);
   fit();
  },
- unmount:function(){timers.forEach(clearTimeout);timers=[];bubs={};faceMood={};if(cancel)cancel();if(ro)ro.disconnect();ro=null;if(S)save();if(selv){try{selv.remove()}catch(e){}}selv=null;document.documentElement.classList.remove('fl-land');fxLayer=null;if(plateURL){try{URL.revokeObjectURL(plateURL)}catch(e){}plateURL=null}root=null},
+  unmount:function(){timers.forEach(clearTimeout);timers=[];bubs={};faceMood={};pokeN={};pokeAt={};duckUntil=0;if(cancel)cancel();if(ro)ro.disconnect();ro=null;if(S)save();if(selv){try{selv.remove()}catch(e){}}selv=null;document.documentElement.classList.remove('fl-land');fxLayer=null;if(plateURL){try{URL.revokeObjectURL(plateURL)}catch(e){}plateURL=null}root=null},
  api:api
 };
 })();
@@ -5790,7 +6117,10 @@ var FLY={
  enterHome:['汪!拐进回家跑道啦!','快到家了,摇尾巴!'],
  finishPlane:['汪!一架飞机到终点啦!','汪汪,到家啦!'],
  win:['汪汪汪!小狗飞到终点第一名!','我赢啦,大家都来摸摸我!'],
- bounce:['汪呜,三连六,一架要回家。','飞太猛了,掉回基地了。']
+ bounce:['汪呜,三连六,一架要回家。','飞太猛了,掉回基地了。'],
+ poke:['汪?摸摸飞机呀!','汪汪,这是我的小飞机!'],
+ poke2:['汪呜,不要一直戳啦。','耳朵要皱起来了,汪!'],
+ pokeAngry:['汪!再戳我要咬螺旋桨了!','哼,小狗生气了,汪汪汪!']
 },
 1:{ /* 小狮子 */
  select:['嗷呜!本王来开飞机!','本王要第一个飞到终点!'],
@@ -5804,7 +6134,10 @@ var FLY={
  enterHome:['本王拐进回家跑道!','嗷,终点在向本王招手!'],
  finishPlane:['嗷呜!一架王机到终点!','本王的飞机到家啦!'],
  win:['嗷呜!本王第一个飞到终点!','森林之王,飞行冠军!'],
- bounce:['嗷!三连六,太猛了。','本王先回基地蓄力。']
+ bounce:['嗷!三连六,太猛了。','本王先回基地蓄力。'],
+ poke:['嗷?本王的飞机,请轻一点。','摸摸可以,本王允许。'],
+ poke2:['哼,本王的鬃毛要炸了。','不要一直戳王机!'],
+ pokeAngry:['嗷呜!本王真的生气了!','再戳,本王要把你吼飞!']
 },
 2:{ /* 不不奥特曼 */
  select:['不不不!奥特曼来开飞机!','能量满满,冲向终点!'],
@@ -5818,7 +6151,10 @@ var FLY={
  enterHome:['咻,拐进回家跑道!','不不不,是回家回家!'],
  finishPlane:['一架奥特飞机到达终点!','好好好,到家啦!'],
  win:['不不不,是赢赢赢!我飞到终点啦!','地球靠我,飞行冠军!'],
- bounce:['不不不,飞太猛掉回去了!','警报,三连六,先回基地。']
+ bounce:['不不不,飞太猛掉回去了!','警报,三连六,先回基地。'],
+ poke:['不不不,这是奥特飞机!','能量满满,可以摸摸。'],
+ poke2:['哼,计时器要响了。','不要戳光线开关啦!'],
+ pokeAngry:['不不不!奥特曼生气了!','再戳就光线全开了!']
 },
 3:{ /* 哎呀公主: 冰雪闪光,不喷火 */
  select:['哎呀,本公主来开飞机咯!','哎呀呀,人家要闪闪亮亮飞到终点!'],
@@ -5832,7 +6168,10 @@ var FLY={
  enterHome:['哎呀,人家拐进回家跑道啦!','哎呀,快到闪闪终点咯!'],
  finishPlane:['哎呀,一架公主飞机到家啦!','哎呀呀,终点闪闪发光!'],
  win:['哎呀!人家第一个飞到终点啦!','公主加冕,飞行冠军!'],
- bounce:['哎呀,掷太高兴,掉回基地了。','哎呀呀,三连六好晕,先回家。']
+ bounce:['哎呀,掷太高兴,掉回基地了。','哎呀呀,三连六好晕,先回家。'],
+ poke:['哎呀,这是公主专机呀。','轻轻碰一下雪花漆嘛。'],
+ poke2:['哎呀,皇冠要歪了。','不要一直戳人家的飞机!'],
+ pokeAngry:['哼!本公主冰一下你!','哎呀呀,再戳就冻住螺旋桨!']
 },
 4:{ /* 温柔喷火龙: 日常轻声; 喷火只在叠吃 */
  select:['呼,小龙来陪你开飞机。','你好呀,小龙会温柔地飞。'],
@@ -5846,7 +6185,10 @@ var FLY={
  enterHome:['呼,拐进暖暖的回家跑道。','快到家了,轻轻走。'],
  finishPlane:['一架小龙飞机到家啦。','呼,暖暖的,到终点了。'],
  win:['哇,小龙飞到终点啦,谢谢大家。','最温暖的龙是飞行冠军!'],
- bounce:['呼,飞太猛,掉回基地了。','三连六,小龙先歇一歇。']
+ bounce:['呼,飞太猛,掉回基地了。','三连六,小龙先歇一歇。'],
+ poke:['呼,小龙的飞机,轻轻碰就好。','你好呀,这是温柔专机。'],
+ poke2:['呼…请不要一直戳。','小火苗有点不高兴了。'],
+ pokeAngry:['哼!小龙真的生气了!','再戳,小龙要喷火了!']
 },
 5:{ /* 猪肉战神: 人类厨神; 「猪肉战神登场!」已有录音且适合出场 */
  select:['猪肉战神登场!','哼!哼!厨神来开飞机!'],
@@ -5860,10 +6202,13 @@ var FLY={
  enterHome:['拐进回家跑道,终点快到啦!','厨神巡航,回家道!'],
  finishPlane:['一架战神飞机到家,开宴!','哈哈哈,战神飞机到终点!'],
  win:['哈哈哈!厨神飞到终点第一名!','百味战神,飞行冠军!'],
- bounce:['哼,三连六,先回炉。','飞太猛了,回基地重整!']
+ bounce:['哼,三连六,先回炉。','飞太猛了,回基地重整!'],
+ poke:['哼!这是战神专机。','摸摸可以,别弄脏厨帽。'],
+ poke2:['哼,锅铲要响了。','不要一直戳战神飞机!'],
+ pokeAngry:['哼!战神要跺厨房了!','再戳就罚你回炉排队!']
 }
 };
-var FLY_EVENTS=['select','roll6','lowRoll','takeoff','jump','fly12','eat','eaten','enterHome','finishPlane','win','bounce'];
+var FLY_EVENTS=['select','roll6','lowRoll','takeoff','jump','fly12','eat','eaten','enterHome','finishPlane','win','bounce','poke','poke2','pokeAngry'];
 function pick(tok,type,rnd){var a=(L[tok]||L[0])[type];if(!a||!a.length)return '';var r=rnd?rnd(a.length):Math.floor(Math.random()*a.length);return a[r]}
 function pickFly(tok,type,rnd){var a=(FLY[tok]||FLY[0])[type];if(!a||!a.length)return '';var r=rnd?rnd(a.length):Math.floor(Math.random()*a.length);return a[r]}
 var API={LINES:L,EVENTS:EVENTS,FLY:FLY,FLY_EVENTS:FLY_EVENTS,pick:pick,pickFly:pickFly};

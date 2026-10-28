@@ -117,9 +117,23 @@ function nextSameColor(idx){return (idx+4)%TRACK}
 function newState(){
  return{phase:'setup',players:[],turn:0,roll:null,pending:null,winner:null,hist:[],again:false,sixes:0,sv:0};
 }
+function seatOf(p){
+ if(!p)return 0;
+ var s=p.seat;
+ if(s==null||s<0||s>3)s=p.id;
+ return ((s%4)+4)%4;
+}
 function startGame(S,list){
+ var used={};
  S.players=list.slice(0,4).map(function(p,i){
-  return{id:i,tok:p.tok,name:p.name||TKN[p.tok],color:COLORS[i],cname:CNAMES[i],
+  var seat=p.seat;
+  if(seat==null||seat<0||seat>3||used[seat]){
+   seat=null;
+   for(var s=0;s<4;s++)if(!used[s]){seat=s;break}
+   if(seat==null)seat=i%4;
+  }
+  used[seat]=1;
+  return{id:i,seat:seat,tok:p.tok,name:p.name||TKN[p.tok],color:COLORS[seat],cname:CNAMES[seat],
    planes:[0,1,2,3].map(function(k){return{id:k,where:'base',idx:0,lap:0}})};
  });
  S.phase='play';S.turn=0;S.roll=null;S.pending=null;S.winner=null;S.again=false;S.sixes=0;S.hist=[];S.sv=Date.now();
@@ -158,7 +172,7 @@ function dashEatCells(from,to){
 }
 
 function movable(S,v){
- var p=cur(S),out=[];
+ var p=cur(S),seat=seatOf(p),out=[];
  p.planes.forEach(function(pl){
   if(pl.where==='done')return;
   if(pl.where==='base'){if(v===6)out.push(pl.id);return}
@@ -169,21 +183,21 @@ function movable(S,v){
   }
   var idx=pl.idx,lap=pl.lap||0,ok=true;
   for(var s=0;s<v;s++){
-   if(lap>=1&&idx===HOME_GATE[p.id]){
+   if(lap>=1&&idx===HOME_GATE[seat]){
     var rem=v-s-1;
     if(rem+1>HOME){ok=false}
     break;
    }
    idx=(idx+1)%TRACK;
-   if(idx===ENTRY[p.id])lap++;
+   if(idx===ENTRY[seat])lap++;
   }
   if(ok)out.push(pl.id);
  });
  return out;
 }
 function pathFor(S,plId,v){
- var p=cur(S),pl=p.planes[plId],path=[];
- if(pl.where==='base'){path.push({where:'track',idx:ENTRY[p.id],lap:0,kind:'takeoff'});return path}
+ var p=cur(S),seat=seatOf(p),pl=p.planes[plId],path=[];
+ if(pl.where==='base'){path.push({where:'track',idx:ENTRY[seat],lap:0,kind:'takeoff'});return path}
  if(pl.where==='home'){
   for(var i=1;i<=v;i++){
    var d=pl.idx+i;
@@ -194,7 +208,7 @@ function pathFor(S,plId,v){
  }
  var idx=pl.idx,lap=pl.lap||0;
  for(var s=0;s<v;s++){
-  if(lap>=1&&idx===HOME_GATE[p.id]){
+  if(lap>=1&&idx===HOME_GATE[seat]){
    var rem=v-s;
    for(var h=0;h<rem;h++){
     if(h+1>HOME)break;
@@ -204,7 +218,7 @@ function pathFor(S,plId,v){
    return path;
   }
   idx=(idx+1)%TRACK;
-  if(idx===ENTRY[p.id])lap++;
+  if(idx===ENTRY[seat])lap++;
   path.push({where:'track',idx:idx,lap:lap,kind:'step'});
  }
  return path;
@@ -212,28 +226,28 @@ function pathFor(S,plId,v){
 function applyBonuses(S,p,pl,ev,sent,arrivedBy){
  /* 起飞落点不触发同色跳/横飞（经典规则） */
  if(arrivedBy==='takeoff')return;
- var guard=0;
+ var seat=seatOf(p),guard=0;
  while(guard++<4){
   if(pl.where!=='track')return;
-  if(isFlyPad(p.id,pl.idx)&&(arrivedBy==='roll'||arrivedBy==='jump')){
-   var from=pl.idx,to=FLY_TO[p.id];
+  if(isFlyPad(seat,pl.idx)&&(arrivedBy==='roll'||arrivedBy==='jump')){
+   var from=pl.idx,to=FLY_TO[seat];
    var eat=dashEatCells(from,to);
    eat.forEach(function(ci){
     if(ci===to)return;
     captureAt(S,p.id,pl.id,'track',ci,ev,sent);
    });
    pl.idx=to;
-   if(to===ENTRY[p.id])pl.lap=(pl.lap||0)+1;
-   ev.push({k:'fly',pid:p.id,pl:pl.id,from:from,to:to});
+   if(to===ENTRY[seat])pl.lap=(pl.lap||0)+1;
+   ev.push({k:'fly',pid:p.id,pl:pl.id,from:from,to:to,seat:seat});
    captureAt(S,p.id,pl.id,'track',to,ev,sent);
    arrivedBy='fly';
    continue;
   }
-  if(cellColor(pl.idx)===p.id&&arrivedBy!=='jump'){
+  if(cellColor(pl.idx)===seat&&arrivedBy!=='jump'){
    var jfrom=pl.idx,jto=nextSameColor(pl.idx);
    pl.idx=jto;
-   if(jto===ENTRY[p.id])pl.lap=(pl.lap||0)+1;
-   ev.push({k:'jump',pid:p.id,pl:pl.id,from:jfrom,to:jto});
+   if(jto===ENTRY[seat])pl.lap=(pl.lap||0)+1;
+   ev.push({k:'jump',pid:p.id,pl:pl.id,from:jfrom,to:jto,seat:seat});
    captureAt(S,p.id,pl.id,'track',jto,ev,sent);
    arrivedBy='jump';
    continue;
@@ -259,15 +273,15 @@ function sendOwnPlaneHome(S,pid){
 }
 function applyMove(S,plId){
  if(S.phase!=='play'||S.winner!=null||S.roll==null)return{ok:false,err:'还不能走'};
- var v=S.roll,p=cur(S),pl=p.planes[plId];
+ var v=S.roll,p=cur(S),seat=seatOf(p),pl=p.planes[plId];
  if(!pl)return{ok:false,err:'没有这架飞机'};
  var mov=movable(S,v);
  if(mov.indexOf(plId)<0)return{ok:false,err:'这架不能走'};
  var ev=[],sent=[],path=pathFor(S,plId,v);
  var fromBase=pl.where==='base';
  if(fromBase){
-  pl.where='track';pl.idx=ENTRY[p.id];pl.lap=0;
-  ev.push({k:'takeoff',pid:p.id,pl:plId,idx:ENTRY[p.id]});
+  pl.where='track';pl.idx=ENTRY[seat];pl.lap=0;
+  ev.push({k:'takeoff',pid:p.id,pl:plId,idx:ENTRY[seat],seat:seat});
  }else{
   path.forEach(function(step){
    pl.where=step.where;pl.idx=step.idx;
@@ -323,7 +337,7 @@ function restore(S,snap){Object.keys(snap).forEach(function(k){S[k]=snap[k]});re
 var API={COLORS:COLORS,CNAMES:CNAMES,TKN:TKN,TRACK:TRACK,HOME:HOME,ENTRY:ENTRY,HOME_GATE:HOME_GATE,PLANES:PLANES,
  FLY_FROM:FLY_FROM,FLY_TO:FLY_TO,RING:RING,HOME_CELLS:HOME_CELLS,BASE_SLOTS:BASE_SLOTS,BASE_RECT:BASE_RECT,HANGAR_INSET:HANGAR_INSET,LANE_NUDGE:LANE_NUDGE,TAKEOFF_CELLS:TAKEOFF_CELLS,baseSlotsFromRect:baseSlotsFromRect,ringNudge:ringNudge,homeNudge:homeNudge,takeoffCell:takeoffCell,
  gridPct:gridPct,ringPos:ringPos,homePos:homePos,basePos:basePos,donePos:donePos,takeoffPos:takeoffPos,
- cellColor:cellColor,isFlyPad:isFlyPad,nextSameColor:nextSameColor,
+ cellColor:cellColor,isFlyPad:isFlyPad,nextSameColor:nextSameColor,seatOf:seatOf,
  newState:newState,startGame:startGame,cur:cur,movable:movable,pathFor:pathFor,applyMove:applyMove,roll:roll,
  planesAt:planesAt,isSafe:isSafe,snapshot:snapshot,restore:restore,dashEatCells:dashEatCells};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;

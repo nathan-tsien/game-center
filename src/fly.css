@@ -3,9 +3,9 @@
 .fllay{position:absolute;inset:0;display:flex;flex-direction:column;gap:4px;padding:4px}
 .gm-fly.land .fllay{flex-direction:row;align-items:stretch;gap:8px;padding:4px 6px}
 .flbw{flex:1;min-width:0;min-height:0;display:flex;align-items:center;justify-content:center}
-.gm-fly.land .flbw{flex:0 0 82%;max-width:82%}
+.gm-fly.land .flbw{flex:0 0 78%;max-width:78%}
 .flside{flex:none;display:flex;flex-direction:column;gap:6px;min-height:0}
-.gm-fly.land .flside{flex:0 0 18%;width:18%;max-width:200px;height:100%}
+.gm-fly.land .flside{flex:0 0 22%;width:22%;max-width:248px;height:100%}
 
 /* Square classic board — wood trim + soft clay plate */
 .flb{position:relative;width:min(100%,100%);height:min(100%,100%);aspect-ratio:1/1;
@@ -97,11 +97,26 @@
 .flhome .flmark{width:58%;height:58%;background:radial-gradient(circle at 40% 35%,#fff 0%,#f5f0e8 70%,#e8e0d4 100%);
  box-shadow:inset 0 2px 4px rgba(0,0,0,.18),inset 0 -1px 0 #fff8,0 1px 0 #fff6}
 
-/* Hangar label overlay */
-.flbase{position:absolute;border-radius:14px;background:transparent;border:0;
- z-index:1;display:flex;align-items:flex-start;justify-content:center;padding-top:1.8%;pointer-events:none}
-.flbase span{font-size:10px;font-weight:900;color:#fff;background:var(--bc);padding:2px 8px;border-radius:9px;z-index:2;
+/* Hangar label overlay — 角色铭牌贴在机库外角，棋子仍是飞机 */
+.flbase{position:absolute;border-radius:14px;background:transparent;border:0;overflow:visible;
+ z-index:5;display:flex;align-items:flex-start;justify-content:center;padding-top:1.8%;pointer-events:none}
+.flbase .flcname{font-size:10px;font-weight:900;color:#fff;background:var(--bc);padding:2px 8px;border-radius:9px;z-index:2;
  box-shadow:0 2px 0 rgba(0,0,0,.22),inset 0 1px 0 #fff6;opacity:.95;letter-spacing:.04em}
+/* 圆形角色铭牌贴在机库外角草地，棋子仍是飞机；铭牌宽锁定头像，名字绝对定位向外挂，不盖四坑 */
+.flhplate{position:absolute;z-index:1;display:block;width:64px;height:64px;
+ background:transparent;border:0;padding:0;box-shadow:none;pointer-events:none}
+.flhplate .tkm.hav{width:64px!important;height:64px!important;border-radius:50%;overflow:hidden;
+ box-shadow:0 0 0 4px #fff,0 0 0 8px var(--bc),0 6px 0 rgba(0,0,0,.22)}
+.flhplate .flhnm{position:absolute;bottom:-2px;font-size:12px;font-weight:900;color:#3a2a5c;line-height:1.1;white-space:nowrap;letter-spacing:.02em;
+ background:#fff;border:2.5px solid var(--bc);border-radius:11px;padding:2px 7px;box-shadow:0 2px 0 rgba(0,0,0,.18);z-index:1}
+.flbase[data-p="1"] .flhplate{top:-22%;left:-22%}
+.flbase[data-p="1"] .flhnm{left:0;transform:translate(-18%,0)}
+.flbase[data-p="2"] .flhplate{top:-22%;right:-22%;left:auto}
+.flbase[data-p="2"] .flhnm{right:0;left:auto;transform:translate(18%,0)}
+.flbase[data-p="0"] .flhplate{top:auto;bottom:-22%;left:-22%}
+.flbase[data-p="0"] .flhnm{left:0;transform:translate(-18%,0)}
+.flbase[data-p="3"] .flhplate{top:auto;bottom:-22%;right:-22%;left:auto}
+.flbase[data-p="3"] .flhnm{right:0;left:auto;transform:translate(18%,0)}
 
 /* Center finish — 极小中心点标，四色三角对顶清晰可见 */
 .flfin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;z-index:4;pointer-events:none;width:auto}
@@ -115,9 +130,10 @@
   0 0 0 2px rgba(255,255,255,.75);
  letter-spacing:0}
 
-#fltok{position:absolute;inset:0;z-index:6;pointer-events:none}
+#fltok{position:absolute;inset:0;z-index:8;pointer-events:none;overflow:visible}
+#fltok .fltok{pointer-events:auto}
 /* track tokens ~5.5%; base tokens ~4.5% ≈ pit diameter so they sit in X slots */
-.fltok{position:absolute;width:5.5%;height:5.5%;transform:translate(-50%,-50%);border:0;background:transparent;padding:0;cursor:pointer;pointer-events:auto;
+.fltok{position:absolute;width:5.5%;height:5.5%;transform:translate(-50%,-50%);border:0;background:transparent;padding:0;cursor:pointer;pointer-events:auto;overflow:visible;
  filter:drop-shadow(0 4px 3px rgba(0,0,0,.42));transition:left .28s ease-out,top .28s ease-out,transform .2s}
 .fltok .fl-plane,.fltok .fl-plane-img{width:100%;height:100%;display:block;object-fit:contain}
 /* no PNG translate on base — avoid pushing wings past hangar white rim */
@@ -137,7 +153,26 @@
 .fltok.go{z-index:8;animation:flgo 1s ease-in-out infinite;outline:3px solid #ffd23f;outline-offset:2px;border-radius:50%}
 .fltok.takeoff-lit{z-index:7;outline:3px solid #7ef0a0;outline-offset:2px;border-radius:50%;animation:flgo 1s ease-in-out infinite}
 @keyframes flgo{50%{transform:translate(-50%,-58%) scale(1.08)}}
+.fltok .flglow{position:absolute;left:50%;top:50%;width:210%;height:210%;margin:0;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:0;
+ background:radial-gradient(circle,#fff 0 18%,#ffd23f 42%,rgba(255,210,63,0) 70%);
+ box-shadow:0 0 0 3px #fff,0 0 0 8px #ffd23f,0 0 28px 12px #ffd23fcc;
+ animation:flhalopulse .85s ease-in-out infinite}
+.fltok.takeoff-lit .flglow{background:radial-gradient(circle,#fff 0 18%,#7ef0a0 42%,rgba(126,240,160,0) 70%);
+ box-shadow:0 0 0 3px #fff,0 0 0 8px #7ef0a0,0 0 28px 12px #7ef0a0cc}
+.fltok.go .fl-plane,.fltok.go .fl3d-tok,.fltok.takeoff-lit .fl-plane,.fltok.takeoff-lit .fl3d-tok,.fltok.go .fl-plane-img,.fltok.takeoff-lit .fl-plane-img{position:relative;z-index:1}
+@keyframes flhalopulse{0%,100%{transform:translate(-50%,-50%) scale(.88);opacity:.82}50%{transform:translate(-50%,-50%) scale(1.12);opacity:1}}
 .gq-eco .fltok.go,.gq-eco .fltok.takeoff-lit{animation:none}
+.gq-eco .fltok .flglow{animation:none;opacity:1;transform:translate(-50%,-50%) scale(1)}
+.fltok.poked{animation:flpoke .38s ease-out}
+.fltok.poked-mad{animation:flpokemad .46s ease-in-out}
+@keyframes flpoke{0%{transform:translate(-50%,-50%) scale(1)}40%{transform:translate(-50%,-60%) scale(1.14) rotate(-8deg)}100%{transform:translate(-50%,-50%)}}
+@keyframes flpokemad{0%,100%{transform:translate(-50%,-50%)}30%{transform:translate(-56%,-50%) rotate(-12deg)}70%{transform:translate(-44%,-50%) rotate(12deg)}}
+.fltbub{position:absolute;left:50%;bottom:110%;transform:translateX(-50%);z-index:12;pointer-events:none;
+ background:#fff;color:#3a2a5c;border:2.5px solid var(--pc,#ff6fae);border-radius:12px;padding:3px 8px;
+ font-size:11px;font-weight:900;line-height:1.2;white-space:nowrap;max-width:150px;overflow:hidden;text-overflow:ellipsis;
+ box-shadow:0 3px 0 rgba(0,0,0,.16)}
+.fltbub::after{content:'';position:absolute;left:50%;top:100%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--pc,#ff6fae)}
+.gq-eco .fltok.poked,.gq-eco .fltok.poked-mad{animation:none}
 
 .flfx{position:absolute;inset:0;pointer-events:none;z-index:9;overflow:hidden}
 .flsp{position:absolute;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:hsl(var(--h,50) 90% 60%);box-shadow:0 0 6px hsl(var(--h,50) 90% 70%);
@@ -155,18 +190,77 @@
 .flpc .pbub{font-size:11px;padding:4px 6px;bottom:4px;z-index:6}
 .gm-fly.fl-island .flpc .pbub{background:#fffef8}
 .flpc .bd{display:inline-block;color:#fff;font-size:11px;font-weight:900;padding:1px 6px;border-radius:8px}
-.fldock{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 4px 8px}
-.fldie-wrap{position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center}
-.fldie-wrap::before{content:'';position:absolute;left:50%;bottom:2px;transform:translateX(-50%);width:70px;height:18px;border-radius:50%;
- background:radial-gradient(ellipse,#ffd23fcc,#ff9a4044 55%,transparent 70%);box-shadow:0 0 18px #ffd23faa;z-index:0}
-.fldie{position:relative;z-index:1;width:68px;height:68px;cursor:pointer;filter:drop-shadow(0 8px 6px rgba(0,0,0,.35))}
+/* Compact floating die — follows the active hangar; no card, center star stays clear */
+.fldock{display:flex;flex-direction:column-reverse;align-items:center;gap:3px;padding:0;
+ background:none;border:0;box-shadow:none;overflow:visible;pointer-events:none}
+.fldock-c{position:absolute;left:28%;top:20%;z-index:12;
+ width:auto;min-width:0;max-width:none;box-sizing:border-box;margin:0;
+ --ox:-50%;--oy:-100%;
+ transform:translate(var(--ox),var(--oy));transform-origin:50% 100%;
+ transition:left .5s cubic-bezier(.22,.8,.28,1),top .5s cubic-bezier(.22,.8,.28,1),transform .28s ease,opacity .28s ease}
+.fldock-c.s-tl,.fldock-c.s-tr{--ox:-50%;--oy:-100%;flex-direction:column-reverse;transform-origin:50% 100%}
+.fldock-c.s-bl,.fldock-c.s-br{--ox:-50%;--oy:0%;flex-direction:column;transform-origin:50% 0}
+.fldock-c .fldie,.fldock-c .flroll,.fldock-c .btn{pointer-events:auto}
+.fldock.want{background:none;border:0;box-shadow:none;animation:none}
+.fldock-c.idle{opacity:.88;transform:translate(var(--ox),var(--oy)) scale(.9);pointer-events:none;z-index:8;
+ animation:none;box-shadow:none;background:none}
+.fldock-c.idle .flroll,.fldock-c.idle .flhint{display:none}
+.fldock-c.duck{opacity:.12;transform:translate(var(--ox),var(--oy)) scale(.45);pointer-events:none;z-index:3;animation:none}
+.fldock-c.over{z-index:12;opacity:1;transform:translate(var(--ox),var(--oy));pointer-events:auto}
+.fldock-c.rolling .flroll,.fldock-c.rolling .flhint{visibility:hidden}
+html.gq-eco .fldock-c,.fldock-c.no-slide{transition:none}
+@media (prefers-reduced-motion:reduce){.fldock-c{transition:none}}
+.fldie-wrap{position:relative;width:58px;height:58px;display:flex;align-items:center;justify-content:center;perspective:520px;overflow:visible}
+.fldock-c.want .fldie-wrap{width:64px;height:64px}
+.fldie-wrap::before{content:'';position:absolute;left:50%;bottom:2px;transform:translateX(-50%);width:46px;height:14px;border-radius:50%;
+ background:radial-gradient(ellipse,#ffd23fcc,#ff9a4044 55%,transparent 70%);box-shadow:0 0 14px #ffd23faa;z-index:0}
+.fldie-wrap.want::before{width:58px;height:18px;animation:fldieglow .7s ease-in-out infinite}
+.fldie-wrap.rolling::before{width:88px;height:24px;animation:fldieglow .35s ease-in-out infinite}
+@keyframes fldieglow{50%{opacity:.55;transform:translateX(-50%) scaleX(1.18)}}
+.fldie{position:relative;z-index:1;width:50px;height:50px;cursor:pointer;filter:drop-shadow(0 6px 5px rgba(0,0,0,.35));transform-style:preserve-3d}
+.fldock-c.want .fldie{width:56px;height:56px;
+ filter:drop-shadow(0 6px 5px rgba(0,0,0,.35)) drop-shadow(0 0 12px #ffd23fcc)}
+.fldie.rolling,.fldock-c.want .fldie.rolling{width:84px;height:84px;z-index:5}
+.fldie-wrap.rolling,.fldock-c.want .fldie-wrap.rolling{width:92px;height:92px}
 .fldie.pulse{animation:dieidle 1.6s ease-in-out infinite}
 .fldie svg,.fldie .die{width:100%;height:100%}
-.fldie .ctdw{width:100%;height:100%}
-.flhint{font-size:13px;font-weight:900;text-align:center;line-height:1.25;color:#5a3ea0;min-height:2.4em}
-.fldock .btn.big{min-height:48px;font-size:18px;padding:0 14px;width:100%;max-width:none}
-.gq-eco .fldie.pulse{animation:none}
-@media (max-width:700px){.flpc .tkm.av{width:56px!important;height:56px!important}.fldie-wrap{width:68px;height:68px}.fldie{width:54px;height:54px}}
+.fldie .ctdw{width:100%;height:100%;transform-style:preserve-3d}
+.gm-fly .fldie .die.flyroll,.gm-fly .fldie .die.roll.flyroll{
+ animation:fltumble .55s linear infinite!important;transform-origin:50% 60%}
+@keyframes fltumble{
+ 0%{transform:translate3d(-10px,4px,0) rotateX(12deg) rotateY(-20deg) rotateZ(0) scale(1)}
+ 18%{transform:translate3d(18px,-38px,20px) rotateX(80deg) rotateY(-70deg) rotateZ(110deg) scale(1.32)}
+ 36%{transform:translate3d(-20px,-8px,0) rotateX(165deg) rotateY(55deg) rotateZ(200deg) scale(.88)}
+ 54%{transform:translate3d(14px,-46px,24px) rotateX(250deg) rotateY(-40deg) rotateZ(290deg) scale(1.38)}
+ 72%{transform:translate3d(-16px,-14px,0) rotateX(310deg) rotateY(75deg) rotateZ(340deg) scale(1.12)}
+ 100%{transform:translate3d(-10px,4px,0) rotateX(372deg) rotateY(-20deg) rotateZ(360deg) scale(1)}
+}
+.gm-fly .fldie .die.land{animation:flland .48s cubic-bezier(.2,1.5,.3,1)}
+@keyframes flland{
+ 0%{transform:scale(1.55) rotate(-22deg) translateY(-18px)}
+ 40%{transform:scale(.86) rotate(10deg) translateY(6px)}
+ 70%{transform:scale(1.16) rotate(-6deg)}
+ 100%{transform:none}
+}
+.gm-fly .fldie .die.flyroll-eco,.gm-fly .fldie .die.roll.flyroll-eco{
+ animation:fltumble-eco .48s linear infinite!important}
+@keyframes fltumble-eco{
+ 0%{transform:rotate(0) scale(1)}
+ 50%{transform:rotate(180deg) scale(1.12)}
+ 100%{transform:rotate(360deg) scale(1)}
+}
+html.gq-std .fldie .die.roll,html.gq-std .fldie .die.flyroll,html.gq-eco .fldie .die.roll,html.gq-eco .fldie .die.flyroll,html.gq-eco .fldie .die.flyroll-eco{
+ animation-iteration-count:infinite!important}
+@media (prefers-reduced-motion:reduce){
+ .gm-fly .fldie .die.flyroll,.gm-fly .fldie .die.roll{animation:fltumble-eco .5s linear infinite!important}
+ .fltok .flglow,.seatbar.need,.tkseat.wait,.fldock.want,.fldie.pulse,.fltok.poked,.fltok.poked-mad{animation:none}
+}
+.flhint{font-size:11px;font-weight:900;text-align:center;line-height:1.15;color:#5a3ea0;min-height:0;
+ background:#fffef8ee;border-radius:8px;padding:1px 7px;box-shadow:0 1px 0 rgba(0,0,0,.12);white-space:nowrap}
+.fldock .btn.big,.fldock .btn.flroll{min-height:28px;font-size:13px;padding:2px 12px;width:auto;max-width:none;letter-spacing:.04em;border-radius:999px}
+.gq-eco .fldie.pulse,.gq-eco .fldock.want,.gq-eco .fldie-wrap.want::before{animation:none}
+@media (prefers-reduced-motion:reduce){.fldock.want,.fldie.pulse,.fldie-wrap.want::before{animation:none}}
+@media (max-width:700px){.flpc .tkm.av{width:56px!important;height:56px!important}.fldie-wrap{width:52px;height:52px}.fldie{width:46px;height:46px}.fldie.rolling{width:72px;height:72px}.fldock .btn.big{min-height:26px;font-size:12px}.flhplate{width:52px;height:52px}.flhplate .tkm.hav{width:52px!important;height:52px!important}}
 
 /* Always-visible fly rule tip — under sidebar, kid glance */
 .flruletip{flex:none;margin:2px 4px 4px;padding:7px 8px;border-radius:12px;font-size:11px;font-weight:800;line-height:1.35;color:#5a3ea0;text-align:center;
@@ -250,9 +344,10 @@
 .gm-fly.fl-island .fl3d-plate{z-index:1}
 .gm-fly.fl-island .flc,.gm-fly.fl-island .flhome{background:transparent!important;border:0!important;box-shadow:none!important;outline:none!important;border-radius:24%;pointer-events:none}
 .gm-fly.fl-island .flc.entry.lit{box-shadow:0 0 0 3px #fff,0 0 0 6px #ffd23f,0 0 18px #ffd23f!important;animation:fllit 1s ease-in-out infinite}
-.gm-fly.fl-island .flbase{border-radius:9%}
+.gm-fly.fl-island .flbase{border-radius:9%;overflow:visible}
 .gm-fly.fl-island .flbase.lit{box-shadow:0 0 0 4px #fff,0 0 0 8px #ffd23f,0 0 26px #ffd23fcc;animation:fllit 1s ease-in-out infinite}
-.gm-fly.fl-island .flbase span{display:none}
+.gm-fly.fl-island .flbase .flcname{display:none}
+.gm-fly.fl-island .flb{overflow:visible}
 .gm-fly.fl-island .flfin{display:none}
 .gm-fly.fl-island .fl3d-dash{z-index:4}
 .gm-fly.fl-island .fl3d-dash .fldash-path{opacity:0;transition:opacity .25s}
@@ -263,6 +358,10 @@
 .gm-fly.fl-island .fltok.done-pose{width:4.7%;height:4.7%;outline:0;transform:translate(-50%,-50%);--tb:#ffd23f;--tr:#c98a00;
  filter:drop-shadow(0 0 4px #ffe58acc) drop-shadow(0 1.5px 1px rgba(0,0,0,.22))}
 .gm-fly.fl-island .fl-done-badge{display:none}
-.gm-fly.fl-island .fltok.go,.gm-fly.fl-island .fltok.takeoff-lit{outline:0;border-radius:50%;
- filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 5px #fff) drop-shadow(0 0 9px #ffd23f)}
+.gm-fly.fl-island .fltok.go,.gm-fly.fl-island .fltok.takeoff-lit{outline:0;border-radius:50%;overflow:visible;z-index:10;
+ filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 10px #ffd23f) drop-shadow(0 0 18px #ff9a40)}
+.gm-fly.fl-island .fltok.takeoff-lit{filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 10px #7ef0a0) drop-shadow(0 0 16px #2ad0a0)}
+.gm-fly.fl-island .fltok.go .flglow,.gm-fly.fl-island .fltok.takeoff-lit .flglow{display:block}
 .gm-fly.fl-island .fl3d-tok{width:100%;height:100%;display:block;overflow:visible}
+html.gq-std .fltok.go,html.gq-std .fltok.go .flglow,html.gq-std .fltok.takeoff-lit,html.gq-std .fltok.takeoff-lit .flglow{
+ animation-iteration-count:infinite!important}
