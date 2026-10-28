@@ -1635,6 +1635,7 @@ html.gq-eco .moodfs{display:none!important}
 .flc.walkhit,.flhome.walkhit{z-index:4;box-shadow:0 0 0 2px #fff8,0 0 10px #ffd23f55}
 .gq-eco .fltok.go,.gq-eco .fltok.takeoff-lit{animation:none}
 .gq-eco .fltok,.gq-eco .fltok.walking{transition:none}
+.gq-eco .gm-fly.fl-island .fltok.on-turn.in-flight{filter:drop-shadow(0 0 1px #fff) drop-shadow(0 4px 3px rgba(8,30,50,.35))}
 .flpc.turn-pop{animation:flturnpop .55s ease-out}
 @keyframes flturnpop{0%{transform:scale(.94)}55%{transform:scale(1.07)}100%{transform:scale(1.03)}}
 .gq-eco .flpc.turn-pop{animation:none}
@@ -1812,18 +1813,39 @@ html.gq-std .fldie .die.roll,html.gq-eco .fldie .die.roll{animation-iteration-co
 .gm-fly.fl-island .fl3d-dash .fldash-path{opacity:0;transition:opacity .25s}
 .gm-fly.fl-island .fl3d-dash .fldash-path.lit{opacity:1}
 .gm-fly.fl-island .fltok{filter:drop-shadow(0 2px 1.5px rgba(0,40,70,.3))}
-.gm-fly.fl-island .fltok.in-flight{width:5.2%;height:5.2%}
+.gm-fly.fl-island .fltok .flstand{display:none}
+/* 在格上的棋子：托盘不跟着机头转，把玩具和同色砖分开 */
+.gm-fly.fl-island .fltok.in-flight .flstand,.gm-fly.fl-island .fltok.walking .flstand{
+ display:block;position:absolute;left:50%;top:68%;width:58%;height:26%;margin:0;
+ transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:0;
+ background:radial-gradient(ellipse,#1a335066 0 38%,rgba(16,40,64,.12) 62%,transparent 74%);
+ box-shadow:0 1px 0 #fff8}
+.gm-fly.fl-island .fltok.in-flight,.gm-fly.fl-island .fltok.walking{
+ width:6.7%;height:6.7%;z-index:9;
+ filter:drop-shadow(0 0 0.7px #fff) drop-shadow(0 1px 0 rgba(16,40,64,.5)) drop-shadow(0 5px 4px rgba(8,30,50,.4))}
 .gm-fly.fl-island .fltok.at-base{width:4.7%;height:4.7%;filter:drop-shadow(0 1.5px 1px rgba(0,0,0,.22))}
 .gm-fly.fl-island .fltok.done-pose{width:4.7%;height:4.7%;outline:0;transform:translate(-50%,-50%);--tb:#ffd23f;--tr:#c98a00;
  filter:drop-shadow(0 0 4px #ffe58acc) drop-shadow(0 1.5px 1px rgba(0,0,0,.22))}
 .gm-fly.fl-island .fl-done-badge{display:none}
 .gm-fly.fl-island .fltok.go,.gm-fly.fl-island .fltok.takeoff-lit{outline:0;border-radius:50%;overflow:visible}
 .gm-fly.fl-island .flc.walkhit,.gm-fly.fl-island .flhome.walkhit{box-shadow:0 0 0 2px #fff,0 0 0 3px #ffd23f66!important}
-.gm-fly.fl-island .fltok.go{z-index:10;
- filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 5px #ffd23f99)}
+/* 当前玩家在格上的棋：略大 + 浅金托，比旧 .go 光晕克制 */
+.gm-fly.fl-island .fltok.on-turn.in-flight,.gm-fly.fl-island .fltok.on-turn.walking{
+ width:7.15%;height:7.15%;z-index:11;
+ filter:drop-shadow(0 0 1px #fff) drop-shadow(0 0 2px rgba(255,236,170,.7)) drop-shadow(0 1px 0 rgba(16,40,64,.45)) drop-shadow(0 6px 5px rgba(8,30,50,.38))}
+.gm-fly.fl-island .fltok.on-turn .flstand{
+ width:70%;height:32%;top:70%;
+ background:radial-gradient(ellipse,#fffef8 0 34%,#ffe9a8aa 52%,rgba(255,210,63,.0) 74%)}
+.gm-fly.fl-island .fltok.go{z-index:12;
+ filter:drop-shadow(0 0 1px #fff) drop-shadow(0 0 3px #ffd23f88) drop-shadow(0 6px 5px rgba(8,30,50,.38))}
 .gm-fly.fl-island .fltok.takeoff-lit{z-index:6;
  filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 5px #7ef0a099)}
 .gm-fly.fl-island .fltok.go .flglow,.gm-fly.fl-island .fltok.takeoff-lit .flglow{display:block}
+.gm-fly.fl-island .fltok.go .flglow,.gm-fly.fl-island .fltok.on-turn .flglow{
+ width:112%;height:112%;opacity:.55;
+ background:radial-gradient(circle,#fff 0 22%,#ffd23f44 48%,rgba(255,210,63,0) 70%);
+ box-shadow:0 0 0 1.5px #fff6}
+.gm-fly.fl-island .fltok .fl-plane,.gm-fly.fl-island .fltok .fl3d-tok{position:relative;z-index:1}
 .gm-fly.fl-island .fl3d-tok{width:100%;height:100%;display:block;overflow:visible;
  transform:rotate(var(--face,0deg));transform-origin:50% 50%}
 html.gq-std .fltok.go,html.gq-std .fltok.go .flglow,html.gq-std .fltok.takeoff-lit,html.gq-std .fltok.takeoff-lit .flglow{
@@ -4027,11 +4049,16 @@ function planeTrim(tok,pal){
 function tokenSVG(pid,tok){
  tok=(tok==null?0:tok)|0;if(tok<0)tok=0;if(tok>5)tok=tok%6;
  var pal=PAL[((pid%4)+4)%4];
+ var gid='pb'+pid+tok+Math.random().toString(36).slice(2,6);
+ /* 深蓝描边 + 白边 + 机身渐变：避免和同色砖/格上白飞机标贴成一块 */
  return '<svg class="fl-plane fl3d-tok" viewBox="-40 -40 80 80" aria-hidden="true">'+
-  '<ellipse cx="2" cy="34" rx="16" ry="4.5" fill="#000" opacity=".2"/>'+
-  '<path d="'+PLANE_BODY+'" fill="'+pal.side+'" transform="translate(1.4,1.8)"/>'+
-  '<path class="fl-plane-body" d="'+PLANE_BODY+'" fill="'+pal.base+'" stroke="#fff" stroke-width="2.1" stroke-linejoin="round"/>'+
-  '<path d="M0-26C3.6-26 5.2-18 5.2-11V16" fill="none" stroke="'+pal.light+'" stroke-width="2.8" stroke-linecap="round" opacity=".75"/>'+
+  '<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1">'+
+  '<stop offset="0%" stop-color="'+pal.top+'"/><stop offset="48%" stop-color="'+pal.base+'"/><stop offset="100%" stop-color="'+pal.side+'"/></linearGradient></defs>'+
+  '<path d="'+PLANE_BODY+'" fill="none" stroke="#16324a" stroke-width="6.2" stroke-linejoin="round"/>'+
+  '<path d="'+PLANE_BODY+'" fill="none" stroke="#fffef8" stroke-width="3.6" stroke-linejoin="round"/>'+
+  '<path d="'+PLANE_BODY+'" fill="'+pal.deep+'" transform="translate(1.6,2.2)" opacity=".9"/>'+
+  '<path class="fl-plane-body" d="'+PLANE_BODY+'" fill="url(#'+gid+')" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>'+
+  '<path d="M0-26C3.6-26 5.2-18 5.2-11V16" fill="none" stroke="'+pal.light+'" stroke-width="2.8" stroke-linecap="round" opacity=".8"/>'+
   '<ellipse cy="-12" rx="5" ry="6.2" fill="#b8ecff" stroke="#fff" stroke-width="1.3"/>'+
   '<ellipse cx="-1.3" cy="-14" rx="1.9" ry="2.3" fill="#fff" opacity=".55"/>'+
   '<circle cy="-26.5" r="3" fill="'+pal.top+'" stroke="#fff" stroke-width="1"/>'+
@@ -4752,12 +4779,14 @@ function renderTokens(){
    var go=can&&onPad&&!walkShow;
    var lit=showWhere==='base'&&pl.id===waitByPid[p.id]&&!walkShow;
    var pose=showWhere==='done'?' done-pose':(showWhere==='base'&&!walking?' at-base':(onPad||walking?' in-flight':''))+(showWhere==='pad'?' at-pad':'');
-   var cls='fltok'+pose+(go?' go':'')+(lit?' takeoff-lit':'')+(can&&pl.where==='base'?' can-pick':'')+(walking?' walking':'');
+   var mine=S.phase==='play'&&S.turn===p.id&&(onPad||walking);
+   var cls='fltok'+pose+(go?' go':'')+(lit?' takeoff-lit':'')+(can&&pl.where==='base'?' can-pick':'')+(walking?' walking':'')+(mine?' on-turn':'');
    var badge=pl.where==='done'?'<span class="fl-done-badge" aria-hidden="true">🏁</span>':'';
+   var stand=onPad||walking?'<i class="flstand" aria-hidden="true"></i>':'';
    var halo=(go||lit)?'<i class="flglow" aria-hidden="true"></i>':'';
    var alabel=esc(p.cname)+'飞机'+(pl.id+1)+(pl.where==='done'?'已到达终点':'');
    var face=headingDeg(showWhere,showIdx,seatOf(p),{lap:walking?walkShow.lap:pl.lap,kind:walking?walkShow.kind:null});
-   h+='<button type="button" class="'+cls+'" data-p="'+p.id+'" data-pl="'+pl.id+'" data-tok="'+p.tok+'" data-seat="'+seatOf(p)+'" data-where="'+showWhere+'" data-face="'+Math.round(wrap360(face))+'" style="left:'+(pos.x+off.dx)+'%;top:'+(pos.y+off.dy)+'%;--pc:'+p.color+';--face:'+faceCss(wrap360(face))+'" aria-label="'+alabel+'">'+halo+planeImg(p)+badge+'</button>';
+   h+='<button type="button" class="'+cls+'" data-p="'+p.id+'" data-pl="'+pl.id+'" data-tok="'+p.tok+'" data-seat="'+seatOf(p)+'" data-where="'+showWhere+'" data-face="'+Math.round(wrap360(face))+'" style="left:'+(pos.x+off.dx)+'%;top:'+(pos.y+off.dy)+'%;--pc:'+p.color+';--face:'+faceCss(wrap360(face))+'" aria-label="'+alabel+'">'+stand+halo+planeImg(p)+badge+'</button>';
   });
  });
  el.innerHTML=h;
@@ -4950,8 +4979,12 @@ function placeWalkTok(){
  var deg=headingDeg(walkShow.where,walkShow.idx,seat,{lap:walkShow.lap,kind:walkShow.kind});
  if(walkShow.face==null)walkShow.face=deg;
  else walkShow.face=shortestDeg(walkShow.face,deg);
- b.classList.add('walking','in-flight');
+ b.classList.add('walking','in-flight','on-turn');
  b.classList.remove('at-base','go','takeoff-lit');
+ if(!b.querySelector('.flstand')){
+  var stEl=document.createElement('i');stEl.className='flstand';stEl.setAttribute('aria-hidden','true');
+  b.insertBefore(stEl,b.firstChild);
+ }
  b.style.left=pos.x+'%';
  b.style.top=pos.y+'%';
  b.style.setProperty('--face',faceCss(walkShow.face));

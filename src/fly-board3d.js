@@ -474,11 +474,16 @@ function planeTrim(tok,pal){
 function tokenSVG(pid,tok){
  tok=(tok==null?0:tok)|0;if(tok<0)tok=0;if(tok>5)tok=tok%6;
  var pal=PAL[((pid%4)+4)%4];
+ var gid='pb'+pid+tok+Math.random().toString(36).slice(2,6);
+ /* 深蓝描边 + 白边 + 机身渐变：避免和同色砖/格上白飞机标贴成一块 */
  return '<svg class="fl-plane fl3d-tok" viewBox="-40 -40 80 80" aria-hidden="true">'+
-  '<ellipse cx="2" cy="34" rx="16" ry="4.5" fill="#000" opacity=".2"/>'+
-  '<path d="'+PLANE_BODY+'" fill="'+pal.side+'" transform="translate(1.4,1.8)"/>'+
-  '<path class="fl-plane-body" d="'+PLANE_BODY+'" fill="'+pal.base+'" stroke="#fff" stroke-width="2.1" stroke-linejoin="round"/>'+
-  '<path d="M0-26C3.6-26 5.2-18 5.2-11V16" fill="none" stroke="'+pal.light+'" stroke-width="2.8" stroke-linecap="round" opacity=".75"/>'+
+  '<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1">'+
+  '<stop offset="0%" stop-color="'+pal.top+'"/><stop offset="48%" stop-color="'+pal.base+'"/><stop offset="100%" stop-color="'+pal.side+'"/></linearGradient></defs>'+
+  '<path d="'+PLANE_BODY+'" fill="none" stroke="#16324a" stroke-width="6.2" stroke-linejoin="round"/>'+
+  '<path d="'+PLANE_BODY+'" fill="none" stroke="#fffef8" stroke-width="3.6" stroke-linejoin="round"/>'+
+  '<path d="'+PLANE_BODY+'" fill="'+pal.deep+'" transform="translate(1.6,2.2)" opacity=".9"/>'+
+  '<path class="fl-plane-body" d="'+PLANE_BODY+'" fill="url(#'+gid+')" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>'+
+  '<path d="M0-26C3.6-26 5.2-18 5.2-11V16" fill="none" stroke="'+pal.light+'" stroke-width="2.8" stroke-linecap="round" opacity=".8"/>'+
   '<ellipse cy="-12" rx="5" ry="6.2" fill="#b8ecff" stroke="#fff" stroke-width="1.3"/>'+
   '<ellipse cx="-1.3" cy="-14" rx="1.9" ry="2.3" fill="#fff" opacity=".55"/>'+
   '<circle cy="-26.5" r="3" fill="'+pal.top+'" stroke="#fff" stroke-width="1"/>'+

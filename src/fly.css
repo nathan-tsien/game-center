@@ -170,6 +170,7 @@
 .flc.walkhit,.flhome.walkhit{z-index:4;box-shadow:0 0 0 2px #fff8,0 0 10px #ffd23f55}
 .gq-eco .fltok.go,.gq-eco .fltok.takeoff-lit{animation:none}
 .gq-eco .fltok,.gq-eco .fltok.walking{transition:none}
+.gq-eco .gm-fly.fl-island .fltok.on-turn.in-flight{filter:drop-shadow(0 0 1px #fff) drop-shadow(0 4px 3px rgba(8,30,50,.35))}
 .flpc.turn-pop{animation:flturnpop .55s ease-out}
 @keyframes flturnpop{0%{transform:scale(.94)}55%{transform:scale(1.07)}100%{transform:scale(1.03)}}
 .gq-eco .flpc.turn-pop{animation:none}
@@ -347,18 +348,39 @@ html.gq-std .fldie .die.roll,html.gq-eco .fldie .die.roll{animation-iteration-co
 .gm-fly.fl-island .fl3d-dash .fldash-path{opacity:0;transition:opacity .25s}
 .gm-fly.fl-island .fl3d-dash .fldash-path.lit{opacity:1}
 .gm-fly.fl-island .fltok{filter:drop-shadow(0 2px 1.5px rgba(0,40,70,.3))}
-.gm-fly.fl-island .fltok.in-flight{width:5.2%;height:5.2%}
+.gm-fly.fl-island .fltok .flstand{display:none}
+/* 在格上的棋子：托盘不跟着机头转，把玩具和同色砖分开 */
+.gm-fly.fl-island .fltok.in-flight .flstand,.gm-fly.fl-island .fltok.walking .flstand{
+ display:block;position:absolute;left:50%;top:68%;width:58%;height:26%;margin:0;
+ transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:0;
+ background:radial-gradient(ellipse,#1a335066 0 38%,rgba(16,40,64,.12) 62%,transparent 74%);
+ box-shadow:0 1px 0 #fff8}
+.gm-fly.fl-island .fltok.in-flight,.gm-fly.fl-island .fltok.walking{
+ width:6.7%;height:6.7%;z-index:9;
+ filter:drop-shadow(0 0 0.7px #fff) drop-shadow(0 1px 0 rgba(16,40,64,.5)) drop-shadow(0 5px 4px rgba(8,30,50,.4))}
 .gm-fly.fl-island .fltok.at-base{width:4.7%;height:4.7%;filter:drop-shadow(0 1.5px 1px rgba(0,0,0,.22))}
 .gm-fly.fl-island .fltok.done-pose{width:4.7%;height:4.7%;outline:0;transform:translate(-50%,-50%);--tb:#ffd23f;--tr:#c98a00;
  filter:drop-shadow(0 0 4px #ffe58acc) drop-shadow(0 1.5px 1px rgba(0,0,0,.22))}
 .gm-fly.fl-island .fl-done-badge{display:none}
 .gm-fly.fl-island .fltok.go,.gm-fly.fl-island .fltok.takeoff-lit{outline:0;border-radius:50%;overflow:visible}
 .gm-fly.fl-island .flc.walkhit,.gm-fly.fl-island .flhome.walkhit{box-shadow:0 0 0 2px #fff,0 0 0 3px #ffd23f66!important}
-.gm-fly.fl-island .fltok.go{z-index:10;
- filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 5px #ffd23f99)}
+/* 当前玩家在格上的棋：略大 + 浅金托，比旧 .go 光晕克制 */
+.gm-fly.fl-island .fltok.on-turn.in-flight,.gm-fly.fl-island .fltok.on-turn.walking{
+ width:7.15%;height:7.15%;z-index:11;
+ filter:drop-shadow(0 0 1px #fff) drop-shadow(0 0 2px rgba(255,236,170,.7)) drop-shadow(0 1px 0 rgba(16,40,64,.45)) drop-shadow(0 6px 5px rgba(8,30,50,.38))}
+.gm-fly.fl-island .fltok.on-turn .flstand{
+ width:70%;height:32%;top:70%;
+ background:radial-gradient(ellipse,#fffef8 0 34%,#ffe9a8aa 52%,rgba(255,210,63,.0) 74%)}
+.gm-fly.fl-island .fltok.go{z-index:12;
+ filter:drop-shadow(0 0 1px #fff) drop-shadow(0 0 3px #ffd23f88) drop-shadow(0 6px 5px rgba(8,30,50,.38))}
 .gm-fly.fl-island .fltok.takeoff-lit{z-index:6;
  filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 5px #7ef0a099)}
 .gm-fly.fl-island .fltok.go .flglow,.gm-fly.fl-island .fltok.takeoff-lit .flglow{display:block}
+.gm-fly.fl-island .fltok.go .flglow,.gm-fly.fl-island .fltok.on-turn .flglow{
+ width:112%;height:112%;opacity:.55;
+ background:radial-gradient(circle,#fff 0 22%,#ffd23f44 48%,rgba(255,210,63,0) 70%);
+ box-shadow:0 0 0 1.5px #fff6}
+.gm-fly.fl-island .fltok .fl-plane,.gm-fly.fl-island .fltok .fl3d-tok{position:relative;z-index:1}
 .gm-fly.fl-island .fl3d-tok{width:100%;height:100%;display:block;overflow:visible;
  transform:rotate(var(--face,0deg));transform-origin:50% 50%}
 html.gq-std .fltok.go,html.gq-std .fltok.go .flglow,html.gq-std .fltok.takeoff-lit,html.gq-std .fltok.takeoff-lit .flglow{

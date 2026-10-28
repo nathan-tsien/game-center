@@ -669,12 +669,14 @@ function renderTokens(){
    var go=can&&onPad&&!walkShow;
    var lit=showWhere==='base'&&pl.id===waitByPid[p.id]&&!walkShow;
    var pose=showWhere==='done'?' done-pose':(showWhere==='base'&&!walking?' at-base':(onPad||walking?' in-flight':''))+(showWhere==='pad'?' at-pad':'');
-   var cls='fltok'+pose+(go?' go':'')+(lit?' takeoff-lit':'')+(can&&pl.where==='base'?' can-pick':'')+(walking?' walking':'');
+   var mine=S.phase==='play'&&S.turn===p.id&&(onPad||walking);
+   var cls='fltok'+pose+(go?' go':'')+(lit?' takeoff-lit':'')+(can&&pl.where==='base'?' can-pick':'')+(walking?' walking':'')+(mine?' on-turn':'');
    var badge=pl.where==='done'?'<span class="fl-done-badge" aria-hidden="true">🏁</span>':'';
+   var stand=onPad||walking?'<i class="flstand" aria-hidden="true"></i>':'';
    var halo=(go||lit)?'<i class="flglow" aria-hidden="true"></i>':'';
    var alabel=esc(p.cname)+'飞机'+(pl.id+1)+(pl.where==='done'?'已到达终点':'');
    var face=headingDeg(showWhere,showIdx,seatOf(p),{lap:walking?walkShow.lap:pl.lap,kind:walking?walkShow.kind:null});
-   h+='<button type="button" class="'+cls+'" data-p="'+p.id+'" data-pl="'+pl.id+'" data-tok="'+p.tok+'" data-seat="'+seatOf(p)+'" data-where="'+showWhere+'" data-face="'+Math.round(wrap360(face))+'" style="left:'+(pos.x+off.dx)+'%;top:'+(pos.y+off.dy)+'%;--pc:'+p.color+';--face:'+faceCss(wrap360(face))+'" aria-label="'+alabel+'">'+halo+planeImg(p)+badge+'</button>';
+   h+='<button type="button" class="'+cls+'" data-p="'+p.id+'" data-pl="'+pl.id+'" data-tok="'+p.tok+'" data-seat="'+seatOf(p)+'" data-where="'+showWhere+'" data-face="'+Math.round(wrap360(face))+'" style="left:'+(pos.x+off.dx)+'%;top:'+(pos.y+off.dy)+'%;--pc:'+p.color+';--face:'+faceCss(wrap360(face))+'" aria-label="'+alabel+'">'+stand+halo+planeImg(p)+badge+'</button>';
   });
  });
  el.innerHTML=h;
@@ -867,8 +869,12 @@ function placeWalkTok(){
  var deg=headingDeg(walkShow.where,walkShow.idx,seat,{lap:walkShow.lap,kind:walkShow.kind});
  if(walkShow.face==null)walkShow.face=deg;
  else walkShow.face=shortestDeg(walkShow.face,deg);
- b.classList.add('walking','in-flight');
+ b.classList.add('walking','in-flight','on-turn');
  b.classList.remove('at-base','go','takeoff-lit');
+ if(!b.querySelector('.flstand')){
+  var stEl=document.createElement('i');stEl.className='flstand';stEl.setAttribute('aria-hidden','true');
+  b.insertBefore(stEl,b.firstChild);
+ }
  b.style.left=pos.x+'%';
  b.style.top=pos.y+'%';
  b.style.setProperty('--face',faceCss(walkShow.face));
