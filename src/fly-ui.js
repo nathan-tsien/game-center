@@ -399,8 +399,12 @@ function buildIslandBoard(){
  for(i=0;i<E.TRACK;i++){
   var p=ringPos(i),ent=E.ENTRY.indexOf(i),flyFor=E.FLY_FROM.indexOf(i),gateFor=E.HOME_GATE.indexOf(i);
   var cls='flc c'+E.cellColor(i)+(E.isSafe(i)&&ent<0?' safe':'')+(ent>=0?' entry e'+ent:'')+(flyFor>=0?' flypad f'+flyFor:'')+(gateFor>=0?' homegate g'+gateFor:'');
-  var title=flyFor>=0?' title="落到本色飞机格 → 沿虚线横飞 +12"':(gateFor>=0?' title="拐进本色回家道"':'');
+  var title=flyFor>=0?' title="落到本色飞机格 → 沿虚线横飞 +12"':(ent>=0?' title="停机坪 · 掷6先停这里"':(gateFor>=0?' title="拐进本色回家道"':''));
   h+='<div class="'+cls+'" data-i="'+i+'"'+title+' style="left:'+p.x+'%;top:'+p.y+'%;width:'+cs+'%;height:'+cs+'%"></div>';
+  if(ent>=0){
+   var mx=(ent===1||ent===0)?-3.4:3.4, my=(ent===1||ent===2)?-3.4:3.4;
+   h+='<div class="flpadmark" data-p="'+ent+'" style="left:'+(p.x+mx)+'%;top:'+(p.y+my)+'%;--pc:'+E.COLORS[ent]+'">停</div>';
+  }
  }
  for(var hp=0;hp<4;hp++){
   for(var hi=0;hi<(E.HOME_CELLS[hp]||[]).length;hi++){
@@ -525,6 +529,10 @@ function buildBoard(){
    title=' title="落到本色虚线垫 → 横飞 +12"';
   }else label='<span class="flmark"></span>';
   h+='<div class="'+cls+'" data-i="'+i+'"'+title+' style="left:'+p.x+'%;top:'+p.y+'%;width:'+cs+'%;height:'+cs+'%">'+label+'</div>';
+  if(ent>=0){
+   var mx=(ent===1||ent===0)?-3.4:3.4, my=(ent===1||ent===2)?-3.4:3.4;
+   h+='<div class="flpadmark" data-p="'+ent+'" style="left:'+(p.x+mx)+'%;top:'+(p.y+my)+'%;--pc:'+E.COLORS[ent]+'">停</div>';
+  }
  }
  /* home stretch — 连续条，略窄于外圈以露出道间米色 */
  var hs=homeSizePct();
@@ -870,6 +878,7 @@ function rulesModal(){
   '• 横飞路上能 <b>撞掉</b> 别人的飞机；起飞落到格上 <b>不</b> 触发横飞<br><br>'+
   '<b>其他规则</b><br>'+
   '• 掷到 <b>6</b>：机库飞机先到本色起飞格（<b>停机坪</b>），本回合停在那儿；<b>下一回合</b>才沿跑道<b>顺时针</b>正式起飞<br>'+
+  '• 黄·蓝·红·绿四色停机坪到终点都是 <b>一圈 52 格 + 回家 6 格</b>，一样远<br>'+
   '• 掷到 6 还可再掷一次（刚上停机坪的那架本回合不能再走）<br>'+
   '• 落到自己颜色格子（彩色格，或中间小圆点是自己颜色）→ <b>同色跳跃</b>到下一同色格<br>'+
   '• 己方飞机可<b>叠机</b>；敌机落到叠机上 → 整叠回基地<br>'+
@@ -919,7 +928,7 @@ return{
   if(S&&S.players&&S.players.length)flyRoundN=1+Math.floor(((S.hist&&S.hist.length)||0)/S.players.length);
   /* v14：默认 3D 卡通海岛棋盘；setBoardStyle('print'|'plastic') 可切回旧外观 */
   r.classList.add('gm-fly',window.FLY3D?'fl-island':'fl-print');
-  r.innerHTML='<div class="fllay"><div class="flbw"><div id="flb" class="flb"></div></div><div class="flside"><div class="flp" id="flp"></div><div class="flruletip" title="飞行棋规则"><b>本色✈飞机格</b><br>= 沿虚线横飞+12<br>★星星格安全 · 同色格跳跃<br><span>掷6先到停机坪 · 下回合顺时针起飞</span></div></div></div>';
+  r.innerHTML='<div class="fllay"><div class="flbw"><div id="flb" class="flb"></div></div><div class="flside"><div class="flp" id="flp"></div><div class="flruletip" title="飞行棋规则"><b>本色✈飞机格</b><br>= 沿虚线横飞+12<br>★星星格安全 · 同色格跳跃<br><span>掷6先到停机坪 · 四色到终点一样远</span></div></div></div>';
   var nr=ctx.nav('list','规则',{id:'flRules'}),nn=ctx.nav('refresh','新局',{id:'flNew'}),ne=ctx.nav('star','省电',{id:'flEco'});
   ctx.slot.appendChild(nr);ctx.slot.appendChild(nn);ctx.slot.appendChild(ne);
   nr.onclick=function(){Sound.tap();rulesModal()};

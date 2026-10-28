@@ -59,6 +59,9 @@
 .flc.safe{box-shadow:0 0 0 2.5px #f0c840,0 4px 0 rgba(80,50,20,.14),inset 0 3px 0 #fff}
 .flc.entry{z-index:3;box-shadow:0 4px 0 rgba(80,50,20,.16),inset 0 3px 0 #fff9}
 .flc.entry.lit{box-shadow:0 0 0 2px #ffd23f88,0 0 8px #ffd23f66}
+.flpadmark{position:absolute;z-index:6;pointer-events:none;font-size:10px;font-weight:900;line-height:1;
+ color:#fff;letter-spacing:.04em;background:var(--pc,#e0485e);border:2px solid #fff;border-radius:999px;
+ padding:2px 6px;box-shadow:0 2px 0 rgba(0,0,0,.2);transform:translate(-50%,-50%);white-space:nowrap}
 .flbase.lit{box-shadow:none;animation:none}
 @keyframes fllit{50%{filter:brightness(1.12)}}
 .gq-eco .flc.entry.lit,.gq-eco .flbase.lit{animation:none}
@@ -335,6 +338,7 @@ html.gq-std .fldie .die.roll,html.gq-eco .fldie .die.roll{animation-iteration-co
 .gm-fly.fl-island .fl3d-plate{z-index:1}
 .gm-fly.fl-island .flc,.gm-fly.fl-island .flhome{background:transparent!important;border:0!important;box-shadow:none!important;outline:none!important;border-radius:24%;pointer-events:none}
 .gm-fly.fl-island .flc.entry.lit{box-shadow:0 0 0 2px #fff,0 0 0 4px #ffd23faa,0 0 10px #ffd23f88!important;animation:none}
+.gm-fly.fl-island .flpadmark{z-index:7}
 .gm-fly.fl-island .flbase{border-radius:9%;overflow:visible}
 .gm-fly.fl-island .flbase.lit{box-shadow:none;animation:none}
 .gm-fly.fl-island .flbase .flcname{display:none}

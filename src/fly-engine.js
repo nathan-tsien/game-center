@@ -352,12 +352,35 @@ function roll(S,forced){
 function snapshot(S){return JSON.parse(JSON.stringify(S))}
 function restore(S,snap){Object.keys(snap).forEach(function(k){S[k]=snap[k]});return S}
 
+/* 停机坪 → 一圈回到本色入口再进家：四色必须同长（顺时针 RING + HOME_GATE===ENTRY）。
+   不含同色跳/虚线飞（那些也是 +4 / +12 对四色对称）。 */
+function padFinish(seat){
+ seat=((seat%4)+4)%4;
+ var idx=ENTRY[seat],lap=0,n=0;
+ while(n<400){
+  n++;
+  if(lap>=1&&idx===HOME_GATE[seat])return{seat:seat,entry:ENTRY[seat],gate:HOME_GATE[seat],ring:n-1,home:HOME,total:n-1+HOME};
+  idx=(idx+1)%TRACK;
+  if(idx===ENTRY[seat])lap++;
+ }
+ return{seat:seat,entry:ENTRY[seat],gate:HOME_GATE[seat],ring:-1,home:HOME,total:-1};
+}
+function fairPads(){
+ var a=padFinish(0),i,b,ok=true,rows=[a];
+ for(i=1;i<4;i++){
+  b=padFinish(i);rows.push(b);
+  if(b.ring!==a.ring||b.home!==a.home||b.total!==a.total)ok=false;
+ }
+ return{ok:ok,ring:a.ring,home:a.home,total:a.total,rows:rows};
+}
+
 var API={COLORS:COLORS,CNAMES:CNAMES,TKN:TKN,TRACK:TRACK,HOME:HOME,ENTRY:ENTRY,HOME_GATE:HOME_GATE,PLANES:PLANES,
  FLY_FROM:FLY_FROM,FLY_TO:FLY_TO,RING:RING,HOME_CELLS:HOME_CELLS,BASE_SLOTS:BASE_SLOTS,BASE_RECT:BASE_RECT,HANGAR_INSET:HANGAR_INSET,LANE_NUDGE:LANE_NUDGE,TAKEOFF_CELLS:TAKEOFF_CELLS,baseSlotsFromRect:baseSlotsFromRect,ringNudge:ringNudge,homeNudge:homeNudge,takeoffCell:takeoffCell,
  gridPct:gridPct,ringPos:ringPos,homePos:homePos,basePos:basePos,donePos:donePos,takeoffPos:takeoffPos,
  cellColor:cellColor,isFlyPad:isFlyPad,nextSameColor:nextSameColor,seatOf:seatOf,unlockPads:unlockPads,
  newState:newState,startGame:startGame,cur:cur,movable:movable,pathFor:pathFor,applyMove:applyMove,roll:roll,
- planesAt:planesAt,isSafe:isSafe,snapshot:snapshot,restore:restore,dashEatCells:dashEatCells};
+ planesAt:planesAt,isSafe:isSafe,snapshot:snapshot,restore:restore,dashEatCells:dashEatCells,
+ padFinish:padFinish,fairPads:fairPads};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
 root.FLYE=API;
 })(typeof window!=='undefined'?window:globalThis);

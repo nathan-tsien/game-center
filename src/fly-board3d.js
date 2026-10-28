@@ -53,8 +53,8 @@ function homeXY(pid,h){
 }
 function hangarRect(pid){
  var br=E.BASE_RECT[pid],left=br[0]<7,top=br[1]<7;
- /* 平台向下有 3D 侧边，下方两角上移 10 以在角区内视觉居中 */
- return{x:left?HG_IN:W-HG_IN-HG_W,y:top?HG_IN:W-HG_IN-HG_W-10,w:HG_W,h:HG_W,left:left,top:top};
+ /* 四角同样 36px inset，停机坪相对机库距离 90° 对称（不再只把下方机库上移 10） */
+ return{x:left?HG_IN:W-HG_IN-HG_W,y:top?HG_IN:W-HG_IN-HG_W,w:HG_W,h:HG_W,left:left,top:top};
 }
 function pitXY(pid,k){
  var h=hangarRect(pid);
