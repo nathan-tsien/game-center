@@ -5084,8 +5084,8 @@ function pickPlane(plId){
  var finished=false;
  function finish(){
   if(finished)return;finished=true;
+  walkShow=null;try{clearWalkHit()}catch(e){}
   try{
-   walkShow=null;clearWalkHit();
    playMoveFx(r);
    var tookOff=r.ev&&r.ev.some(function(e){return e.k==='takeoff'});
    var launched=r.ev&&r.ev.some(function(e){return e.k==='launch'});
@@ -5096,10 +5096,10 @@ function pickPlane(plId){
    else if(!(r.ev&&r.ev.some(function(e){return e.k==='jump'||e.k==='fly'})))Sound.pop();
    if(S.phase==='over'){var w=S.players[S.winner];try{GC.Intro.banner(w.tok,w.name,'飞到终点啦!')}catch(e){}UI.toast('🏆 '+w.name+' 飞到终点!',2500,'star')}
    else if(S.again&&!tookOff)UI.toast('再掷一次!',1000,'info');
-   render();
-   reactMove(r,before);
   }catch(e){}
+  /* 必须先解开 busy 再画骰子，否则 dock 会停在 idle（pointer-events:none），掷6再掷时点了没反应 */
   unlockBusy();
+  try{render();reactMove(r,before)}catch(e){try{renderDock()}catch(x){}}
   later(function(){noteTurnAdvance(prevTurn)}, eco()||(UI.reduce&&UI.reduce())?80:280);
  }
  var nSteps=visSteps(r).length||1;
