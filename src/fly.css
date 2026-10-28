@@ -102,16 +102,16 @@
  z-index:5;display:flex;align-items:flex-start;justify-content:center;padding-top:1.8%;pointer-events:none}
 .flbase .flcname{font-size:10px;font-weight:900;color:#fff;background:var(--bc);padding:2px 8px;border-radius:9px;z-index:2;
  box-shadow:0 2px 0 rgba(0,0,0,.22),inset 0 1px 0 #fff6;opacity:.95;letter-spacing:.04em}
-.flhplate{position:absolute;z-index:6;display:flex;align-items:center;gap:4px;
- background:rgba(255,255,255,.95);border:2.5px solid var(--bc);border-radius:16px;padding:2px 8px 2px 2px;
- box-shadow:0 3px 0 rgba(0,0,0,.2),0 6px 10px rgba(0,40,70,.18);max-width:96%;pointer-events:none}
-.flhplate .tkm.hav{width:32px!important;height:32px!important;flex:none;border-radius:50%;overflow:hidden;
+.flhplate{position:absolute;z-index:6;display:flex;align-items:center;gap:3px;
+ background:rgba(255,255,255,.95);border:2.5px solid var(--bc);border-radius:14px;padding:1px 7px 1px 1px;
+ box-shadow:0 3px 0 rgba(0,0,0,.2),0 6px 10px rgba(0,40,70,.18);max-width:90%;pointer-events:none}
+.flhplate .tkm.hav{width:26px!important;height:26px!important;flex:none;border-radius:50%;overflow:hidden;
  box-shadow:0 0 0 2px #fff}
-.flhplate .flhnm{font-size:11px;font-weight:900;color:#3a2a5c;line-height:1.1;white-space:nowrap;letter-spacing:.02em}
-.flbase[data-p="1"] .flhplate{top:-6%;left:-4%}
-.flbase[data-p="2"] .flhplate{top:-6%;right:-4%;left:auto;flex-direction:row-reverse;padding:2px 2px 2px 8px}
-.flbase[data-p="0"] .flhplate{top:auto;bottom:-6%;left:-4%}
-.flbase[data-p="3"] .flhplate{top:auto;bottom:-6%;right:-4%;left:auto;flex-direction:row-reverse;padding:2px 2px 2px 8px}
+.flhplate .flhnm{font-size:10px;font-weight:900;color:#3a2a5c;line-height:1.1;white-space:nowrap;letter-spacing:.02em}
+.flbase[data-p="1"] .flhplate{top:-12%;left:-10%}
+.flbase[data-p="2"] .flhplate{top:-12%;right:-10%;left:auto;flex-direction:row-reverse;padding:1px 1px 1px 7px}
+.flbase[data-p="0"] .flhplate{top:auto;bottom:-12%;left:-10%}
+.flbase[data-p="3"] .flhplate{top:auto;bottom:-12%;right:-10%;left:auto;flex-direction:row-reverse;padding:1px 1px 1px 7px}
 
 /* Center finish — 极小中心点标，四色三角对顶清晰可见 */
 .flfin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;z-index:4;pointer-events:none;width:auto}
