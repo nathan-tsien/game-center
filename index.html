@@ -4062,7 +4062,7 @@ var FLY=(function(){
 var E=window.FLYE,Store=GC.Store,Sound=GC.Sound,UI=GC.UI,Dice=GC.Dice,Select=GC.Select;
 var TKN=E.TKN,TKC=['#2f80ed','#f2b705','#e53935','#ff4fa3','#1fae5b','#8e44ec'];
 var root,S,busy=false,selv=null,timers=[],ro=null,lastDie=6,cancel=null,fxLayer=null,plateURL=null,bubs={},faceMood={};
-var pokeN={},pokeAt={},pokeLock=0,pokeBurst=0,pokeBurstT=0,duckUntil=0,lastToastTurn=null,flyRoundN=1;
+var pokeN={},pokeAt={},pokeLock=0,pokeBurst=0,pokeBurstT=0,duckUntil=0,lastToastTurn=null,lastToastAt=0,flyRoundN=1;
 function $q(s){return root.querySelector(s)}
 function later(f,ms){var t=setTimeout(f,ms);timers.push(t);return t}
 function esc(s){return UI.esc(s)}
@@ -4191,8 +4191,8 @@ function announceTurn(pid,o){
  o=o||{};
  if(!S||S.phase!=='play')return;
  var p=P(pid);if(!p)return;
- if(!o.force&&lastToastTurn===pid)return;
- lastToastTurn=pid;
+ if(!o.force&&lastToastTurn===pid&&Date.now()-lastToastAt<1400)return;
+ lastToastTurn=pid;lastToastAt=Date.now();
  var bn=false;
  try{if(bannerOn())bn=GC.Intro.banner(p.tok,p.name,'轮到你啦!',{sub:'下一位 · 第 '+flyRoundN+' 回合'})}catch(e){}
  if(!bn){try{Sound.pop()}catch(e){}}
