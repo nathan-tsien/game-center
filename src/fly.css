@@ -140,17 +140,16 @@
 /* track tokens ~5.5%; base tokens ~4.5% ≈ pit diameter so they sit in X slots */
 .fltok{position:absolute;width:5.5%;height:5.5%;transform:translate(-50%,-50%);border:0;background:transparent;padding:0;cursor:pointer;pointer-events:auto;overflow:visible;
  filter:drop-shadow(0 4px 3px rgba(0,0,0,.42));transition:left .28s ease-out,top .28s ease-out,transform .2s}
-.fltok .fl-plane,.fltok .fl-plane-img{width:100%;height:100%;display:block;object-fit:contain}
-/* no PNG translate on base — avoid pushing wings past hangar white rim */
-.fltok.in-flight .fl-plane-img{transform:none}
-.fltok .fl-plane{transform:none}
+.fltok .fl-plane,.fltok .fl-plane-img,.fltok .fl3d-tok{width:100%;height:100%;display:block;object-fit:contain;
+ transform:rotate(var(--face,0deg));transform-origin:50% 50%;transition:transform .2s ease-out}
+.gq-eco .fltok .fl-plane,.gq-eco .fltok .fl-plane-img,.gq-eco .fltok .fl3d-tok{transition:none}
 /* base waiting vs finished pose — kids see 🏁 home */
 .fltok.at-base{width:3.6%;height:3.6%;z-index:4;filter:drop-shadow(0 1px 1px rgba(0,0,0,.28))}
 .fltok.in-flight{width:5.2%;height:5.2%;filter:drop-shadow(0 5px 4px rgba(0,0,0,.45))}
 .fltok.done-pose{z-index:7;width:3.8%;height:3.8%;
  filter:drop-shadow(0 0 0 #ffd23f) drop-shadow(0 0 6px #ffd23fcc) drop-shadow(0 3px 2px rgba(0,0,0,.35));
  outline:2.5px solid #ffd23f;outline-offset:1px;border-radius:50%;
- transform:translate(-50%,-50%) rotate(-18deg) scale(1.04)}
+ transform:translate(-50%,-50%) scale(1.04)}
 .fltok.done-pose .fl-plane-img,.fltok.done-pose .fl-plane{filter:saturate(1.15) brightness(1.06)}
 .fl-done-badge{position:absolute;right:-6%;top:-8%;font-size:13px;line-height:1;
  background:linear-gradient(180deg,#fffef8,#ffe9a8);border-radius:999px;padding:2px 4px;
@@ -360,6 +359,7 @@ html.gq-std .fldie .die.roll,html.gq-eco .fldie .die.roll{animation-iteration-co
 .gm-fly.fl-island .fltok.takeoff-lit{z-index:6;
  filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 5px #7ef0a099)}
 .gm-fly.fl-island .fltok.go .flglow,.gm-fly.fl-island .fltok.takeoff-lit .flglow{display:block}
-.gm-fly.fl-island .fl3d-tok{width:100%;height:100%;display:block;overflow:visible}
+.gm-fly.fl-island .fl3d-tok{width:100%;height:100%;display:block;overflow:visible;
+ transform:rotate(var(--face,0deg));transform-origin:50% 50%}
 html.gq-std .fltok.go,html.gq-std .fltok.go .flglow,html.gq-std .fltok.takeoff-lit,html.gq-std .fltok.takeoff-lit .flglow{
  animation-iteration-count:infinite!important}

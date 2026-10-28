@@ -29,7 +29,7 @@ function planeImg(p){
  if(src)return '<img class="fl-plane-img" src="'+src+'" alt="" draggable="false" decoding="async">';
  return planeSVG(E.COLORS[seat%4]);
 }
-function planeSVG(color){var gid='pg'+Math.random().toString(36).slice(2,8);return '<svg class="fl-plane" viewBox="-20 -20 40 40" aria-hidden="true"><defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".7"/><stop offset="42%" stop-color="'+color+'"/><stop offset="100%" stop-color="#000" stop-opacity=".28"/></linearGradient><filter id="'+gid+'s"><feDropShadow dx="0" dy="1" stdDeviation="0.7" flood-opacity=".3"/></filter></defs><ellipse cx="0" cy="12" rx="9" ry="2.8" fill="#00000028"/><g transform="translate(0,-1.2) rotate(18)" filter="url(#'+gid+'s)"><path d="M0-14C2.6-14 3.8-10 3.8-5.4L14 3.4V6.6L3.8 2.4V9.6L8.2 13.2V15.4L0 13.6-8.2 15.4V13.2L-3.8 9.6V2.4L-14 6.6V3.4L-3.8-5.4C-3.8-10-2.6-14 0-14Z" fill="url(#'+gid+')" stroke="#fff" stroke-width="1.9" stroke-linejoin="round"/><path d="M0-14C1.7-14 2.6-10.4 2.6-6.6V2.2" stroke="#fff" stroke-width="1.3" opacity=".5" fill="none"/><circle cy="-6.6" r="2.35" fill="#b8ecff" stroke="#fff" stroke-width="0.9"/><ellipse cx="0" cy="4" rx="2.2" ry="1.1" fill="#000" opacity=".12"/></g></svg>'}
+function planeSVG(color){var gid='pg'+Math.random().toString(36).slice(2,8);return '<svg class="fl-plane" viewBox="-20 -20 40 40" aria-hidden="true"><defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".7"/><stop offset="42%" stop-color="'+color+'"/><stop offset="100%" stop-color="#000" stop-opacity=".28"/></linearGradient><filter id="'+gid+'s"><feDropShadow dx="0" dy="1" stdDeviation="0.7" flood-opacity=".3"/></filter></defs><ellipse cx="0" cy="12" rx="9" ry="2.8" fill="#00000028"/><g transform="translate(0,-1.2)" filter="url(#'+gid+'s)"><path d="M0-14C2.6-14 3.8-10 3.8-5.4L14 3.4V6.6L3.8 2.4V9.6L8.2 13.2V15.4L0 13.6-8.2 15.4V13.2L-3.8 9.6V2.4L-14 6.6V3.4L-3.8-5.4C-3.8-10-2.6-14 0-14Z" fill="url(#'+gid+')" stroke="#fff" stroke-width="1.9" stroke-linejoin="round"/><path d="M0-14C1.7-14 2.6-10.4 2.6-6.6V2.2" stroke="#fff" stroke-width="1.3" opacity=".5" fill="none"/><circle cy="-6.6" r="2.35" fill="#b8ecff" stroke="#fff" stroke-width="0.9"/><ellipse cx="0" cy="4" rx="2.2" ry="1.1" fill="#000" opacity=".12"/></g></svg>'}
 
 function ringPos(i){return isl()?window.FLY3D.ringPos(i):E.ringPos(i)}
 function homePos(pid,idx){return isl()?window.FLY3D.homePos(pid,idx):E.homePos(pid,idx)}
@@ -39,6 +39,53 @@ function cellXY(where,idx,pid){
  if(where==='home')return homePos(pid,idx);
  if(where==='done')return isl()?basePos(pid,0):E.donePos(pid);
  return basePos(pid,idx);
+}
+/* 玩具飞机剪影机头朝 −Y，CSS rotate(0) = 朝上。朝下一格：atan2(屏幕 dy,dx)+90。
+   格心走 FLY3D（海岛）或引擎 gridPct（塑料），这样 L 弯/角与看得见的路一致。 */
+function bearingDeg(dx,dy){
+ if(!(dx*dx+dy*dy>1e-8))return 0;
+ return Math.atan2(dy,dx)*180/Math.PI+90;
+}
+function wrap360(a){a=a%360;if(a<0)a+=360;return a}
+function shortestDeg(from,to){
+ var d=wrap360(to)-wrap360(from);
+ if(d>180)d-=360;if(d<-180)d+=360;
+ return from+d;
+}
+function faceCss(deg){return (Math.round(deg*10)/10)+'deg'}
+function flyArriveDeg(seat){
+ seat=((seat%4)+4)%4;
+ if(isl()&&window.FLY3D&&window.FLY3D.flyTrail){
+  var t=window.FLY3D.flyTrail(seat,8);
+  if(t&&t.length>=2)return bearingDeg(t[t.length-1].x-t[t.length-2].x,t[t.length-1].y-t[t.length-2].y);
+ }
+ var a=ringPos(E.FLY_FROM[seat]),b=ringPos(E.FLY_TO[seat]);
+ return bearingDeg(b.x-a.x,b.y-a.y);
+}
+function leavePadDeg(seat){
+ seat=((seat%4)+4)%4;
+ var a=ringPos(E.ENTRY[seat]),b=ringPos((E.ENTRY[seat]+1)%E.TRACK);
+ return bearingDeg(b.x-a.x,b.y-a.y);
+}
+function headingDeg(where,idx,seat,opt){
+ seat=((seat%4)+4)%4;
+ opt=opt||{};
+ var a,b,i,lap=opt.lap,kind=opt.kind;
+ if(where==='base'||where==='done')return leavePadDeg(seat);
+ if(where==='home'){
+  a=homePos(seat,idx);
+  if(idx+1<(E.HOME_CELLS[seat]||[]).length)b=homePos(seat,idx+1);
+  else b={x:50,y:50};
+  return bearingDeg(b.x-a.x,b.y-a.y);
+ }
+ if(kind==='fly')return flyArriveDeg(seat);
+ i=(where==='pad')?E.ENTRY[seat]:(((idx%E.TRACK)+E.TRACK)%E.TRACK);
+ if(lap>=1&&i===E.HOME_GATE[seat]){
+  a=ringPos(i);b=homePos(seat,0);
+  return bearingDeg(b.x-a.x,b.y-a.y);
+ }
+ a=ringPos(i);b=ringPos((i+1)%E.TRACK);
+ return bearingDeg(b.x-a.x,b.y-a.y);
 }
 function gPct(c,r){return E.gridPct(c,r)}
 function cellSizePct(){if(isl())return 5.4;return (100/15)*(root&&root.classList.contains('fl-print')?0.98:1.00)}
@@ -626,7 +673,8 @@ function renderTokens(){
    var badge=pl.where==='done'?'<span class="fl-done-badge" aria-hidden="true">🏁</span>':'';
    var halo=(go||lit)?'<i class="flglow" aria-hidden="true"></i>':'';
    var alabel=esc(p.cname)+'飞机'+(pl.id+1)+(pl.where==='done'?'已到达终点':'');
-   h+='<button type="button" class="'+cls+'" data-p="'+p.id+'" data-pl="'+pl.id+'" data-tok="'+p.tok+'" data-seat="'+seatOf(p)+'" data-where="'+pl.where+'" style="left:'+(pos.x+off.dx)+'%;top:'+(pos.y+off.dy)+'%;--pc:'+p.color+'" aria-label="'+alabel+'">'+halo+planeImg(p)+badge+'</button>';
+   var face=headingDeg(showWhere,showIdx,seatOf(p),{lap:walking?walkShow.lap:pl.lap,kind:walking?walkShow.kind:null});
+   h+='<button type="button" class="'+cls+'" data-p="'+p.id+'" data-pl="'+pl.id+'" data-tok="'+p.tok+'" data-seat="'+seatOf(p)+'" data-where="'+showWhere+'" data-face="'+Math.round(wrap360(face))+'" style="left:'+(pos.x+off.dx)+'%;top:'+(pos.y+off.dy)+'%;--pc:'+p.color+';--face:'+faceCss(wrap360(face))+'" aria-label="'+alabel+'">'+halo+planeImg(p)+badge+'</button>';
   });
  });
  el.innerHTML=h;
@@ -786,7 +834,7 @@ function visSteps(r){
  var steps=[],i,s,e,last;
  if(r.path)for(i=0;i<r.path.length;i++){
   s=r.path[i];
-  steps.push({where:s.where,idx:s.idx,kind:s.kind||'step'});
+  steps.push({where:s.where,idx:s.idx,kind:s.kind||'step',lap:s.lap});
  }
  if(r.ev)for(i=0;i<r.ev.length;i++){
   e=r.ev[i];
@@ -815,23 +863,29 @@ function placeWalkTok(){
  if(!walkShow||!root)return;
  var b=root.querySelector('.fltok[data-p="'+walkShow.pid+'"][data-pl="'+walkShow.pl+'"]');
  if(!b)return;
- var p=S.players[walkShow.pid],pos=cellXY(walkShow.where,walkShow.idx,seatOf(p));
+ var p=S.players[walkShow.pid],seat=seatOf(p),pos=cellXY(walkShow.where,walkShow.idx,seat);
+ var deg=headingDeg(walkShow.where,walkShow.idx,seat,{lap:walkShow.lap,kind:walkShow.kind});
+ if(walkShow.face==null)walkShow.face=deg;
+ else walkShow.face=shortestDeg(walkShow.face,deg);
  b.classList.add('walking','in-flight');
  b.classList.remove('at-base','go','takeoff-lit');
  b.style.left=pos.x+'%';
  b.style.top=pos.y+'%';
- hitCell(walkShow.where,walkShow.idx,seatOf(p));
+ b.style.setProperty('--face',faceCss(walkShow.face));
+ b.setAttribute('data-face',String(Math.round(wrap360(walkShow.face))));
+ b.setAttribute('data-where',walkShow.where);
+ hitCell(walkShow.where,walkShow.idx,seat);
 }
 function walkMove(pid,plId,before,r,done){
  var steps=visSteps(r);
  if(!steps.length){walkShow=null;done();return}
- walkShow={pid:pid,pl:plId,where:before.where,idx:before.idx};
+ walkShow={pid:pid,pl:plId,where:before.where,idx:before.idx,lap:before.lap,kind:before.where==='base'?'takeoff':'step'};
  render();
  var i=0,ms=walkMs(),p=S.players[pid];
  function nx(){
   if(i>=steps.length){walkShow=null;clearWalkHit();done();return}
   var st=steps[i++];
-  walkShow.where=st.where;walkShow.idx=st.idx;
+  walkShow.where=st.where;walkShow.idx=st.idx;walkShow.kind=st.kind;walkShow.lap=st.lap;
   placeWalkTok();
   try{Sound.step()}catch(e){}
   if(!eco()){
@@ -847,7 +901,7 @@ function pickPlane(plId){
  if(busy||S.roll==null)return;
  busy=true;
  var before=null,prevTurn=S.turn,pid=S.turn;
- try{before=S.players[S.turn].planes[plId];before={where:before.where,idx:before.idx}}catch(e){before={where:'track',idx:0}}
+ try{before=S.players[S.turn].planes[plId];before={where:before.where,idx:before.idx,lap:before.lap}}catch(e){before={where:'track',idx:0,lap:0}}
  var r=E.applyMove(S,plId);
  if(!r.ok){busy=false;UI.toast(r.err||'不能走',1400,'warn');return}
  save();
@@ -908,6 +962,7 @@ function fit(){
 }
 var api={
  state:function(){return S},engine:E,render:function(){render()},roll:function(v){return doRoll(v)},
+ headingDeg:headingDeg,leavePadDeg:leavePadDeg,flyArriveDeg:flyArriveDeg,
  poke:function(pid,pl){pokePlane(pid,pl)},
  setPrintMode:function(on){
   if(!root)return;
