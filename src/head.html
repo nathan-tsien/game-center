@@ -148,7 +148,8 @@ body[data-route=home] #nHome{visibility:hidden}
 .seatsw{min-width:58px;height:52px;padding:4px 8px;border-radius:16px;border:3px solid #fff;background:var(--sc,#ccc);color:#fff;font-weight:900;font-size:18px;font-family:inherit;line-height:1.05;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.18);text-shadow:0 1px 0 rgba(0,0,0,.25)}
 .seatsw small{display:block;font-size:11px;font-weight:800;opacity:.92}
 .seatsw.on{outline:3px solid #5a3ea0;outline-offset:2px;transform:scale(1.08)}
-.seatsw.taken{opacity:.38;filter:grayscale(.35);cursor:not-allowed;box-shadow:none}
+.seatsw.taken{opacity:.62;filter:grayscale(.15);cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.seatsw.taken:active{transform:scale(.96)}
 .seatbar.need{box-shadow:0 0 0 3px #ffd23f,0 4px 0 rgba(60,30,90,.12);animation:seatneed 1s ease-in-out infinite}
 @keyframes seatneed{50%{box-shadow:0 0 0 5px #ff9a40,0 4px 0 rgba(60,30,90,.12)}}
 .tkseat{position:absolute;left:8px;bottom:6px;padding:2px 7px;border-radius:999px;background:#888;color:#fff;font-size:11px;font-weight:900;border:2px solid #fff;box-shadow:0 2px 0 rgba(0,0,0,.15)}

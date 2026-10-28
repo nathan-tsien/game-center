@@ -213,16 +213,23 @@
 .fldock-c.s-tl,.fldock-c.s-tr{--ox:-50%;--oy:-100%;flex-direction:column-reverse;transform-origin:50% 100%}
 .fldock-c.s-bl,.fldock-c.s-br{--ox:-50%;--oy:0%;flex-direction:column;transform-origin:50% 0}
 .fldock-c .fldie,.fldock-c .fldie-wrap,.fldock-c .flroll,.fldock-c .btn{pointer-events:auto}
-.fldock.want,.fldock-c.want{background:none;border:0;box-shadow:none;animation:none;z-index:24;isolation:isolate}
+.fldock.want,.fldock-c.want{background:none;border:0;box-shadow:none;animation:none;z-index:30;isolation:isolate;pointer-events:auto}
 .fldock-c.want .fldie-wrap{pointer-events:auto;z-index:25;cursor:pointer;touch-action:manipulation;position:relative}
-.fldock-c.want .fldie-wrap::after{content:'';position:absolute;inset:-18px;border-radius:50%;z-index:2;pointer-events:auto}
+.fldock-c.want .fldie-wrap::after{content:'';position:absolute;inset:-28px;border-radius:50%;z-index:2;pointer-events:auto}
 .fldock-c.want .fldie{pointer-events:auto;z-index:3;touch-action:manipulation}
 .fldock-c.want .flroll,.fldock-c.want .btn{pointer-events:auto;z-index:25;touch-action:manipulation;position:relative}
 .fldock-c.idle{opacity:.88;transform:translate(var(--ox),var(--oy)) scale(.9);pointer-events:none;z-index:8;
  animation:none;box-shadow:none;background:none}
-.fldock-c.idle .flroll,.fldock-c.idle .flhint{display:none}
+.fldock-c.idle .flroll{display:none}
+.fldock-c.idle:not(.wait-move) .flhint{display:none}
 .fldock-c.idle .fldie-wrap,.fldock-c.idle .fldie,.fldock-c.duck .fldie-wrap,.fldock-c.duck .fldie{pointer-events:none}
 .fldock-c.duck{opacity:.12;transform:translate(var(--ox),var(--oy)) scale(.45);pointer-events:none;z-index:3;animation:none}
+/* 该掷的时候 duck 不能把点击吃掉；wait-move 时点骰子会提示去点飞机 */
+.fldock-c.want.duck{opacity:1;transform:translate(var(--ox),var(--oy));pointer-events:auto;z-index:30}
+.fldock-c.want.duck .fldie-wrap,.fldock-c.want.duck .fldie,.fldock-c.want.duck .flroll{pointer-events:auto}
+.fldock-c.wait-move{pointer-events:none;z-index:20;opacity:1}
+.fldock-c.wait-move .fldie-wrap,.fldock-c.wait-move .fldie{pointer-events:auto;cursor:pointer}
+.fldock-c.wait-move .flhint{display:block;pointer-events:none}
 .fldock-c.over{z-index:12;opacity:1;transform:translate(var(--ox),var(--oy));pointer-events:auto}
 .fldock-c.rolling .flroll,.fldock-c.rolling .flhint{visibility:hidden}
 html.gq-eco .fldock-c,.fldock-c.no-slide{transition:none}
