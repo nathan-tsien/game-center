@@ -125,7 +125,7 @@ function renderHangars(){
   var seat=+el.getAttribute('data-p'),p=playerAtSeat(seat);
   el.style.setProperty('--bc',E.COLORS[seat]);
   if(!p){el.innerHTML='<span class="flcname">'+E.CNAMES[seat]+'</span>';return}
-  el.innerHTML='<div class="flhplate"><span class="flhav">'+tkAv(p.tok,58,'hav',persistMood(p))+'</span><b class="flhnm">'+esc(p.name)+'</b></div>';
+  el.innerHTML='<div class="flhplate"><span class="flhav">'+tkAv(p.tok,64,'hav',persistMood(p))+'</span><b class="flhnm">'+esc(p.name)+'</b></div>';
  });
 }
 function showTokBubble(el,txt){

@@ -1564,21 +1564,20 @@ html.gq-eco .moodfs{display:none!important}
 
 /* Hangar label overlay — 角色铭牌贴在机库外角，棋子仍是飞机 */
 .flbase{position:absolute;border-radius:14px;background:transparent;border:0;overflow:visible;
- z-index:7;display:flex;align-items:flex-start;justify-content:center;padding-top:1.8%;pointer-events:none}
+ z-index:5;display:flex;align-items:flex-start;justify-content:center;padding-top:1.8%;pointer-events:none}
 .flbase .flcname{font-size:10px;font-weight:900;color:#fff;background:var(--bc);padding:2px 8px;border-radius:9px;z-index:2;
  box-shadow:0 2px 0 rgba(0,0,0,.22),inset 0 1px 0 #fff6;opacity:.95;letter-spacing:.04em}
-.flhplate{position:absolute;z-index:6;display:flex;flex-direction:column;align-items:center;gap:3px;
- background:rgba(255,255,255,.96);border:3px solid var(--bc);border-radius:20px;padding:5px 8px 6px;
- box-shadow:0 4px 0 rgba(0,0,0,.2),0 8px 14px rgba(0,40,70,.2);max-width:78%;pointer-events:none}
-.flhplate .tkm.hav{width:58px!important;height:58px!important;flex:none;border-radius:50%;overflow:hidden;
- box-shadow:0 0 0 3px #fff,0 3px 0 rgba(0,0,0,.18)}
-.flhplate .flhnm{font-size:13px;font-weight:900;color:#3a2a5c;line-height:1.15;white-space:nowrap;letter-spacing:.02em;
- text-shadow:0 1px 0 #fff}
-.flbase[data-p="1"] .flhplate{top:-20%;left:-18%}
-.flbase[data-p="2"] .flhplate{top:-20%;right:-18%;left:auto}
-.flbase[data-p="0"] .flhplate{top:auto;bottom:-20%;left:-18%}
-.flbase[data-p="3"] .flhplate{top:auto;bottom:-20%;right:-18%;left:auto}
-.flbase{z-index:7}
+/* 圆形角色铭牌贴在机库外角草地，棋子仍是飞机；z-index 低于 #fltok，绝不盖住四坑 */
+.flhplate{position:absolute;z-index:1;display:flex;flex-direction:column;align-items:center;gap:0;
+ background:transparent;border:0;padding:0;box-shadow:none;max-width:none;pointer-events:none}
+.flhplate .tkm.hav{width:64px!important;height:64px!important;flex:none;border-radius:50%;overflow:hidden;
+ box-shadow:0 0 0 4px #fff,0 0 0 8px var(--bc),0 6px 0 rgba(0,0,0,.22)}
+.flhplate .flhnm{margin-top:-10px;font-size:13px;font-weight:900;color:#3a2a5c;line-height:1.1;white-space:nowrap;letter-spacing:.02em;
+ background:#fff;border:2.5px solid var(--bc);border-radius:11px;padding:2px 8px;box-shadow:0 2px 0 rgba(0,0,0,.18);z-index:1}
+.flbase[data-p="1"] .flhplate{top:-26%;left:-26%}
+.flbase[data-p="2"] .flhplate{top:-26%;right:-26%;left:auto}
+.flbase[data-p="0"] .flhplate{top:auto;bottom:-26%;left:-26%}
+.flbase[data-p="3"] .flhplate{top:auto;bottom:-26%;right:-26%;left:auto}
 
 /* Center finish — 极小中心点标，四色三角对顶清晰可见 */
 .flfin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;z-index:4;pointer-events:none;width:auto}
@@ -1592,7 +1591,7 @@ html.gq-eco .moodfs{display:none!important}
   0 0 0 2px rgba(255,255,255,.75);
  letter-spacing:0}
 
-#fltok{position:absolute;inset:0;z-index:6;pointer-events:none;overflow:visible}
+#fltok{position:absolute;inset:0;z-index:8;pointer-events:none;overflow:visible}
 #fltok .fltok{pointer-events:auto}
 /* track tokens ~5.5%; base tokens ~4.5% ≈ pit diameter so they sit in X slots */
 .fltok{position:absolute;width:5.5%;height:5.5%;transform:translate(-50%,-50%);border:0;background:transparent;padding:0;cursor:pointer;pointer-events:auto;overflow:visible;
@@ -1711,7 +1710,7 @@ html.gq-std .fldie .die.roll,html.gq-std .fldie .die.flyroll,html.gq-eco .fldie 
 .fldock .btn.big,.fldock .btn.flroll{min-height:44px;font-size:18px;padding:0 10px;width:100%;max-width:none;letter-spacing:.04em}
 .gq-eco .fldie.pulse,.gq-eco .fldock.want,.gq-eco .fldie-wrap.want::before{animation:none}
 @media (prefers-reduced-motion:reduce){.fldock.want,.fldie.pulse,.fldie-wrap.want::before{animation:none}}
-@media (max-width:700px){.flpc .tkm.av{width:56px!important;height:56px!important}.fldie-wrap{width:84px;height:84px}.fldie{width:72px;height:72px}.fldie.rolling{width:82px;height:82px}.fldock .btn.big{min-height:40px;font-size:16px}.fldock-c{width:28%;min-width:120px}.flhplate .tkm.hav{width:44px!important;height:44px!important}}
+@media (max-width:700px){.flpc .tkm.av{width:56px!important;height:56px!important}.fldie-wrap{width:84px;height:84px}.fldie{width:72px;height:72px}.fldie.rolling{width:82px;height:82px}.fldock .btn.big{min-height:40px;font-size:16px}.fldock-c{width:28%;min-width:120px}.flhplate .tkm.hav{width:52px!important;height:52px!important}}
 
 /* Always-visible fly rule tip — under sidebar, kid glance */
 .flruletip{flex:none;margin:2px 4px 4px;padding:7px 8px;border-radius:12px;font-size:11px;font-weight:800;line-height:1.35;color:#5a3ea0;text-align:center;
@@ -4155,7 +4154,7 @@ function renderHangars(){
   var seat=+el.getAttribute('data-p'),p=playerAtSeat(seat);
   el.style.setProperty('--bc',E.COLORS[seat]);
   if(!p){el.innerHTML='<span class="flcname">'+E.CNAMES[seat]+'</span>';return}
-  el.innerHTML='<div class="flhplate"><span class="flhav">'+tkAv(p.tok,58,'hav',persistMood(p))+'</span><b class="flhnm">'+esc(p.name)+'</b></div>';
+  el.innerHTML='<div class="flhplate"><span class="flhav">'+tkAv(p.tok,64,'hav',persistMood(p))+'</span><b class="flhnm">'+esc(p.name)+'</b></div>';
  });
 }
 function showTokBubble(el,txt){
