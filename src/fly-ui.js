@@ -1,7 +1,7 @@
 /* ======================= 飞行棋 Phase-1b 棋盘 UI · 经典玩法+趣味动画 ======================= */
 var FLY=(function(){
 'use strict';
-var E=window.FLYE,Store=GC.Store,Sound=GC.Sound,UI=GC.UI,Dice=GC.Dice,Select=GC.Select,LN=window.CTE_LINES;
+var E=window.FLYE,Store=GC.Store,Sound=GC.Sound,UI=GC.UI,Dice=GC.Dice,Select=GC.Select;
 var TKN=E.TKN,TKC=['#2f80ed','#f2b705','#e53935','#ff4fa3','#1fae5b','#8e44ec'];
 var root,S,busy=false,selv=null,timers=[],ro=null,lastDie=6,cancel=null,fxLayer=null,plateURL=null,bubs={},faceMood={};
 function $q(s){return root.querySelector(s)}
@@ -99,7 +99,7 @@ function restoreBubs(){
 }
 function sayReact(pid,type,o){
  o=o||{};var p=P(pid);if(!p||!type)return '';
- var txt='';
+ var txt='',LN=window.CTE_LINES;
  try{txt=(LN&&LN.pick)?LN.pick(p.tok,type,function(n){return Dice.int(n)}):''}catch(e){}
  if(txt){showBubble(p,txt,type);try{GC.Voice.say(txt,p.tok,{queue:1,prot:1})}catch(x){}}
  if(o.mood)mood(pid,o.mood,{tiny:!!o.tiny,noFs:!!o.tiny,key:o.key||('fl'+type+pid)});
@@ -609,8 +609,11 @@ function doRoll(forced){
    if(r.triple6){UI.toast('三连6!一架飞机回基地',1600,'warn');render();sayReact((S.turn-1+S.players.length)%S.players.length,'bounce',{mood:'sad'});return}
    if(r.passed){UI.toast(r.v===6?'没飞机可飞,再掷':'没飞机可飞,换下一位',1400,'info');render();return}
    S.pending={mov:r.mov};render();
-   if(r.v===6)sayReact(S.turn,'roll6',{mood:'happy',tiny:1});
-   else if(r.v===1)sayReact(S.turn,'lowRoll',{mood:'worried',tiny:1});
+   /* 只有一架可走时马上自动走，把台词留给起飞/跳/飞/吃，避免连说两句 */
+   if(r.mov && r.mov.length!==1){
+    if(r.v===6)sayReact(S.turn,'roll6',{mood:'happy',tiny:1});
+    else if(r.v===1)sayReact(S.turn,'lowRoll',{mood:'worried',tiny:1});
+   }
    if(r.mov.length===1){later(function(){pickPlane(r.mov[0])},280)}
   });
  }else{
