@@ -606,6 +606,16 @@ function renderPanel(){
  el.innerHTML=h;
  restoreBubs();
 }
+function activeSeat(){
+ if(!S||!S.players||!S.players.length)return 1;
+ var p=(S.phase==='over'&&S.winner!=null)?S.players[S.winner]:E.cur(S);
+ return p?seatOf(p):1;
+}
+function dockAnchor(seat){
+ /* inner flank of each hangar — beside pits, not on avatar / not on the star */
+ var m={1:{l:28,t:20,k:'tl'},2:{l:72,t:20,k:'tr'},0:{l:28,t:80,k:'bl'},3:{l:72,t:80,k:'br'}};
+ return m[seat]||m[1];
+}
 function duckDock(ms){
  duckUntil=Date.now()+(ms||1100);
  var el=$q('#fldock');if(el)el.classList.add('duck');
@@ -615,11 +625,15 @@ function renderDock(){
  var el=$q('#fldock');if(!el)return;
  var ready=S.phase==='play'&&S.roll==null&&!busy;
  var duck=Date.now()<duckUntil;
+ var seat=activeSeat(),anc=dockAnchor(seat);
+ var noSlide=eco()||(UI.reduce&&UI.reduce());
  var hint='';
  if(S.phase==='over'){var w=S.players[S.winner];hint='🏆 '+esc(w.name)+' 获胜!';}
  else if(ready&&S.again){hint='再掷一次!'}
  else if(ready){hint='轮到 <b style="color:'+TKC[E.cur(S).tok]+'">'+esc(E.cur(S).name)+'</b>'}
- el.className='fldock fldock-c'+(ready?' want':' idle')+(duck?' duck':'')+(S.phase==='over'?' over':'');
+ el.style.left=anc.l+'%';el.style.top=anc.t+'%';
+ el.className='fldock fldock-c s-'+anc.k+(ready?' want':' idle')+(duck?' duck':'')+(S.phase==='over'?' over':'')+(noSlide?' no-slide':'');
+ el.setAttribute('data-seat',seat);
  el.innerHTML='<div class="fldie-wrap'+(ready?' want':'')+'"><div class="fldie'+(ready?' pulse':'')+'" id="flDie" role="button" aria-label="掷骰子">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
   (ready?'<button class="btn big flroll" id="flRoll">🎲 掷骰子</button>':'')+
   (S.phase==='over'?'<button class="btn pri" id="flAgain">再来一局</button>':'')+
@@ -649,7 +663,6 @@ function playMoveFx(r){
    var dash=root&&root.querySelector('#fldash'+dashSeat);
    if(dash){dash.classList.add('lit');later(function(){try{dash.classList.remove('lit')}catch(err){}},1400)}
    UI.toast('✈️ 虚线横飞 +12!',1400,'star');
-   duckDock(1400);
   }else if(e.k==='capture'){
    var pos=ringPos(e.at!=null?e.at:0);
    sparkAt(pos.x,pos.y,'boom',12);
@@ -657,6 +670,7 @@ function playMoveFx(r){
    var takeSeat=e.seat!=null?e.seat:(S.players[e.pid]?seatOf(S.players[e.pid]):e.pid);
    var tp=ringPos(e.idx!=null?e.idx:E.ENTRY[takeSeat]);
    sparkAt(tp.x,tp.y,'take',8);
+   duckDock(900);
   }else if(e.k==='triple6'){
    UI.toast('三连6!一架飞机回基地',1600,'warn');
   }

@@ -190,20 +190,26 @@
 .flpc .pbub{font-size:11px;padding:4px 6px;bottom:4px;z-index:6}
 .gm-fly.fl-island .flpc .pbub{background:#fffef8}
 .flpc .bd{display:inline-block;color:#fff;font-size:11px;font-weight:900;padding:1px 6px;border-radius:8px}
-/* Compact floating die — NE of gold star, chip stacks up so star/finish stay open */
+/* Compact floating die — follows the active hangar; no card, center star stays clear */
 .fldock{display:flex;flex-direction:column-reverse;align-items:center;gap:3px;padding:0;
  background:none;border:0;box-shadow:none;overflow:visible;pointer-events:none}
-.fldock-c{position:absolute;left:59%;top:42%;transform:translate(-50%,-100%);z-index:12;
- width:auto;min-width:0;max-width:none;box-sizing:border-box;margin:0;transform-origin:50% 100%}
+.fldock-c{position:absolute;left:28%;top:20%;z-index:12;
+ width:auto;min-width:0;max-width:none;box-sizing:border-box;margin:0;
+ --ox:-50%;--oy:-100%;
+ transform:translate(var(--ox),var(--oy));transform-origin:50% 100%;
+ transition:left .5s cubic-bezier(.22,.8,.28,1),top .5s cubic-bezier(.22,.8,.28,1),transform .28s ease,opacity .28s ease}
+.fldock-c.s-tl,.fldock-c.s-tr{--ox:-50%;--oy:-100%;flex-direction:column-reverse;transform-origin:50% 100%}
+.fldock-c.s-bl,.fldock-c.s-br{--ox:-50%;--oy:0%;flex-direction:column;transform-origin:50% 0}
 .fldock-c .fldie,.fldock-c .flroll,.fldock-c .btn{pointer-events:auto}
-.fldock-c.idle,.fldock-c.duck,.fldock-c.rolling{transition:transform .28s ease,opacity .28s ease}
 .fldock.want{background:none;border:0;box-shadow:none;animation:none}
-.fldock-c.idle{opacity:.88;transform:translate(-50%,-100%) scale(.9);pointer-events:none;z-index:8;
+.fldock-c.idle{opacity:.88;transform:translate(var(--ox),var(--oy)) scale(.9);pointer-events:none;z-index:8;
  animation:none;box-shadow:none;background:none}
 .fldock-c.idle .flroll,.fldock-c.idle .flhint{display:none}
-.fldock-c.duck{opacity:.12;transform:translate(-50%,-100%) scale(.45);pointer-events:none;z-index:3;animation:none}
-.fldock-c.over{z-index:12;opacity:1;transform:translate(-50%,-100%);pointer-events:auto}
+.fldock-c.duck{opacity:.12;transform:translate(var(--ox),var(--oy)) scale(.45);pointer-events:none;z-index:3;animation:none}
+.fldock-c.over{z-index:12;opacity:1;transform:translate(var(--ox),var(--oy));pointer-events:auto}
 .fldock-c.rolling .flroll,.fldock-c.rolling .flhint{visibility:hidden}
+html.gq-eco .fldock-c,.fldock-c.no-slide{transition:none}
+@media (prefers-reduced-motion:reduce){.fldock-c{transition:none}}
 .fldie-wrap{position:relative;width:58px;height:58px;display:flex;align-items:center;justify-content:center;perspective:520px;overflow:visible}
 .fldock-c.want .fldie-wrap{width:64px;height:64px}
 .fldie-wrap::before{content:'';position:absolute;left:50%;bottom:2px;transform:translateX(-50%);width:46px;height:14px;border-radius:50%;

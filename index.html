@@ -1655,20 +1655,26 @@ html.gq-eco .moodfs{display:none!important}
 .flpc .pbub{font-size:11px;padding:4px 6px;bottom:4px;z-index:6}
 .gm-fly.fl-island .flpc .pbub{background:#fffef8}
 .flpc .bd{display:inline-block;color:#fff;font-size:11px;font-weight:900;padding:1px 6px;border-radius:8px}
-/* Compact floating die — NE of gold star, chip stacks up so star/finish stay open */
+/* Compact floating die — follows the active hangar; no card, center star stays clear */
 .fldock{display:flex;flex-direction:column-reverse;align-items:center;gap:3px;padding:0;
  background:none;border:0;box-shadow:none;overflow:visible;pointer-events:none}
-.fldock-c{position:absolute;left:59%;top:42%;transform:translate(-50%,-100%);z-index:12;
- width:auto;min-width:0;max-width:none;box-sizing:border-box;margin:0;transform-origin:50% 100%}
+.fldock-c{position:absolute;left:28%;top:20%;z-index:12;
+ width:auto;min-width:0;max-width:none;box-sizing:border-box;margin:0;
+ --ox:-50%;--oy:-100%;
+ transform:translate(var(--ox),var(--oy));transform-origin:50% 100%;
+ transition:left .5s cubic-bezier(.22,.8,.28,1),top .5s cubic-bezier(.22,.8,.28,1),transform .28s ease,opacity .28s ease}
+.fldock-c.s-tl,.fldock-c.s-tr{--ox:-50%;--oy:-100%;flex-direction:column-reverse;transform-origin:50% 100%}
+.fldock-c.s-bl,.fldock-c.s-br{--ox:-50%;--oy:0%;flex-direction:column;transform-origin:50% 0}
 .fldock-c .fldie,.fldock-c .flroll,.fldock-c .btn{pointer-events:auto}
-.fldock-c.idle,.fldock-c.duck,.fldock-c.rolling{transition:transform .28s ease,opacity .28s ease}
 .fldock.want{background:none;border:0;box-shadow:none;animation:none}
-.fldock-c.idle{opacity:.88;transform:translate(-50%,-100%) scale(.9);pointer-events:none;z-index:8;
+.fldock-c.idle{opacity:.88;transform:translate(var(--ox),var(--oy)) scale(.9);pointer-events:none;z-index:8;
  animation:none;box-shadow:none;background:none}
 .fldock-c.idle .flroll,.fldock-c.idle .flhint{display:none}
-.fldock-c.duck{opacity:.12;transform:translate(-50%,-100%) scale(.45);pointer-events:none;z-index:3;animation:none}
-.fldock-c.over{z-index:12;opacity:1;transform:translate(-50%,-100%);pointer-events:auto}
+.fldock-c.duck{opacity:.12;transform:translate(var(--ox),var(--oy)) scale(.45);pointer-events:none;z-index:3;animation:none}
+.fldock-c.over{z-index:12;opacity:1;transform:translate(var(--ox),var(--oy));pointer-events:auto}
 .fldock-c.rolling .flroll,.fldock-c.rolling .flhint{visibility:hidden}
+html.gq-eco .fldock-c,.fldock-c.no-slide{transition:none}
+@media (prefers-reduced-motion:reduce){.fldock-c{transition:none}}
 .fldie-wrap{position:relative;width:58px;height:58px;display:flex;align-items:center;justify-content:center;perspective:520px;overflow:visible}
 .fldock-c.want .fldie-wrap{width:64px;height:64px}
 .fldie-wrap::before{content:'';position:absolute;left:50%;bottom:2px;transform:translateX(-50%);width:46px;height:14px;border-radius:50%;
@@ -4644,6 +4650,16 @@ function renderPanel(){
  el.innerHTML=h;
  restoreBubs();
 }
+function activeSeat(){
+ if(!S||!S.players||!S.players.length)return 1;
+ var p=(S.phase==='over'&&S.winner!=null)?S.players[S.winner]:E.cur(S);
+ return p?seatOf(p):1;
+}
+function dockAnchor(seat){
+ /* inner flank of each hangar — beside pits, not on avatar / not on the star */
+ var m={1:{l:28,t:20,k:'tl'},2:{l:72,t:20,k:'tr'},0:{l:28,t:80,k:'bl'},3:{l:72,t:80,k:'br'}};
+ return m[seat]||m[1];
+}
 function duckDock(ms){
  duckUntil=Date.now()+(ms||1100);
  var el=$q('#fldock');if(el)el.classList.add('duck');
@@ -4653,11 +4669,15 @@ function renderDock(){
  var el=$q('#fldock');if(!el)return;
  var ready=S.phase==='play'&&S.roll==null&&!busy;
  var duck=Date.now()<duckUntil;
+ var seat=activeSeat(),anc=dockAnchor(seat);
+ var noSlide=eco()||(UI.reduce&&UI.reduce());
  var hint='';
  if(S.phase==='over'){var w=S.players[S.winner];hint='🏆 '+esc(w.name)+' 获胜!';}
  else if(ready&&S.again){hint='再掷一次!'}
  else if(ready){hint='轮到 <b style="color:'+TKC[E.cur(S).tok]+'">'+esc(E.cur(S).name)+'</b>'}
- el.className='fldock fldock-c'+(ready?' want':' idle')+(duck?' duck':'')+(S.phase==='over'?' over':'');
+ el.style.left=anc.l+'%';el.style.top=anc.t+'%';
+ el.className='fldock fldock-c s-'+anc.k+(ready?' want':' idle')+(duck?' duck':'')+(S.phase==='over'?' over':'')+(noSlide?' no-slide':'');
+ el.setAttribute('data-seat',seat);
  el.innerHTML='<div class="fldie-wrap'+(ready?' want':'')+'"><div class="fldie'+(ready?' pulse':'')+'" id="flDie" role="button" aria-label="掷骰子">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
   (ready?'<button class="btn big flroll" id="flRoll">🎲 掷骰子</button>':'')+
   (S.phase==='over'?'<button class="btn pri" id="flAgain">再来一局</button>':'')+
@@ -4687,7 +4707,6 @@ function playMoveFx(r){
    var dash=root&&root.querySelector('#fldash'+dashSeat);
    if(dash){dash.classList.add('lit');later(function(){try{dash.classList.remove('lit')}catch(err){}},1400)}
    UI.toast('✈️ 虚线横飞 +12!',1400,'star');
-   duckDock(1400);
   }else if(e.k==='capture'){
    var pos=ringPos(e.at!=null?e.at:0);
    sparkAt(pos.x,pos.y,'boom',12);
@@ -4695,6 +4714,7 @@ function playMoveFx(r){
    var takeSeat=e.seat!=null?e.seat:(S.players[e.pid]?seatOf(S.players[e.pid]):e.pid);
    var tp=ringPos(e.idx!=null?e.idx:E.ENTRY[takeSeat]);
    sparkAt(tp.x,tp.y,'take',8);
+   duckDock(900);
   }else if(e.k==='triple6'){
    UI.toast('三连6!一架飞机回基地',1600,'warn');
   }
