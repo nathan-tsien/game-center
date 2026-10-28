@@ -1617,20 +1617,22 @@ html.gq-eco .moodfs{display:none!important}
 .fl-done-badge{position:absolute;right:-6%;top:-8%;font-size:13px;line-height:1;
  background:linear-gradient(180deg,#fffef8,#ffe9a8);border-radius:999px;padding:2px 4px;
  box-shadow:0 2px 0 rgba(120,80,20,.25),0 0 0 2px #fff;pointer-events:none;z-index:2}
-.fltok.go{z-index:8;animation:flgo 1s ease-in-out infinite;outline:3px solid #ffd23f;outline-offset:2px;border-radius:50%}
+.fltok.go{z-index:8;outline:2px solid #ffd23faa;outline-offset:1px;border-radius:50%;animation:flgosof 1.6s ease-in-out infinite}
 .fltok.takeoff-lit{z-index:6;outline:2px solid #7ef0a099;outline-offset:1px;border-radius:50%;animation:fltakeoffsoft 1.6s ease-in-out infinite}
-@keyframes flgo{50%{transform:translate(-50%,-58%) scale(1.08)}}
+.fltok.walking{z-index:12;animation:none!important;outline:0;width:5.2%;height:5.2%;
+ transition:left .26s ease-out,top .26s ease-out,width .18s ease,height .18s ease}
+@keyframes flgosof{50%{transform:translate(-50%,-53%) scale(1.03)}}
 @keyframes fltakeoffsoft{50%{transform:translate(-50%,-53%) scale(1.03)}}
-.fltok .flglow{position:absolute;left:50%;top:50%;width:210%;height:210%;margin:0;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:0;
- background:radial-gradient(circle,#fff 0 18%,#ffd23f 42%,rgba(255,210,63,0) 70%);
- box-shadow:0 0 0 3px #fff,0 0 0 8px #ffd23f,0 0 28px 12px #ffd23fcc;
- animation:flhalopulse .85s ease-in-out infinite}
-.fltok.takeoff-lit .flglow{width:132%;height:132%;
+.fltok .flglow{position:absolute;left:50%;top:50%;width:132%;height:132%;margin:0;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:0;
+ background:radial-gradient(circle,#fff 0 28%,#ffd23f66 52%,rgba(255,210,63,0) 74%);
+ box-shadow:0 0 0 2px #fff8,0 0 8px 3px #ffd23f55;animation:none;opacity:.9}
+.fltok.takeoff-lit .flglow{
  background:radial-gradient(circle,#fff 0 28%,#7ef0a066 52%,rgba(126,240,160,0) 74%);
- box-shadow:0 0 0 2px #fff8,0 0 8px 3px #7ef0a055;animation:none;opacity:.9}
+ box-shadow:0 0 0 2px #fff8,0 0 8px 3px #7ef0a055;opacity:.9}
 .fltok.go .fl-plane,.fltok.go .fl3d-tok,.fltok.takeoff-lit .fl-plane,.fltok.takeoff-lit .fl3d-tok,.fltok.go .fl-plane-img,.fltok.takeoff-lit .fl-plane-img{position:relative;z-index:1}
-@keyframes flhalopulse{0%,100%{transform:translate(-50%,-50%) scale(.88);opacity:.82}50%{transform:translate(-50%,-50%) scale(1.12);opacity:1}}
+.flc.walkhit,.flhome.walkhit{z-index:4;box-shadow:0 0 0 2px #fff8,0 0 10px #ffd23f55}
 .gq-eco .fltok.go,.gq-eco .fltok.takeoff-lit{animation:none}
+.gq-eco .fltok,.gq-eco .fltok.walking{transition:none}
 .flpc.turn-pop{animation:flturnpop .55s ease-out}
 @keyframes flturnpop{0%{transform:scale(.94)}55%{transform:scale(1.07)}100%{transform:scale(1.03)}}
 .gq-eco .flpc.turn-pop{animation:none}
@@ -1672,7 +1674,7 @@ html.gq-eco .moodfs{display:none!important}
  transition:left .5s cubic-bezier(.22,.8,.28,1),top .5s cubic-bezier(.22,.8,.28,1),transform .28s ease,opacity .28s ease}
 .fldock-c.s-tl,.fldock-c.s-tr{--ox:-50%;--oy:-100%;flex-direction:column-reverse;transform-origin:50% 100%}
 .fldock-c.s-bl,.fldock-c.s-br{--ox:-50%;--oy:0%;flex-direction:column;transform-origin:50% 0}
-.fldock-c .fldie,.fldock-c .flroll,.fldock-c .btn{pointer-events:auto}
+.fldock-c .fldie,.fldock-c .fldie-wrap,.fldock-c .flroll,.fldock-c .btn{pointer-events:auto}
 .fldock.want,.fldock-c.want{background:none;border:0;box-shadow:none;animation:none;z-index:24;isolation:isolate}
 .fldock-c.want .fldie-wrap{pointer-events:auto;z-index:25;cursor:pointer;touch-action:manipulation;position:relative}
 .fldock-c.want .fldie-wrap::after{content:'';position:absolute;inset:-18px;border-radius:50%;z-index:2;pointer-events:auto}
@@ -1702,35 +1704,12 @@ html.gq-eco .fldock-c,.fldock-c.no-slide{transition:none}
 .fldie.pulse{animation:dieidle 1.6s ease-in-out infinite}
 .fldie svg,.fldie .die{width:100%;height:100%}
 .fldie .ctdw{width:100%;height:100%;transform-style:preserve-3d}
-.gm-fly .fldie .die.flyroll,.gm-fly .fldie .die.roll.flyroll{
- animation:fltumble .55s linear infinite!important;transform-origin:50% 60%}
-@keyframes fltumble{
- 0%{transform:translate3d(-10px,4px,0) rotateX(12deg) rotateY(-20deg) rotateZ(0) scale(1)}
- 18%{transform:translate3d(18px,-38px,20px) rotateX(80deg) rotateY(-70deg) rotateZ(110deg) scale(1.32)}
- 36%{transform:translate3d(-20px,-8px,0) rotateX(165deg) rotateY(55deg) rotateZ(200deg) scale(.88)}
- 54%{transform:translate3d(14px,-46px,24px) rotateX(250deg) rotateY(-40deg) rotateZ(290deg) scale(1.38)}
- 72%{transform:translate3d(-16px,-14px,0) rotateX(310deg) rotateY(75deg) rotateZ(340deg) scale(1.12)}
- 100%{transform:translate3d(-10px,4px,0) rotateX(372deg) rotateY(-20deg) rotateZ(360deg) scale(1)}
-}
-.gm-fly .fldie .die.land{animation:flland .48s cubic-bezier(.2,1.5,.3,1)}
-@keyframes flland{
- 0%{transform:scale(1.55) rotate(-22deg) translateY(-18px)}
- 40%{transform:scale(.86) rotate(10deg) translateY(6px)}
- 70%{transform:scale(1.16) rotate(-6deg)}
- 100%{transform:none}
-}
-.gm-fly .fldie .die.flyroll-eco,.gm-fly .fldie .die.roll.flyroll-eco{
- animation:fltumble-eco .48s linear infinite!important}
-@keyframes fltumble-eco{
- 0%{transform:rotate(0) scale(1)}
- 50%{transform:rotate(180deg) scale(1.12)}
- 100%{transform:rotate(360deg) scale(1)}
-}
-html.gq-std .fldie .die.roll,html.gq-std .fldie .die.flyroll,html.gq-eco .fldie .die.roll,html.gq-eco .fldie .die.flyroll,html.gq-eco .fldie .die.flyroll-eco{
- animation-iteration-count:infinite!important}
+/* hangar die uses shared Monopoly `.die.roll { animation: tumble }` from head.html */
+html.gq-std .fldie .die.roll,html.gq-eco .fldie .die.roll{animation-iteration-count:infinite!important}
 @media (prefers-reduced-motion:reduce){
- .gm-fly .fldie .die.flyroll,.gm-fly .fldie .die.roll{animation:fltumble-eco .5s linear infinite!important}
- .fltok .flglow,.seatbar.need,.tkseat.wait,.fldock.want,.fldie.pulse,.fltok.poked,.fltok.poked-mad{animation:none}
+ .gm-fly .fldie .die.roll{animation:tumble .42s linear infinite}
+ .fltok .flglow,.seatbar.need,.tkseat.wait,.fldock.want,.fldie.pulse,.fltok.poked,.fltok.poked-mad,.fltok.walking{animation:none}
+ .fltok,.fltok.walking{transition:none}
 }
 .flhint{font-size:11px;font-weight:900;text-align:center;line-height:1.15;color:#5a3ea0;min-height:0;
  background:#fffef8ee;border-radius:8px;padding:1px 7px;box-shadow:0 1px 0 rgba(0,0,0,.12);white-space:nowrap}
@@ -1836,8 +1815,9 @@ html.gq-std .fldie .die.roll,html.gq-std .fldie .die.flyroll,html.gq-eco .fldie 
  filter:drop-shadow(0 0 4px #ffe58acc) drop-shadow(0 1.5px 1px rgba(0,0,0,.22))}
 .gm-fly.fl-island .fl-done-badge{display:none}
 .gm-fly.fl-island .fltok.go,.gm-fly.fl-island .fltok.takeoff-lit{outline:0;border-radius:50%;overflow:visible}
+.gm-fly.fl-island .flc.walkhit,.gm-fly.fl-island .flhome.walkhit{box-shadow:0 0 0 2px #fff,0 0 0 3px #ffd23f66!important}
 .gm-fly.fl-island .fltok.go{z-index:10;
- filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 10px #ffd23f) drop-shadow(0 0 18px #ff9a40)}
+ filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 5px #ffd23f99)}
 .gm-fly.fl-island .fltok.takeoff-lit{z-index:6;
  filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 5px #7ef0a099)}
 .gm-fly.fl-island .fltok.go .flglow,.gm-fly.fl-island .fltok.takeoff-lit .flglow{display:block}
@@ -2142,7 +2122,7 @@ var Dice=GC.Dice={
   st.style.setProperty('--ds',best+'px');st.style.setProperty('--gap',gap+'px');st.style.flexDirection=col?'column':'row';
  },
  /* animate the dice in stage, settle on results; cb when all stopped.
-    opts:{ms,stagger,tail,tick,cls} — 飞行棋传更长 ms + flyroll 做出明显翻滚 */
+    opts:{ms,stagger,tail,tick,cls} — defaults match 大富翁 tumble */
  roll:function(stage,res,cb,opts){
   opts=opts||{};
   var nodes=stage.children,i,iv,tm=[];
@@ -3187,11 +3167,13 @@ var COLORS=['#e0485e','#f2c200','#4a8fe0','#4cae4c'];
 var CNAMES=['红','黄','蓝','绿'];
 var TKN=['小狗','小狮子','不不奥特曼','哎呀公主','温柔喷火龙','猪肉战神'];
 var TRACK=52, HOME=6, PLANES=4;
-var ENTRY=[0,13,26,39];
-var HOME_GATE=ENTRY.map(function(e){return (e+TRACK-1)%TRACK});
-/* 虚线起飞垫：本色格，飞 +12 到对侧同色（经典横飞） */
-var FLY_FROM=[20,33,46,7];
-var FLY_TO=FLY_FROM.map(function(f){return (f+12)%TRACK});
+/* 顺时针环：红起飞格 RING[0]=[6,14]，下格 [8,14] 向绿；黄 [0,6]→[0,8] 向红。
+   停机坪 = 本色起飞格 ENTRY；一圈后从同一格进家（HOME_GATE===ENTRY）。 */
+var ENTRY=[0,39,26,13];
+var HOME_GATE=ENTRY.slice();
+/* 虚线起飞垫：本色飞机格 → 对侧同色（物理格与旧版相同，下标随顺时针重排） */
+var FLY_FROM=[32,19,6,45];
+var FLY_TO=[20,7,46,33];
 
 /* ---- 经典 15×15 十字几何（红BL / 黄TL / 蓝TR / 绿BR） ---- */
 function rot90(pts){return pts.map(function(p){return [14-p[1],p[0]]})}
@@ -3209,9 +3191,12 @@ var _om=makeOmRing();
 /* 平移：找 om 中 [6,14]（红起飞，底臂 HOME[7,14] 左侧）→ RING[0] */
 var RING=[];
 (function(){
- var off=0;
+ var off=0,fwd=[],k;
  for(var i=0;i<_om.length;i++){if(_om[i][0]===6&&_om[i][1]===14){off=i;break}}
- for(var j=0;j<52;j++)RING.push(_om[(j+off)%52]);
+ for(var j=0;j<52;j++)fwd.push(_om[(j+off)%52]);
+ /* makeOmRing 是逆时针；从红起飞格起反向，棋子沿环顺时针走 */
+ RING.push(fwd[0]);
+ for(k=fwd.length-1;k>=1;k--)RING.push(fwd[k]);
 })();
 /* 终点道 5 个可见圆（引擎 home idx 0..4，第 6 步 done） */
 var HOME_CELLS=[
@@ -3287,11 +3272,16 @@ function donePos(pid,k){
  return basePos(pid, k!=null?k:0);
 }
 
-function cellColor(i){return ((i%TRACK)+TRACK)%TRACK%4}
+function cellColor(i){
+ i=((i%TRACK)+TRACK)%TRACK;
+ /* 格色跟物理格，不跟新下标：旧下标 0,51,50… 对应 红/绿/蓝/黄… */
+ var old=i?TRACK-i:0;
+ return old%4;
+}
 function isFlyPad(pid,idx){return FLY_FROM[pid]===idx}
 function isSafe(idx){
  if(ENTRY.indexOf(idx)>=0)return true;
- if([4,17,30,43].indexOf(idx)>=0)return true;
+ if([48,35,22,9].indexOf(idx)>=0)return true;
  return false;
 }
 function nextSameColor(idx){return (idx+4)%TRACK}
@@ -3316,7 +3306,7 @@ function startGame(S,list){
   }
   used[seat]=1;
   return{id:i,seat:seat,tok:p.tok,name:p.name||TKN[p.tok],color:COLORS[seat],cname:CNAMES[seat],
-   planes:[0,1,2,3].map(function(k){return{id:k,where:'base',idx:0,lap:0}})};
+   planes:[0,1,2,3].map(function(k){return{id:k,where:'base',idx:0,lap:0,padLock:false}})};
  });
  S.phase='play';S.turn=0;S.roll=null;S.pending=null;S.winner=null;S.again=false;S.sixes=0;S.hist=[];S.sv=Date.now();
  return{ok:true};
@@ -3327,17 +3317,22 @@ function planesAt(S,where,idx,exceptPid,exceptPl){
  S.players.forEach(function(p){
   p.planes.forEach(function(pl){
    if(exceptPid!=null&&p.id===exceptPid&&pl.id===exceptPl)return;
-   if(pl.where===where&&pl.idx===idx)out.push({pid:p.id,pl:pl.id,color:p.color});
+   var w=pl.where==='pad'?'track':pl.where;
+   if(w===where&&pl.idx===idx)out.push({pid:p.id,pl:pl.id,color:p.color});
   });
  });
  return out;
+}
+function unlockPads(S,pid){
+ var p=S.players[pid];if(!p)return;
+ p.planes.forEach(function(pl){if(pl.where==='pad')pl.padLock=false});
 }
 function captureAt(S,pid,plId,where,idx,ev,sent){
  if(where!=='track'||isSafe(idx))return;
  planesAt(S,'track',idx,pid,plId).forEach(function(o){
   if(o.pid===pid)return;
   var op=S.players[o.pid].planes[o.pl];
-  op.where='base';op.idx=0;op.lap=0;
+  op.where='base';op.idx=0;op.lap=0;op.padLock=false;
   sent.push({pid:o.pid,pl:o.pl});
   ev.push({k:'capture',pid:pid,victim:o.pid,pl:o.pl,at:idx});
  });
@@ -3358,12 +3353,13 @@ function movable(S,v){
  p.planes.forEach(function(pl){
   if(pl.where==='done')return;
   if(pl.where==='base'){if(v===6)out.push(pl.id);return}
+  if(pl.where==='pad'){if(pl.padLock)return}
   if(pl.where==='home'){
    var dest=pl.idx+v;
    if(dest<=HOME)out.push(pl.id);
    return;
   }
-  var idx=pl.idx,lap=pl.lap||0,ok=true;
+  var idx=pl.where==='pad'?ENTRY[seat]:pl.idx,lap=pl.where==='pad'?0:(pl.lap||0),ok=true;
   for(var s=0;s<v;s++){
    if(lap>=1&&idx===HOME_GATE[seat]){
     var rem=v-s-1;
@@ -3379,7 +3375,7 @@ function movable(S,v){
 }
 function pathFor(S,plId,v){
  var p=cur(S),seat=seatOf(p),pl=p.planes[plId],path=[];
- if(pl.where==='base'){path.push({where:'track',idx:ENTRY[seat],lap:0,kind:'takeoff'});return path}
+ if(pl.where==='base'){path.push({where:'pad',idx:ENTRY[seat],lap:0,kind:'takeoff'});return path}
  if(pl.where==='home'){
   for(var i=1;i<=v;i++){
    var d=pl.idx+i;
@@ -3388,7 +3384,7 @@ function pathFor(S,plId,v){
   }
   return path;
  }
- var idx=pl.idx,lap=pl.lap||0;
+ var idx=pl.where==='pad'?ENTRY[seat]:pl.idx,lap=pl.where==='pad'?0:(pl.lap||0);
  for(var s=0;s<v;s++){
   if(lap>=1&&idx===HOME_GATE[seat]){
    var rem=v-s;
@@ -3440,7 +3436,7 @@ function applyBonuses(S,p,pl,ev,sent,arrivedBy){
 function sendOwnPlaneHome(S,pid){
  var p=S.players[pid],best=null,bestScore=-1;
  p.planes.forEach(function(pl){
-  if(pl.where==='track'){
+  if(pl.where==='track'||pl.where==='pad'){
    var sc=100+(pl.lap||0)*TRACK+pl.idx;
    if(sc>bestScore){bestScore=sc;best=pl}
   }else if(pl.where==='home'){
@@ -3450,7 +3446,7 @@ function sendOwnPlaneHome(S,pid){
  });
  if(!best)return null;
  var was={where:best.where,idx:best.idx};
- best.where='base';best.idx=0;best.lap=0;
+ best.where='base';best.idx=0;best.lap=0;best.padLock=false;
  return{pl:best.id,was:was};
 }
 function applyMove(S,plId){
@@ -3460,11 +3456,12 @@ function applyMove(S,plId){
  var mov=movable(S,v);
  if(mov.indexOf(plId)<0)return{ok:false,err:'这架不能走'};
  var ev=[],sent=[],path=pathFor(S,plId,v);
- var fromBase=pl.where==='base';
+ var fromBase=pl.where==='base',fromPad=pl.where==='pad';
  if(fromBase){
-  pl.where='track';pl.idx=ENTRY[seat];pl.lap=0;
+  pl.where='pad';pl.idx=ENTRY[seat];pl.lap=0;pl.padLock=true;
   ev.push({k:'takeoff',pid:p.id,pl:plId,idx:ENTRY[seat],seat:seat});
  }else{
+  if(fromPad){pl.where='track';pl.padLock=false;ev.push({k:'launch',pid:p.id,pl:plId,idx:ENTRY[seat],seat:seat})}
   path.forEach(function(step){
    pl.where=step.where;pl.idx=step.idx;
    if(step.lap!=null)pl.lap=step.lap;
@@ -3494,6 +3491,7 @@ function applyMove(S,plId){
 function roll(S,forced){
  if(S.phase!=='play'||S.winner!=null)return{ok:false,err:'不能掷'};
  if(S.roll!=null)return{ok:false,err:'先走棋'};
+ if(!S.again)unlockPads(S,S.turn);
  var v=forced!=null?forced:(1+Math.floor(Math.random()*6));
  S.roll=v;
  var mov=movable(S,v);
@@ -3519,7 +3517,7 @@ function restore(S,snap){Object.keys(snap).forEach(function(k){S[k]=snap[k]});re
 var API={COLORS:COLORS,CNAMES:CNAMES,TKN:TKN,TRACK:TRACK,HOME:HOME,ENTRY:ENTRY,HOME_GATE:HOME_GATE,PLANES:PLANES,
  FLY_FROM:FLY_FROM,FLY_TO:FLY_TO,RING:RING,HOME_CELLS:HOME_CELLS,BASE_SLOTS:BASE_SLOTS,BASE_RECT:BASE_RECT,HANGAR_INSET:HANGAR_INSET,LANE_NUDGE:LANE_NUDGE,TAKEOFF_CELLS:TAKEOFF_CELLS,baseSlotsFromRect:baseSlotsFromRect,ringNudge:ringNudge,homeNudge:homeNudge,takeoffCell:takeoffCell,
  gridPct:gridPct,ringPos:ringPos,homePos:homePos,basePos:basePos,donePos:donePos,takeoffPos:takeoffPos,
- cellColor:cellColor,isFlyPad:isFlyPad,nextSameColor:nextSameColor,seatOf:seatOf,
+ cellColor:cellColor,isFlyPad:isFlyPad,nextSameColor:nextSameColor,seatOf:seatOf,unlockPads:unlockPads,
  newState:newState,startGame:startGame,cur:cur,movable:movable,pathFor:pathFor,applyMove:applyMove,roll:roll,
  planesAt:planesAt,isSafe:isSafe,snapshot:snapshot,restore:restore,dashEatCells:dashEatCells};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
@@ -4062,7 +4060,7 @@ var FLY=(function(){
 var E=window.FLYE,Store=GC.Store,Sound=GC.Sound,UI=GC.UI,Dice=GC.Dice,Select=GC.Select;
 var TKN=E.TKN,TKC=['#2f80ed','#f2b705','#e53935','#ff4fa3','#1fae5b','#8e44ec'];
 var root,S,busy=false,selv=null,timers=[],ro=null,lastDie=6,cancel=null,fxLayer=null,plateURL=null,bubs={},faceMood={};
-var pokeN={},pokeAt={},pokeLock=0,pokeBurst=0,pokeBurstT=0,duckUntil=0,lastToastTurn=null,lastToastAt=0,flyRoundN=1;
+var pokeN={},pokeAt={},pokeLock=0,pokeBurst=0,pokeBurstT=0,duckUntil=0,lastToastTurn=null,lastToastAt=0,flyRoundN=1,walkShow=null;
 function $q(s){return root.querySelector(s)}
 function later(f,ms){var t=setTimeout(f,ms);timers.push(t);return t}
 function esc(s){return UI.esc(s)}
@@ -4071,7 +4069,13 @@ function persistMood(p){if(!p)return null;if(S&&S.winner===p.id)return 'proud';v
 function tkAv(tok,sz,cls,mood){var src=avSrc(tok,mood),inn=src?'<img class="tkimg" src="'+src+'" alt="" draggable="false" decoding="async">':'<svg viewBox="-24 -24 48 48"><use href="#tk'+tok+'"/></svg>';return '<span class="tkm '+(cls||'')+'"'+(mood?' data-mood="'+mood+'"':'')+' style="width:'+sz+'px;height:'+sz+'px">'+inn+'</span>'}
 function eco(){try{return GC.Gfx&&GC.Gfx.mode()==='eco'}catch(e){return false}}
 function save(){if(S)S.sv=Date.now();Store.set('fly',S)}
-function load(){var s=Store.get('fly',null);if(s&&s.players&&s.players.length){S=s;if(!S.phase)S.phase='play'}else{S=E.newState()}}
+function load(){
+ var s=Store.get('fly',null);
+ if(s&&s.players&&s.players.length){
+  S=s;if(!S.phase)S.phase='play';
+  S.players.forEach(function(p){(p.planes||[]).forEach(function(pl){if(pl.padLock==null)pl.padLock=false})});
+ }else{S=E.newState()}
+}
 function isl(){return !!(root&&root.classList.contains('fl-island')&&window.FLY3D)}
 function seatOf(p){return E.seatOf?E.seatOf(p):(p&&p.seat!=null?p.seat:((p&&p.id)||0))}
 function planeImg(p){
@@ -4087,7 +4091,7 @@ function ringPos(i){return isl()?window.FLY3D.ringPos(i):E.ringPos(i)}
 function homePos(pid,idx){return isl()?window.FLY3D.homePos(pid,idx):E.homePos(pid,idx)}
 function basePos(pid,k){return isl()?window.FLY3D.basePos(pid,k):E.basePos(pid,k)}
 function cellXY(where,idx,pid){
- if(where==='track')return ringPos(idx);
+ if(where==='track'||where==='pad')return ringPos(idx);
  if(where==='home')return homePos(pid,idx);
  if(where==='done')return isl()?basePos(pid,0):E.donePos(pid);
  return basePos(pid,idx);
@@ -4259,6 +4263,7 @@ function reactMove(r,before){
  if(k.finish){sayReact(pid,'finishPlane',{mood:'proud'});return}
  if(k.fly){sayReact(pid,'fly12',{mood:'proud',tiny:1});return}
  if(k.jump){sayReact(pid,'jump',{mood:'happy',tiny:1});return}
+ if(k.launch){sayReact(pid,'takeoff',{mood:'happy',tiny:1});return}
  if(k.takeoff){sayReact(pid,'takeoff',{mood:'happy',tiny:1});return}
  if(k.triple6){sayReact(pid,'bounce',{mood:'sad'});return}
  var entered=r.path&&r.path.some(function(s){return s.where==='home'})&&before&&before.where!=='home'&&before.where!=='done';
@@ -4639,6 +4644,7 @@ function renderTokens(){
    var key;
    if(pl.where==='base')key='base|'+p.id+'|'+pl.id;
    else if(pl.where==='done')key='done|'+p.id+'|'+pl.id; /* finished → back to hangar pose */
+   else if(pl.where==='pad')key='pad|'+p.id+'|'+pl.idx;
    else key=pl.where+'|'+pl.idx+'|'+p.id;
    (groups[key]=groups[key]||[]).push({p:p,pl:pl});
   });
@@ -4648,18 +4654,23 @@ function renderTokens(){
   var g=groups[key];
   g.forEach(function(item,ii){
    var p=item.p,pl=item.pl,pos,off;
-   if(pl.where==='base'||pl.where==='done'){
+   var showWhere=pl.where,showIdx=pl.idx;
+   if(walkShow&&walkShow.pid===p.id&&walkShow.pl===pl.id){
+    showWhere=walkShow.where;showIdx=walkShow.idx;
+   }
+   if(showWhere==='base'||showWhere==='done'){
     pos=basePos(seatOf(p),pl.id);off={dx:0,dy:0};
    }else{
-    pos=cellXY(pl.where,pl.idx,seatOf(p));
+    pos=cellXY(showWhere,showIdx,seatOf(p));
     off=stackOffset(ii,g.length);
    }
    var can=S.pending&&S.pending.mov&&S.turn===p.id&&S.pending.mov.indexOf(pl.id)>=0;
-   var onPad=pl.where==='track'||pl.where==='home';
-   var go=can&&onPad;
-   var lit=pl.where==='base'&&pl.id===waitByPid[p.id];
-   var pose=pl.where==='done'?' done-pose':(pl.where==='base'?' at-base':(onPad?' in-flight':''));
-   var cls='fltok'+pose+(go?' go':'')+(lit?' takeoff-lit':'')+(can&&pl.where==='base'?' can-pick':'');
+   var walking=walkShow&&walkShow.pid===p.id&&walkShow.pl===pl.id;
+   var onPad=showWhere==='track'||showWhere==='home'||showWhere==='pad';
+   var go=can&&onPad&&!walkShow;
+   var lit=showWhere==='base'&&pl.id===waitByPid[p.id]&&!walkShow;
+   var pose=showWhere==='done'?' done-pose':(showWhere==='base'&&!walking?' at-base':(onPad||walking?' in-flight':''))+(showWhere==='pad'?' at-pad':'');
+   var cls='fltok'+pose+(go?' go':'')+(lit?' takeoff-lit':'')+(can&&pl.where==='base'?' can-pick':'')+(walking?' walking':'');
    var badge=pl.where==='done'?'<span class="fl-done-badge" aria-hidden="true">🏁</span>':'';
    var halo=(go||lit)?'<i class="flglow" aria-hidden="true"></i>':'';
    var alabel=esc(p.cname)+'飞机'+(pl.id+1)+(pl.where==='done'?'已到达终点':'');
@@ -4690,7 +4701,7 @@ function renderPanel(){
  var h='';
  (S.players||[]).forEach(function(p){
   var cur=S.phase==='play'&&p.id===S.turn,done=p.planes.filter(function(x){return x.where==='done'}).length;
-  var fly=p.planes.filter(function(x){return x.where==='track'||x.where==='home'}).length;
+  var fly=p.planes.filter(function(x){return x.where==='track'||x.where==='home'||x.where==='pad'}).length;
   h+='<div class="pc av1 flpc'+(cur?' cur':'')+(S.winner===p.id?' win':'')+'" data-pid="'+p.id+'" style="--pc:'+TKC[p.tok]+'">'+
    '<div class="pcm">'+tkAv(p.tok,72,'av',persistMood(p))+'<div class="pci"><div class="pn">'+esc(p.name)+(cur?'<em>▶</em>':'')+'</div>'+
    '<div class="pcb"><span class="np" title="飞机">✈️'+fly+'/4</span><span class="nw">🏁'+done+'</span>'+
@@ -4727,7 +4738,7 @@ function renderDock(){
  el.style.left=anc.l+'%';el.style.top=anc.t+'%';
  el.className='fldock fldock-c s-'+anc.k+(ready?' want':' idle')+(duck?' duck':'')+(S.phase==='over'?' over':'')+(noSlide?' no-slide':'');
  el.setAttribute('data-seat',seat);
- el.innerHTML='<div class="fldie-wrap'+(ready?' want':'')+'" id="flDieHit"'+(ready?' role="button" tabindex="0" aria-label="掷骰子"':'')+'><div class="fldie'+(ready?' pulse':'')+'" id="flDie">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
+ el.innerHTML='<div class="fldie-wrap'+(ready?' want':'')+'" id="flDieHit"'+(ready?' role="button" tabindex="0" aria-label="掷骰子"':'')+'><div class="fldie'+(ready?' pulse':'')+'" id="flDie" role="button" aria-label="掷骰子">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
   (ready?'<button class="btn big flroll" id="flRoll">🎲 掷骰子</button>':'')+
   (S.phase==='over'?'<button class="btn pri" id="flAgain">再来一局</button>':'')+
   (hint?'<div class="flhint" id="flHint">'+hint+'</div>':'');
@@ -4735,11 +4746,12 @@ function renderDock(){
   if(ev){ev.preventDefault();ev.stopPropagation()}
   if(S.phase==='play'&&S.roll==null&&!busy)doRoll();
  }
- var hit=$q('#flDieHit'),r=$q('#flRoll'),a=$q('#flAgain');
+ var hit=$q('#flDieHit'),d=$q('#flDie'),r=$q('#flRoll'),a=$q('#flAgain');
  if(hit){
   hit.onclick=tapRoll;
   hit.onkeydown=function(ev){if(ev&&(ev.key==='Enter'||ev.key===' '))tapRoll(ev)};
  }
+ if(d)d.onclick=tapRoll;
  if(r)r.onclick=tapRoll;
  if(a)a.onclick=function(){startNew()};
 }
@@ -4771,6 +4783,10 @@ function playMoveFx(r){
    var tp=ringPos(e.idx!=null?e.idx:E.ENTRY[takeSeat]);
    sparkAt(tp.x,tp.y,'take',8);
    duckDock(900);
+  }else if(e.k==='launch'){
+   var launchSeat=e.seat!=null?e.seat:(S.players[e.pid]?seatOf(S.players[e.pid]):e.pid);
+   var lp=ringPos(e.idx!=null?e.idx:E.ENTRY[launchSeat]);
+   sparkAt(lp.x,lp.y,'take',6);
   }else if(e.k==='triple6'){
    UI.toast('三连6!一架飞机回基地',1600,'warn');
   }
@@ -4805,7 +4821,7 @@ function doRoll(forced){
     else if(r.v===1)sayReact(S.turn,'lowRoll',{mood:'worried',tiny:1});
    }
    if(r.mov.length===1){later(function(){pickPlane(r.mov[0])},280)}
-  },light?{ms:480,stagger:80,tail:220,tick:90,cls:'flyroll-eco'}:{ms:1250,stagger:160,tail:420,tick:70,cls:'flyroll'});
+  },light?{ms:420,stagger:80,tail:220,tick:90}:null);
  }else{
   var r=E.roll(S,v);busy=false;save();render();
   if(r.ok&&r.passed)later(function(){noteTurnAdvance(prevTurn)},80);
@@ -4813,31 +4829,93 @@ function doRoll(forced){
  }
 }
 function wrapDie(die){var w=document.createElement('div');w.className='ctdw';die.innerHTML='';die.appendChild(w);var d=document.createElement('div');d.className='die';w.appendChild(d);return w}
+function walkMs(){return eco()||(UI.reduce&&UI.reduce())?40:300}
+function visSteps(r){
+ var steps=[],i,s,e,last;
+ if(r.path)for(i=0;i<r.path.length;i++){
+  s=r.path[i];
+  steps.push({where:s.where,idx:s.idx,kind:s.kind||'step'});
+ }
+ if(r.ev)for(i=0;i<r.ev.length;i++){
+  e=r.ev[i];
+  if(e.k!=='jump'&&e.k!=='fly')continue;
+  last=steps.length?steps[steps.length-1]:null;
+  if(!last||last.where!=='track'||last.idx!==e.to)steps.push({where:'track',idx:e.to,kind:e.k});
+ }
+ return steps;
+}
+function clearWalkHit(){
+ if(!root)return;
+ Array.prototype.forEach.call(root.querySelectorAll('.walkhit'),function(el){el.classList.remove('walkhit')});
+}
+function hitCell(where,idx,seat){
+ clearWalkHit();
+ if(!root)return;
+ if(where==='track'||where==='pad'){
+  var c=root.querySelector('.flc[data-i="'+idx+'"]');
+  if(c)c.classList.add('walkhit');
+ }else if(where==='home'){
+  var h=root.querySelector('.flhome[data-p="'+seat+'"][data-h="'+idx+'"]');
+  if(h)h.classList.add('walkhit');
+ }
+}
+function placeWalkTok(){
+ if(!walkShow||!root)return;
+ var b=root.querySelector('.fltok[data-p="'+walkShow.pid+'"][data-pl="'+walkShow.pl+'"]');
+ if(!b)return;
+ var p=S.players[walkShow.pid],pos=cellXY(walkShow.where,walkShow.idx,seatOf(p));
+ b.classList.add('walking','in-flight');
+ b.classList.remove('at-base','go','takeoff-lit');
+ b.style.left=pos.x+'%';
+ b.style.top=pos.y+'%';
+ hitCell(walkShow.where,walkShow.idx,seatOf(p));
+}
+function walkMove(pid,plId,before,r,done){
+ var steps=visSteps(r);
+ if(!steps.length){walkShow=null;done();return}
+ walkShow={pid:pid,pl:plId,where:before.where,idx:before.idx};
+ render();
+ var i=0,ms=walkMs(),p=S.players[pid];
+ function nx(){
+  if(i>=steps.length){walkShow=null;clearWalkHit();done();return}
+  var st=steps[i++];
+  walkShow.where=st.where;walkShow.idx=st.idx;
+  placeWalkTok();
+  try{Sound.step()}catch(e){}
+  if(!eco()){
+   var xy=cellXY(st.where,st.idx,seatOf(p));
+   sparkAt(xy.x,xy.y,'trail',2);
+  }
+  later(nx,st.kind==='fly'?ms*2:(st.kind==='jump'||st.kind==='takeoff'?ms+60:ms));
+ }
+ if(typeof requestAnimationFrame==='function')requestAnimationFrame(function(){later(nx,eco()?16:48)});
+ else later(nx,eco()?16:48);
+}
 function pickPlane(plId){
  if(busy||S.roll==null)return;
  busy=true;
- var before=null,prevTurn=S.turn;
- try{before=S.players[S.turn].planes[plId];before={where:before.where,idx:before.idx}}catch(e){}
+ var before=null,prevTurn=S.turn,pid=S.turn;
+ try{before=S.players[S.turn].planes[plId];before={where:before.where,idx:before.idx}}catch(e){before={where:'track',idx:0}}
  var r=E.applyMove(S,plId);
- busy=false;
- if(!r.ok){UI.toast(r.err||'不能走',1400,'warn');return}
+ if(!r.ok){busy=false;UI.toast(r.err||'不能走',1400,'warn');return}
  save();
- /* flight trail along dice path */
- if(r.path&&r.path.length&&!eco()){
-  var pid=S.hist.length?S.hist[S.hist.length-1].pid:0;
-  var pts=r.path.filter(function(s){return s.where==='track'}).map(function(s){return ringPos(s.idx)});
-  trailAlong(pts);
+ if(before&&before.where==='base')duckDock(1100);
+ function finish(){
+  walkShow=null;clearWalkHit();
+  playMoveFx(r);
+  if(r.sent&&r.sent.length){Sound.seq([[880,.06],[440,.1]]);UI.toast('叠吃!送回基地',1200,'star')}
+  else if(r.ev&&r.ev.some(function(e){return e.k==='takeoff'})){Sound.seq([[523,.08],[784,.12]]);UI.toast('先到停机坪!',1100,'star')}
+  else if(r.ev&&r.ev.some(function(e){return e.k==='launch'})){Sound.seq([[523,.08],[784,.12]]);if(!r.ev.some(function(e){return e.k==='jump'||e.k==='fly'}))UI.toast('正式起飞!',1100,'star')}
+  else if(r.ev&&r.ev.some(function(e){return e.k==='finish'})){Sound.hi();UI.toast('到达终点!',1400,'star')}
+  else if(!(r.ev&&r.ev.some(function(e){return e.k==='jump'||e.k==='fly'})))Sound.pop();
+  if(S.phase==='over'){var w=S.players[S.winner];try{GC.Intro.banner(w.tok,w.name,'飞到终点啦!')}catch(e){}UI.toast('🏆 '+w.name+' 飞到终点!',2500,'star')}
+  else if(S.again)UI.toast('再掷一次!',1000,'info');
+  render();
+  reactMove(r,before);
+  busy=false;
+  later(function(){noteTurnAdvance(prevTurn)}, eco()||(UI.reduce&&UI.reduce())?80:280);
  }
- playMoveFx(r);
- if(r.sent&&r.sent.length){Sound.seq([[880,.06],[440,.1]]);UI.toast('叠吃!送回基地',1200,'star')}
- else if(r.ev&&r.ev.some(function(e){return e.k==='takeoff'})){Sound.seq([[523,.08],[784,.12]]);if(!r.ev.some(function(e){return e.k==='jump'||e.k==='fly'}))UI.toast('起飞!',1000,'star')}
- else if(r.ev&&r.ev.some(function(e){return e.k==='finish'})){Sound.hi();UI.toast('到达终点!',1400,'star')}
- else if(!(r.ev&&r.ev.some(function(e){return e.k==='jump'||e.k==='fly'})))Sound.pop();
- if(S.phase==='over'){var w=S.players[S.winner];try{GC.Intro.banner(w.tok,w.name,'飞到终点啦!')}catch(e){}UI.toast('🏆 '+w.name+' 飞到终点!',2500,'star')}
- else if(S.again)UI.toast('再掷一次!',1000,'info');
- render();
- reactMove(r,before);
- later(function(){noteTurnAdvance(prevTurn)}, eco()||(UI.reduce&&UI.reduce())?80:420);
+ walkMove(pid,plId,before,r,finish);
 }
 function rulesModal(){
  UI.modal('<h2>飞行棋规则</h2><p style="text-align:left;line-height:1.5">'+
@@ -4845,7 +4923,8 @@ function rulesModal(){
   '• 走到自己颜色的 <b>✈ 飞机格</b>（连着虚线航线）→ 沿虚线 <b>横飞 +12</b> 格<br>'+
   '• 横飞路上能 <b>撞掉</b> 别人的飞机；起飞落到格上 <b>不</b> 触发横飞<br><br>'+
   '<b>其他规则</b><br>'+
-  '• 掷到 <b>6</b> 才能起飞，并可再掷一次<br>'+
+  '• 掷到 <b>6</b>：机库飞机先到本色起飞格（<b>停机坪</b>），本回合停在那儿；<b>下一回合</b>才沿跑道<b>顺时针</b>正式起飞<br>'+
+  '• 掷到 6 还可再掷一次（刚上停机坪的那架本回合不能再走）<br>'+
   '• 落到自己颜色格子（彩色格，或中间小圆点是自己颜色）→ <b>同色跳跃</b>到下一同色格<br>'+
   '• 己方飞机可<b>叠机</b>；敌机落到叠机上 → 整叠回基地<br>'+
   '• <b>★ 星星格</b>是安全区，不能被吃<br>'+
@@ -4894,7 +4973,7 @@ return{
   if(S&&S.players&&S.players.length)flyRoundN=1+Math.floor(((S.hist&&S.hist.length)||0)/S.players.length);
   /* v14：默认 3D 卡通海岛棋盘；setBoardStyle('print'|'plastic') 可切回旧外观 */
   r.classList.add('gm-fly',window.FLY3D?'fl-island':'fl-print');
-  r.innerHTML='<div class="fllay"><div class="flbw"><div id="flb" class="flb"></div></div><div class="flside"><div class="flp" id="flp"></div><div class="flruletip" title="虚线横飞规则"><b>本色✈飞机格</b><br>= 沿虚线横飞+12<br>★星星格安全 · 同色格跳跃<br><span>掷6起飞 · 起飞不触发跳/飞</span></div></div></div>';
+  r.innerHTML='<div class="fllay"><div class="flbw"><div id="flb" class="flb"></div></div><div class="flside"><div class="flp" id="flp"></div><div class="flruletip" title="飞行棋规则"><b>本色✈飞机格</b><br>= 沿虚线横飞+12<br>★星星格安全 · 同色格跳跃<br><span>掷6先到停机坪 · 下回合顺时针起飞</span></div></div></div>';
   var nr=ctx.nav('list','规则',{id:'flRules'}),nn=ctx.nav('refresh','新局',{id:'flNew'}),ne=ctx.nav('star','省电',{id:'flEco'});
   ctx.slot.appendChild(nr);ctx.slot.appendChild(nn);ctx.slot.appendChild(ne);
   nr.onclick=function(){Sound.tap();rulesModal()};
@@ -4907,7 +4986,7 @@ return{
   if(window.ResizeObserver){ro=new ResizeObserver(function(){fit()});ro.observe(root)}else window.addEventListener('resize',fit);
   fit();
  },
-  unmount:function(){timers.forEach(clearTimeout);timers=[];bubs={};faceMood={};pokeN={};pokeAt={};duckUntil=0;lastToastTurn=null;if(cancel)cancel();if(ro)ro.disconnect();ro=null;if(S)save();if(selv){try{selv.remove()}catch(e){}}selv=null;document.documentElement.classList.remove('fl-land');fxLayer=null;if(plateURL){try{URL.revokeObjectURL(plateURL)}catch(e){}plateURL=null}root=null},
+  unmount:function(){timers.forEach(clearTimeout);timers=[];bubs={};faceMood={};pokeN={};pokeAt={};duckUntil=0;lastToastTurn=null;walkShow=null;if(cancel)cancel();if(ro)ro.disconnect();ro=null;if(S)save();if(selv){try{selv.remove()}catch(e){}}selv=null;document.documentElement.classList.remove('fl-land');fxLayer=null;if(plateURL){try{URL.revokeObjectURL(plateURL)}catch(e){}plateURL=null}root=null},
  api:api
 };
 })();
