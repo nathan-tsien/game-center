@@ -1,0 +1,10 @@
+<style>
+.btn{white-space:nowrap}.btn.big{font-size:22px;flex:1.6!important;max-width:300px!important}
+.cl,.cr2{flex:none;display:flex;flex-direction:column;gap:8px}
+body[data-route=home] #nav{position:absolute;top:env(safe-area-inset-top);left:env(safe-area-inset-left);right:env(safe-area-inset-right)}
+body[data-route=home] .hub{padding-top:70px}
+body[data-route=cards]{background:#bfe6ff}body[data-route=dice]{background:#ffe2a8}body[data-route=flight]{background:#7fd1ff}
+body[data-route=home]{background:#9fe3ff}body[data-route=china]{background:#ffe9a8}
+@media (orientation:landscape) and (min-height:561px){.cl,.cr2{display:contents}}
+@media (max-height:500px) and (orientation:landscape){body[data-route=home] .hub{padding-top:56px}}
+</style>

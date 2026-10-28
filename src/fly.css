@@ -1,0 +1,268 @@
+/* ===== 飞行棋 · 经典十字 15×15 · 粘土玩具融合 · iPad 横屏 ~82/18 ===== */
+.gm-fly{padding:0;gap:0;background:linear-gradient(#9fd6ff 0%,#c8e8ff 28%,#ffe6f2 55%,#fff3d6 100%);position:absolute;inset:0;overflow:hidden}
+.fllay{position:absolute;inset:0;display:flex;flex-direction:column;gap:4px;padding:4px}
+.gm-fly.land .fllay{flex-direction:row;align-items:stretch;gap:8px;padding:4px 6px}
+.flbw{flex:1;min-width:0;min-height:0;display:flex;align-items:center;justify-content:center}
+.gm-fly.land .flbw{flex:0 0 82%;max-width:82%}
+.flside{flex:none;display:flex;flex-direction:column;gap:6px;min-height:0}
+.gm-fly.land .flside{flex:0 0 18%;width:18%;max-width:200px;height:100%}
+
+/* Square classic board — wood trim + soft clay plate */
+.flb{position:relative;width:min(100%,100%);height:min(100%,100%);aspect-ratio:1/1;
+ max-width:100%;max-height:100%;
+ background:
+  radial-gradient(ellipse at 50% 40%,#fff8e8 0%,#f0d9b0 55%,#e2c090 100%);
+ border:5px solid #c49a5c;
+ border-radius:22px;
+ box-shadow:
+  0 0 0 3px #8b6230,
+  0 12px 0 rgba(100,55,20,.18),
+  0 20px 36px rgba(0,0,0,.2),
+  inset 0 2px 0 #fff8,
+  inset 0 -3px 8px rgba(120,70,20,.12);
+ overflow:hidden}
+.gm-fly.land .flb{width:auto;height:100%;max-width:100%;aspect-ratio:1/1}
+.flsky{position:absolute;inset:0;pointer-events:none;z-index:0;
+ background:
+  radial-gradient(circle at 14% 12%,#ffffff66 0 5%,transparent 6%),
+  radial-gradient(circle at 86% 14%,#ffffff55 0 4%,transparent 5%),
+  radial-gradient(circle at 50% 92%,#ffffff33 0 8%,transparent 10%),
+  linear-gradient(#8ec8ff18 0%,transparent 42%)}
+.flplate{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+.fldash-layer{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none}
+.flrail-layer{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+/* guides above cells so格上飞机/起飞垫/进家标可见；仍低于棋子 */
+.flguide-layer{position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none}
+.gq-eco .flguide-layer{opacity:.55}
+.gq-eco .flguide-ring-dash{stroke-opacity:.2}
+.gq-eco .flguide-flow,.gq-eco .flguide-takeoff,.gq-eco .flguide-homegate{opacity:.7}
+
+/* Track cells — chunky pastel plastic tiles */
+.flc{position:absolute;transform:translate(-50%,-50%);border-radius:18%;
+ background:linear-gradient(165deg,#fffef8 0%,#f2ebe0 45%,#e4d8c8 100%);
+ border:2.5px solid #d4c2a8;
+ box-shadow:
+  0 4px 0 rgba(80,50,20,.14),
+  0 6px 10px rgba(0,0,0,.08),
+  inset 0 3px 0 #fff,
+  inset 0 -3px 5px rgba(0,0,0,.08);
+ display:flex;align-items:center;justify-content:center;z-index:2;box-sizing:border-box}
+/* pastel soft RYBG — classic identity */
+.flc.c0{background:linear-gradient(165deg,#ffd6de 0%,#ff9aaa 48%,#e85a70 100%);border-color:#d84860;
+ box-shadow:0 4px 0 rgba(160,40,60,.28),0 6px 10px rgba(0,0,0,.1),inset 0 3px 0 #ffecef,inset 0 -3px 5px rgba(120,20,40,.18)}
+.flc.c1{background:linear-gradient(165deg,#fff4c8 0%,#f5d24e 48%,#e0b010 100%);border-color:#d4a808;
+ box-shadow:0 4px 0 rgba(160,120,10,.28),0 6px 10px rgba(0,0,0,.1),inset 0 3px 0 #fffceb,inset 0 -3px 5px rgba(120,90,0,.16)}
+.flc.c2{background:linear-gradient(165deg,#d4e8ff 0%,#86b8f5 48%,#4a8fe0 100%);border-color:#3a7ed0;
+ box-shadow:0 4px 0 rgba(40,90,160,.28),0 6px 10px rgba(0,0,0,.1),inset 0 3px 0 #eef6ff,inset 0 -3px 5px rgba(20,60,120,.18)}
+.flc.c3{background:linear-gradient(165deg,#d8f8d0 0%,#78d070 48%,#3aae3a 100%);border-color:#2a9a2a;
+ box-shadow:0 4px 0 rgba(30,120,40,.28),0 6px 10px rgba(0,0,0,.1),inset 0 3px 0 #eefcee,inset 0 -3px 5px rgba(10,80,20,.18)}
+.flc.safe{box-shadow:0 0 0 2.5px #f0c840,0 4px 0 rgba(80,50,20,.14),inset 0 3px 0 #fff}
+.flc.entry{z-index:3;box-shadow:0 4px 0 rgba(80,50,20,.16),inset 0 3px 0 #fff9}
+.flc.entry.lit,.flbase.lit{box-shadow:0 0 0 3px #ffd23f,0 0 14px #ffd23faa;animation:fllit 1s ease-in-out infinite}
+@keyframes fllit{50%{filter:brightness(1.12)}}
+.gq-eco .flc.entry.lit,.gq-eco .flbase.lit{animation:none}
+/* idle 飞垫：无粗虚线 outline/glow（避免像选中）；细虚线由 .fldash 层表达横飞 */
+.flc.flypad{outline:none;box-shadow:0 4px 0 rgba(80,50,20,.14),inset 0 3px 0 #fff}
+.flmark{display:block;width:58%;height:58%;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff 0%,#f5f0e8 70%,#e8e0d4 100%);
+ box-shadow:inset 0 2px 4px rgba(0,0,0,.18),inset 0 -1px 0 #fff8,0 1px 0 #fff6}
+.flmark.entry-mark{width:58%;height:58%;box-shadow:inset 0 2px 4px rgba(0,0,0,.18),inset 0 -1px 0 #fff8;border:2px solid rgba(255,255,255,.55);opacity:.92}
+/* gate 格心标改轻：SVG 层已有「飞机斜线」圆标，避免双层大红环像选中 */
+.flmark.gate-mark{width:58%;height:58%;background:
+ radial-gradient(circle at 40% 35%,#fff 0%,#f5f0e8 55%,#e8e0d4 100%);
+ box-shadow:inset 0 2px 3px rgba(0,0,0,.12);position:relative;opacity:.55}
+.flmark.gate-mark::after{content:none}
+.flmark.fly-mark{display:flex;align-items:center;justify-content:center;width:58%;height:58%;
+ background:radial-gradient(circle at 40% 30%,#fff 0%,#f5f0e8 70%,#e8e0d4 100%);
+ color:#5a3ea0;font-size:10px;font-weight:900;line-height:1;opacity:.85;
+ box-shadow:inset 0 2px 3px rgba(0,0,0,.12)}
+
+/* Home stretch — same chunky plastic tiles as outer track (continuous road) */
+.flhome{position:absolute;transform:translate(-50%,-50%);border-radius:18%;
+ background:linear-gradient(165deg,#fffef8 0%,#f2ebe0 45%,#e4d8c8 100%);
+ border:2.5px solid #d4c2a8;
+ box-shadow:
+  0 4px 0 rgba(80,50,20,.14),
+  0 6px 10px rgba(0,0,0,.08),
+  inset 0 3px 0 #fff,
+  inset 0 -3px 5px rgba(0,0,0,.08);
+ display:flex;align-items:center;justify-content:center;z-index:5;box-sizing:border-box}
+.flhome.c0{background:linear-gradient(165deg,#ffd6de 0%,#ff9aaa 48%,#e85a70 100%);border-color:#d84860;
+ box-shadow:0 4px 0 rgba(160,40,60,.28),0 6px 10px rgba(0,0,0,.1),inset 0 3px 0 #ffecef,inset 0 -3px 5px rgba(120,20,40,.18)}
+.flhome.c1{background:linear-gradient(165deg,#fff4c8 0%,#f5d24e 48%,#e0b010 100%);border-color:#d4a808;
+ box-shadow:0 4px 0 rgba(160,120,10,.28),0 6px 10px rgba(0,0,0,.1),inset 0 3px 0 #fffceb,inset 0 -3px 5px rgba(120,90,0,.16)}
+.flhome.c2{background:linear-gradient(165deg,#d4e8ff 0%,#86b8f5 48%,#4a8fe0 100%);border-color:#3a7ed0;
+ box-shadow:0 4px 0 rgba(40,90,160,.28),0 6px 10px rgba(0,0,0,.1),inset 0 3px 0 #eef6ff,inset 0 -3px 5px rgba(20,60,120,.18)}
+.flhome.c3{background:linear-gradient(165deg,#d8f8d0 0%,#78d070 48%,#3aae3a 100%);border-color:#2a9a2a;
+ box-shadow:0 4px 0 rgba(30,120,40,.28),0 6px 10px rgba(0,0,0,.1),inset 0 3px 0 #eefcee,inset 0 -3px 5px rgba(10,80,20,.18)}
+.flhome .flmark{width:58%;height:58%;background:radial-gradient(circle at 40% 35%,#fff 0%,#f5f0e8 70%,#e8e0d4 100%);
+ box-shadow:inset 0 2px 4px rgba(0,0,0,.18),inset 0 -1px 0 #fff8,0 1px 0 #fff6}
+
+/* Hangar label overlay */
+.flbase{position:absolute;border-radius:14px;background:transparent;border:0;
+ z-index:1;display:flex;align-items:flex-start;justify-content:center;padding-top:1.8%;pointer-events:none}
+.flbase span{font-size:10px;font-weight:900;color:#fff;background:var(--bc);padding:2px 8px;border-radius:9px;z-index:2;
+ box-shadow:0 2px 0 rgba(0,0,0,.22),inset 0 1px 0 #fff6;opacity:.95;letter-spacing:.04em}
+
+/* Center finish — 极小中心点标，四色三角对顶清晰可见 */
+.flfin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;z-index:4;pointer-events:none;width:auto}
+.flfin b{font-size:10px;font-weight:900;color:#6b4a28;line-height:1;
+ background:linear-gradient(180deg,#fffef8 0%,#fff 50%,#f0e8d8 100%);
+ border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+ box-shadow:
+  0 2px 0 rgba(120,80,30,.16),
+  0 3px 8px rgba(0,0,0,.1),
+  inset 0 1px 0 #fff,
+  0 0 0 2px rgba(255,255,255,.75);
+ letter-spacing:0}
+
+#fltok{position:absolute;inset:0;z-index:6;pointer-events:none}
+/* track tokens ~5.5%; base tokens ~4.5% ≈ pit diameter so they sit in X slots */
+.fltok{position:absolute;width:5.5%;height:5.5%;transform:translate(-50%,-50%);border:0;background:transparent;padding:0;cursor:pointer;pointer-events:auto;
+ filter:drop-shadow(0 4px 3px rgba(0,0,0,.42));transition:left .28s ease-out,top .28s ease-out,transform .2s}
+.fltok .fl-plane,.fltok .fl-plane-img{width:100%;height:100%;display:block;object-fit:contain}
+/* no PNG translate on base — avoid pushing wings past hangar white rim */
+.fltok.in-flight .fl-plane-img{transform:none}
+.fltok .fl-plane{transform:none}
+/* base waiting vs finished pose — kids see 🏁 home */
+.fltok.at-base{width:3.6%;height:3.6%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.28))}
+.fltok.in-flight{width:5.2%;height:5.2%;filter:drop-shadow(0 5px 4px rgba(0,0,0,.45))}
+.fltok.done-pose{z-index:7;width:3.8%;height:3.8%;
+ filter:drop-shadow(0 0 0 #ffd23f) drop-shadow(0 0 6px #ffd23fcc) drop-shadow(0 3px 2px rgba(0,0,0,.35));
+ outline:2.5px solid #ffd23f;outline-offset:1px;border-radius:50%;
+ transform:translate(-50%,-50%) rotate(-18deg) scale(1.04)}
+.fltok.done-pose .fl-plane-img,.fltok.done-pose .fl-plane{filter:saturate(1.15) brightness(1.06)}
+.fl-done-badge{position:absolute;right:-6%;top:-8%;font-size:13px;line-height:1;
+ background:linear-gradient(180deg,#fffef8,#ffe9a8);border-radius:999px;padding:2px 4px;
+ box-shadow:0 2px 0 rgba(120,80,20,.25),0 0 0 2px #fff;pointer-events:none;z-index:2}
+.fltok.go{z-index:8;animation:flgo 1s ease-in-out infinite;outline:3px solid #ffd23f;outline-offset:2px;border-radius:50%}
+.fltok.takeoff-lit{z-index:7;outline:3px solid #7ef0a0;outline-offset:2px;border-radius:50%;animation:flgo 1s ease-in-out infinite}
+@keyframes flgo{50%{transform:translate(-50%,-58%) scale(1.08)}}
+.gq-eco .fltok.go,.gq-eco .fltok.takeoff-lit{animation:none}
+
+.flfx{position:absolute;inset:0;pointer-events:none;z-index:9;overflow:hidden}
+.flsp{position:absolute;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:hsl(var(--h,50) 90% 60%);box-shadow:0 0 6px hsl(var(--h,50) 90% 70%);
+ animation:flsp 0.85s ease-out forwards;pointer-events:none}
+.flsp.trail{width:6px;height:6px;background:#ffd23f;box-shadow:0 0 8px #ffd23f}
+.flsp.boom{background:#ff6b3d;box-shadow:0 0 10px #ff9a40}
+.flsp.flyburst{width:10px;height:10px;background:#fff;box-shadow:0 0 12px #ffd23f}
+.flsp.take{background:#7ef0a0}
+@keyframes flsp{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
+.gq-eco .flfx{display:none}
+
+.flp{flex:1;min-height:0;overflow-y:auto;overflow-x:visible;display:flex;flex-direction:column;gap:6px;padding:2px}
+.flpc.pc.av1{padding:6px 8px;overflow:visible}
+.flpc .tkm.av{width:72px!important;height:72px!important}
+.flpc .pbub{font-size:11px;padding:4px 6px;bottom:4px;z-index:6}
+.gm-fly.fl-island .flpc .pbub{background:#fffef8}
+.flpc .bd{display:inline-block;color:#fff;font-size:11px;font-weight:900;padding:1px 6px;border-radius:8px}
+.fldock{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 4px 8px}
+.fldie-wrap{position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center}
+.fldie-wrap::before{content:'';position:absolute;left:50%;bottom:2px;transform:translateX(-50%);width:70px;height:18px;border-radius:50%;
+ background:radial-gradient(ellipse,#ffd23fcc,#ff9a4044 55%,transparent 70%);box-shadow:0 0 18px #ffd23faa;z-index:0}
+.fldie{position:relative;z-index:1;width:68px;height:68px;cursor:pointer;filter:drop-shadow(0 8px 6px rgba(0,0,0,.35))}
+.fldie.pulse{animation:dieidle 1.6s ease-in-out infinite}
+.fldie svg,.fldie .die{width:100%;height:100%}
+.fldie .ctdw{width:100%;height:100%}
+.flhint{font-size:13px;font-weight:900;text-align:center;line-height:1.25;color:#5a3ea0;min-height:2.4em}
+.fldock .btn.big{min-height:48px;font-size:18px;padding:0 14px;width:100%;max-width:none}
+.gq-eco .fldie.pulse{animation:none}
+@media (max-width:700px){.flpc .tkm.av{width:56px!important;height:56px!important}.fldie-wrap{width:68px;height:68px}.fldie{width:54px;height:54px}}
+
+/* Always-visible fly rule tip — under sidebar, kid glance */
+.flruletip{flex:none;margin:2px 4px 4px;padding:7px 8px;border-radius:12px;font-size:11px;font-weight:800;line-height:1.35;color:#5a3ea0;text-align:center;
+ background:linear-gradient(180deg,#fffefbcc,#fff8e8ee);border:2px solid #fff;
+ box-shadow:0 3px 0 rgba(120,80,30,.14),0 4px 10px rgba(0,0,0,.1)}
+.flruletip b{display:inline-block;color:#e0485e;font-weight:900}
+.flruletip span{display:inline-block;margin-top:2px;font-size:10px;color:#8a6ab0;font-weight:700}
+@media (max-width:700px){.flruletip{font-size:10px;padding:5px 6px}}
+
+/* Dash path flash when 横飞 triggers */
+.fldash-path.lit .fldash-stroke{stroke-width:8;animation:fldashlit .7s ease-in-out 2}
+@keyframes fldashlit{50%{opacity:1;stroke-width:10}}
+.gq-eco .fldash-path.lit .fldash-stroke{animation:none}
+
+
+/* ===== v13 一比一印刷棋扁平风（默认交付；setPrintMode(false) 可切塑料） ===== */
+.gm-fly.fl-print{
+ background:#c8b896 linear-gradient(#d4c4a0,#c8b896)!important;
+}
+.gm-fly.fl-print .flb{
+ background:#e8d9b8;
+ border:3px solid #8b6230;
+ border-radius:10px;
+ box-shadow:0 3px 0 rgba(80,50,20,.16), inset 0 0 0 1px #fff6;
+}
+.gm-fly.fl-print .flsky{display:none}
+/* 主环：扁平彩色方格 + 中央白圆；格与格几乎贴齐，禁止立体按钮感 */
+.gm-fly.fl-print .flc{
+ border-radius:2%;
+ background:#ddd;
+ border:1.5px solid #2a1a0a;
+ box-shadow:none!important;
+ outline:none!important;
+}
+.gm-fly.fl-print .flc.c0{background:#e0485e;border-color:#2a1a0a}
+.gm-fly.fl-print .flc.c1{background:#f2c200;border-color:#2a1a0a}
+.gm-fly.fl-print .flc.c2{background:#4a8fe0;border-color:#2a1a0a}
+.gm-fly.fl-print .flc.c3{background:#4cae4c;border-color:#2a1a0a}
+.gm-fly.fl-print .flc.safe{box-shadow:none!important}
+.gm-fly.fl-print .flc.flypad{outline:none!important;box-shadow:none!important}
+.gm-fly.fl-print .flc.entry{box-shadow:none!important}
+.gm-fly.fl-print .flmark{
+ width:68%;height:68%;
+ background:#fffef8;
+ box-shadow:none!important;
+ border:1.5px solid rgba(42,26,10,.28);
+}
+.gm-fly.fl-print .flmark.entry-mark{border:2px solid #fff;opacity:1;background:currentColor}
+.gm-fly.fl-print .flmark.fly-mark{font-size:0;opacity:0;color:transparent}
+.gm-fly.fl-print .flmark.gate-mark{opacity:.35}
+/* 回家道：与主环同构的本色方格+白圆（非透明圆） */
+.gm-fly.fl-print .flhome{
+ border-radius:2%;
+ border:1.5px solid #2a1a0a!important;
+ box-shadow:none!important;
+}
+.gm-fly.fl-print .flhome.c0{background:#e0485e!important;border-color:#2a1a0a!important}
+.gm-fly.fl-print .flhome.c1{background:#f2c200!important;border-color:#2a1a0a!important}
+.gm-fly.fl-print .flhome.c2{background:#4a8fe0!important;border-color:#2a1a0a!important}
+.gm-fly.fl-print .flhome.c3{background:#4cae4c!important;border-color:#2a1a0a!important}
+.gm-fly.fl-print .flhome .flmark{
+ width:68%;height:68%;
+ background:#fffef8;
+ border:1.5px solid rgba(42,26,10,.28);
+ box-shadow:none!important;
+}
+.gm-fly.fl-print .flbase span{display:none}
+.gm-fly.fl-print .flfin{display:none}
+/* 机库装饰剪影已在 SVG；idle 棋子隐藏，但可走/起飞高亮必须可见可点 */
+.gm-fly.fl-print .fltok.at-base:not(.go):not(.takeoff-lit){display:none}
+.gm-fly.fl-print .fltok.done-pose:not(.go){display:none}
+.gm-fly.fl-print .flguide-ring,.gm-fly.fl-print .flguide-ring-dash{opacity:.22}
+.gm-fly.fl-print .flguide-flow{opacity:.28}
+.gm-fly.fl-print .fldash-stroke{stroke-width:3.2!important;stroke-dasharray:9 8}
+
+/* ===== v14 3D 卡通海岛棋盘（默认）：静态 SVG 画盘，DOM 格只做命中/高亮 ===== */
+.gm-fly.fl-island{background:radial-gradient(ellipse at 50% 30%,#d9f4ff 0%,#a8e2fb 45%,#7fcdf0 100%)}
+.gm-fly.fl-island .flb{background:#2fb3e6;border:0;border-radius:28px;
+ box-shadow:0 0 0 4px #fff8,0 10px 0 rgba(20,90,140,.22),0 18px 34px rgba(10,60,100,.28)}
+.gm-fly.fl-island .flsky{display:none}
+.gm-fly.fl-island .fl3d-plate{z-index:1}
+.gm-fly.fl-island .flc,.gm-fly.fl-island .flhome{background:transparent!important;border:0!important;box-shadow:none!important;outline:none!important;border-radius:24%;pointer-events:none}
+.gm-fly.fl-island .flc.entry.lit{box-shadow:0 0 0 3px #fff,0 0 0 6px #ffd23f,0 0 18px #ffd23f!important;animation:fllit 1s ease-in-out infinite}
+.gm-fly.fl-island .flbase{border-radius:9%}
+.gm-fly.fl-island .flbase.lit{box-shadow:0 0 0 4px #fff,0 0 0 8px #ffd23f,0 0 26px #ffd23fcc;animation:fllit 1s ease-in-out infinite}
+.gm-fly.fl-island .flbase span{display:none}
+.gm-fly.fl-island .flfin{display:none}
+.gm-fly.fl-island .fl3d-dash{z-index:4}
+.gm-fly.fl-island .fl3d-dash .fldash-path{opacity:0;transition:opacity .25s}
+.gm-fly.fl-island .fl3d-dash .fldash-path.lit{opacity:1}
+.gm-fly.fl-island .fltok{filter:drop-shadow(0 2px 1.5px rgba(0,40,70,.3))}
+.gm-fly.fl-island .fltok.in-flight{width:5.2%;height:5.2%}
+.gm-fly.fl-island .fltok.at-base{width:4.7%;height:4.7%;filter:drop-shadow(0 1.5px 1px rgba(0,0,0,.22))}
+.gm-fly.fl-island .fltok.done-pose{width:4.7%;height:4.7%;outline:0;transform:translate(-50%,-50%);--tb:#ffd23f;--tr:#c98a00;
+ filter:drop-shadow(0 0 4px #ffe58acc) drop-shadow(0 1.5px 1px rgba(0,0,0,.22))}
+.gm-fly.fl-island .fl-done-badge{display:none}
+.gm-fly.fl-island .fltok.go,.gm-fly.fl-island .fltok.takeoff-lit{outline:0;border-radius:50%;
+ filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 5px #fff) drop-shadow(0 0 9px #ffd23f)}
+.gm-fly.fl-island .fl3d-tok{width:100%;height:100%;display:block;overflow:visible}
