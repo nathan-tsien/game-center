@@ -380,6 +380,27 @@ var Select=GC.Select={
   var sel=(o.pre||[]).map(function(x){return{tok:x.tok,name:x.name||'',seat:x.seat}});
   var el=document.createElement('div');el.className='selv'+(SEATS?' bindseat':'');host.appendChild(el);UI.enter(el,'r');
   function seatMeta(si){var r=null;if(SEATS)SEATS.forEach(function(s){if(s.i===si)r=s});return r}
+  function nextFreeSeat(skip){
+   if(!SEATS)return null;
+   var i,st;
+   for(i=0;i<SEATS.length;i++){
+    st=SEATS[i];
+    if(skip&&skip[st.i])continue;
+    if(!sel.some(function(s){return s.seat===st.i}))return st.i;
+   }
+   return null;
+  }
+  function takeSeat(who,si){
+   if(!who||si==null||si<0||si>3)return;
+   var prev=null,old=who.seat;
+   sel.forEach(function(s){if(s!==who&&s.seat===si)prev=s});
+   who.seat=si;
+   if(prev){
+    if(old!=null&&old!==si&&!sel.some(function(s){return s!==prev&&s.seat===old}))prev.seat=old;
+    else prev.seat=nextFreeSeat();
+   }
+  }
+  if(SEATS)sel.forEach(function(s){if(s.seat==null||s.seat<0||s.seat>3)s.seat=nextFreeSeat()});
   function ready(){if(sel.length<o.min)return false;if(SEATS&&sel.some(function(s){return s.seat==null||s.seat<0||s.seat>3}))return false;return true}
   function draw(){
    var h='<div class="selh"><h1>'+(o.title||'选择你的角色')+'</h1><p>'+(o.sub||'每位玩家点一个自己的棋子;点第一个的人先走')+'</p></div>';
@@ -390,7 +411,7 @@ var Select=GC.Select={
     SEATS.forEach(function(st){
      var own=null;sel.forEach(function(s){if(s.seat===st.i)own=s});
      var mine=who&&who.seat===st.i,taken=!!own&&!mine;
-     h+='<button type="button" class="seatsw'+(mine?' on':'')+(taken?' taken':'')+'" data-seat="'+st.i+'" style="--sc:'+st.color+'" '+(taken?'disabled':'')+' aria-label="'+st.name+'色飞机 '+st.corner+'">'+(mine?'✓ ':'')+st.name+'<small>'+st.corner+'</small></button>';
+     h+='<button type="button" class="seatsw'+(mine?' on':'')+(taken?' taken':'')+'" data-seat="'+st.i+'" style="--sc:'+st.color+'" aria-label="'+st.name+'色飞机 '+st.corner+(taken?' 已有人选,点了会换过来':'')+'">'+(mine?'✓ ':'')+st.name+'<small>'+(taken?'给'+(T[own.tok]?T[own.tok].name:''):st.corner)+'</small></button>';
     });
     h+='</div></div>';
    }
@@ -409,7 +430,7 @@ var Select=GC.Select={
      sel.splice(k,1);if(focus===i)focus=-1;Sound.tap()
     }else{
      if(sel.length>=o.max){UI.toast('最多 '+o.max+' 位玩家',1500,'warn');return}
-     sel.push({tok:i,name:'',seat:null});focus=i;Sound.pop();Sound.vib(15)
+     sel.push({tok:i,name:'',seat:SEATS?nextFreeSeat():null});focus=i;Sound.pop();Sound.vib(15)
     }
     draw();var nb=el.querySelector('.tkc[data-i="'+i+'"]');if(nb&&k<0){nb.classList.add('pick');Select.cheer(o.kind,i,nb,o)}}});
    if(SEATS)Array.prototype.forEach.call(el.querySelectorAll('.seatsw'),function(b){b.onclick=function(){
@@ -417,13 +438,17 @@ var Select=GC.Select={
     sel.forEach(function(s){if(s.tok===focus)who=s});
     if(!who)sel.forEach(function(s){if(who)return;if(s.seat==null)who=s});
     if(!who){UI.toast('先点一个角色,再选飞机颜色',1600,'warn');return}
-    if(sel.some(function(s){return s!==who&&s.seat===si})){UI.toast('这个颜色已经有人选了',1500,'warn');return}
-    who.seat=si;focus=who.tok;Sound.pop();Sound.vib(12);draw();
+    if(who.seat===si){focus=who.tok;draw();return}
+    var prev=null;sel.forEach(function(s){if(s!==who&&s.seat===si)prev=s});
+    takeSeat(who,si);focus=who.tok;Sound.pop();Sound.vib(12);
+    if(prev){var sm=seatMeta(prev.seat),pn=T[prev.tok]?T[prev.tok].name:'另一位';UI.toast(sm?(pn+' 改成'+sm.name+'色'):(pn+' 换了颜色'),1400,'info')}
+    draw();
    }});
    NameField.bind(el,function(inp,v){var i=+inp.getAttribute('data-i');sel.forEach(function(s){if(s.tok===i)s.name=v})});
    $('selOk').onclick=function(){
     if(sel.length<o.min){UI.toast('至少 '+o.min+' 位玩家',1500,'warn');return}
     if(SEATS&&sel.some(function(s){return s.seat==null||s.seat<0||s.seat>3})){UI.toast('每位玩家都要选一个飞机颜色',1800,'warn');return}
+    if(SEATS){var seen={};if(sel.some(function(s){if(seen[s.seat])return true;seen[s.seat]=1;return false})){UI.toast('每种颜色只能一位玩家',1800,'warn');return}}
     Sound.hi();el.classList.add('out');var list=sel.map(function(s){return{tok:s.tok,name:s.name.trim(),seat:s.seat}});
     setTimeout(function(){el.remove();o.onDone(list)},UI.reduce()?0:260);
    };
