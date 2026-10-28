@@ -427,30 +427,97 @@ function flyOverlay(){
  return h+'</svg>';
 }
 
-/* ---------- 棋子：圆形玩具棋子 + 本色小飞机印花（安静、不抢棋盘；整块盖住格子上的宝石/白点） ---------- */
-function tokenDefs(){
- var h='<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>',i,p;
- var body='<path d="M-46-2C-46-9-40-12-33-12H-12V-34C-12-44-6-50 0-50C6-50 12-44 12-34V-12H33C40-12 46-9 46-2V6C46 12 41 14 35 13L12 9V26H24C30 26 32 30 32 34V38C32 42 29 44 24 44H-24C-29 44-32 42-32 38V34C-32 30-30 26-24 26H-12V9L-35 13C-41 14-46 12-46 6Z"';
- for(i=0;i<4;i++){
-  p=PAL[i];
-  h+='<linearGradient id="f3k'+i+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+p.top+'"/><stop offset=".6" stop-color="'+p.base+'"/><stop offset="1" stop-color="'+p.side+'"/></linearGradient>';
-  h+='<symbol id="f3tok'+i+'" viewBox="-56 -60 112 120">';
-  h+='<ellipse cx="2" cy="53" rx="42" ry="7" fill="#000" opacity=".16"/>';
-  /* --tb/--tr 由 CSS 覆盖：到达终点 = 金色棋子 */
-  h+='<circle cy="7" r="50" style="fill:var(--tr,'+p.side+')"/>';
-  h+='<circle r="50" style="fill:var(--tb,#fffaf0)" stroke="#fff" stroke-width="2.5"/>';
-  h+='<circle r="43" fill="none" stroke="'+p.base+'" stroke-opacity=".45" stroke-width="3"/>';
-  h+='<g transform="translate(0,3) scale(.7)">';
-  h+='<g transform="translate(0,5)">'+body+' fill="'+p.side+'"/></g>';
-  h+=body+' fill="url(#f3k'+i+')" stroke="'+p.side+'" stroke-width="2" stroke-linejoin="round"/>';
-  h+='<polygon points="'+starPts(9,4.3)+'" fill="#fff" fill-opacity=".9" stroke="#fff" stroke-opacity=".9" stroke-width="2" stroke-linejoin="round"/>';
-  h+='</g>';
-  h+='<ellipse cx="-20" cy="-30" rx="13" ry="5.5" transform="rotate(-32 -20 -30)" fill="#fff" opacity=".55"/>';
-  h+='</symbol>';
- }
- return h+'</defs></svg>';
+/* ---------- 棋子：角色风味圆筹码 + 座位色粗描边（一眼认出是谁的飞机，又不抢海岛盘） ---------- */
+function tokenDefs(){return ''}
+function miniPlane(fill){
+ return '<g transform="translate(0,34) scale(.38)"><path d="'+PLANE_D+'" fill="'+fill+'" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></g>';
 }
-function tokenSVG(pid){return '<svg class="fl-plane fl3d-tok" viewBox="0 0 112 120" aria-hidden="true"><use href="#f3tok'+(pid%4)+'" width="112" height="120"/></svg>'}
+function chipFace(tok){
+ /* tok 0小狗 1小狮子 2不不奥特曼 3哎呀公主 4温柔喷火龙 5猪肉战神 */
+ if(tok===0){
+  return '<ellipse cx="-28" cy="-6" rx="14" ry="20" transform="rotate(-28 -28 -6)" fill="#c47a3a" stroke="#8a4e1c" stroke-width="2"/>'+
+   '<ellipse cx="28" cy="-6" rx="14" ry="20" transform="rotate(28 28 -6)" fill="#c47a3a" stroke="#8a4e1c" stroke-width="2"/>'+
+   '<circle r="28" fill="#ffe0b0" stroke="#d49a5a" stroke-width="2"/>'+
+   '<ellipse cx="-11" cy="-4" rx="5" ry="6" fill="#fff"/><ellipse cx="11" cy="-4" rx="5" ry="6" fill="#fff"/>'+
+   '<circle cx="-10" cy="-3" r="2.6" fill="#2a1a10"/><circle cx="10" cy="-3" r="2.6" fill="#2a1a10"/>'+
+   '<ellipse cy="8" rx="6" ry="4.2" fill="#5a2a18"/><circle cx="-2" cy="6.5" r="1.4" fill="#fff" opacity=".5"/>'+
+   '<path d="M-10 16 Q0 22 10 16" fill="none" stroke="#c45a3a" stroke-width="2" stroke-linecap="round"/>'+
+   '<circle cx="-18" cy="6" r="4.5" fill="#f2a090" opacity=".7"/><circle cx="18" cy="6" r="4.5" fill="#f2a090" opacity=".7"/>';
+ }
+ if(tok===1){
+  var mane='',i,a;
+  for(i=0;i<10;i++){a=-90+i*36;mane+='<ellipse cx="0" cy="-30" rx="8" ry="16" transform="rotate('+a+')" fill="'+(i%2?'#ff9a1a':'#ffc43a')+'" stroke="#e07800" stroke-width="1.2"/>';}
+  return mane+'<circle r="24" fill="#ffe08a" stroke="#e0a020" stroke-width="2"/>'+
+   '<ellipse cx="-8" cy="-4" rx="4.2" ry="5" fill="#3a2208"/><ellipse cx="8" cy="-4" rx="4.2" ry="5" fill="#3a2208"/>'+
+   '<circle cx="-6.5" cy="-5.5" r="1.3" fill="#fff"/><circle cx="9.5" cy="-5.5" r="1.3" fill="#fff"/>'+
+   '<ellipse cy="6" rx="5" ry="3.4" fill="#c45a20"/>'+
+   '<path d="M-18 4 H-28 M18 4 H28 M-16 10 H-26 M16 10 H26" stroke="#7a4010" stroke-width="1.8" stroke-linecap="round"/>'+
+   '<path d="M-8 14 Q0 20 8 14" fill="none" stroke="#c45a20" stroke-width="2" stroke-linecap="round"/>';
+ }
+ if(tok===2){
+  return '<rect x="-22" y="-8" width="44" height="38" rx="10" fill="#dfe7f2" stroke="#7a8aa0" stroke-width="2"/>'+
+   '<path d="M-30-18 Q-36-2 -28 16 L-18 10 Z" fill="#e0485e"/><path d="M30-18 Q36-2 28 16 L18 10 Z" fill="#e0485e"/>'+
+   '<ellipse cy="-10" rx="26" ry="22" fill="#eef3f8" stroke="#9aacbf" stroke-width="2"/>'+
+   '<path d="M-6-28 L0-38 L6-28 Z" fill="#ffd23f" stroke="#e0a800" stroke-width="1.4"/>'+
+   '<ellipse cx="-9" cy="-10" rx="7" ry="5.2" fill="#ffd23f" stroke="#c9a000" stroke-width="1.2"/>'+
+   '<ellipse cx="9" cy="-10" rx="7" ry="5.2" fill="#ffd23f" stroke="#c9a000" stroke-width="1.2"/>'+
+   '<path d="M-4-18 L0-8 L4-18" fill="none" stroke="#e0485e" stroke-width="2.4" stroke-linejoin="round"/>'+
+   '<circle cy="14" r="6.5" fill="#e0485e" stroke="#fff" stroke-width="2"/>'+
+   '<circle cy="14" r="2.6" fill="#ffd23f"/>';
+ }
+ if(tok===3){
+  return '<circle r="30" fill="#e7f6ff"/><circle r="26" fill="none" stroke="#9ad8ff" stroke-width="3"/>'+
+   '<g stroke="#fff" stroke-width="3.2" stroke-linecap="round">'+
+   '<path d="M0-20 V20 M-20 0 H20 M-14-14 L14 14 M14-14 L-14 14"/>'+
+   '</g>'+
+   '<g stroke="#7ec8ff" stroke-width="1.8" stroke-linecap="round">'+
+   '<path d="M0-20 V20 M-20 0 H20 M-14-14 L14 14 M14-14 L-14 14"/>'+
+   '</g>'+
+   '<circle r="7" fill="#c8eeff" stroke="#fff" stroke-width="2"/>'+
+   '<polygon points="0,-32 -6,-22 0,-24 6,-22" fill="#fff" stroke="#9ad8ff" stroke-width="1.2"/>'+
+   '<circle cx="-22" cy="-16" r="3.2" fill="#fff"/><circle cx="24" cy="-8" r="2.4" fill="#fff"/>'+
+   '<circle cx="18" cy="16" r="2.8" fill="#d8f4ff"/><circle cx="-16" cy="18" r="2.2" fill="#fff"/>';
+ }
+ if(tok===4){
+  return '<path d="M-34 6 Q-48 -8 -30 -22 Q-22 -4 -18 8 Z" fill="#f0b090" stroke="#c47858" stroke-width="1.6"/>'+
+   '<path d="M34 6 Q48 -8 30 -22 Q22 -4 18 8 Z" fill="#f0b090" stroke="#c47858" stroke-width="1.6"/>'+
+   '<path d="M-12-28 Q-16-42 -4-36 Q0-30 0-22 Z" fill="#ffe0c8" stroke="#d4a07a" stroke-width="1.4"/>'+
+   '<path d="M12-28 Q16-42 4-36 Q0-30 0-22 Z" fill="#ffe0c8" stroke="#d4a07a" stroke-width="1.4"/>'+
+   '<circle r="26" fill="#ffe6d2" stroke="#e0a888" stroke-width="2"/>'+
+   '<path d="M-16-8 Q-10-12 -6-6" fill="none" stroke="#c47890" stroke-width="1.6" stroke-linecap="round"/>'+
+   '<path d="M16-8 Q10-12 6-6" fill="none" stroke="#c47890" stroke-width="1.6" stroke-linecap="round"/>'+
+   '<ellipse cx="-8" cy="-2" rx="3.6" ry="4.4" fill="#5a3040"/><ellipse cx="8" cy="-2" rx="3.6" ry="4.4" fill="#5a3040"/>'+
+   '<circle cx="-6.6" cy="-3.4" r="1.2" fill="#fff"/><circle cx="9.4" cy="-3.4" r="1.2" fill="#fff"/>'+
+   '<path d="M-8 10 Q0 16 8 10" fill="none" stroke="#d47890" stroke-width="2" stroke-linecap="round"/>'+
+   '<path d="M-4 18 Q0 28 4 18 Q0 22 -4 18 Z" fill="#ffb070" stroke="#e07040" stroke-width="1.2"/>';
+ }
+ /* 猪肉战神：人类战厨，猪只作为食物道具 */
+ return '<ellipse cy="-28" rx="20" ry="10" fill="#fff" stroke="#d8d0c4" stroke-width="2"/>'+
+  '<rect x="-16" y="-24" width="32" height="8" rx="2" fill="#fff" stroke="#c8c0b4" stroke-width="1.4"/>'+
+  '<circle r="24" fill="#f3c7a0" stroke="#d49a70" stroke-width="2"/>'+
+  '<path d="M-14-6 Q-8-12 -2-6" fill="none" stroke="#6a3a28" stroke-width="2.2" stroke-linecap="round"/>'+
+  '<path d="M2-6 Q8-12 14-6" fill="none" stroke="#6a3a28" stroke-width="2.2" stroke-linecap="round"/>'+
+  '<ellipse cx="-8" cy="-1" rx="3.4" ry="4" fill="#3a2218"/><ellipse cx="8" cy="-1" rx="3.4" ry="4" fill="#3a2218"/>'+
+  '<path d="M-10 10 Q0 6 10 10 Q0 16 -10 10 Z" fill="#c45a40"/>'+
+  '<g transform="rotate(-38 18 16)"><rect x="8" y="12" width="28" height="3" rx="1.5" fill="#c0a070"/>'+
+  '<ellipse cx="18" cy="13.5" rx="5" ry="3.6" fill="#c47848"/><ellipse cx="28" cy="13.5" rx="5" ry="3.6" fill="#a85830"/></g>'+
+  '<polygon points="0,-36 -5,-28 0,-30 5,-28" fill="#ffd23f"/>';
+}
+function tokenSVG(pid,tok){
+ tok=(tok==null?0:tok)|0;if(tok<0)tok=0;if(tok>5)tok=tok%6;
+ var pal=PAL[((pid%4)+4)%4];
+ var tint=['#fff4e4','#fff0c8','#eef3f8','#e7f6ff','#ffe6d2','#f8e0c8'][tok];
+ return '<svg class="fl-plane fl3d-tok" viewBox="-56 -60 112 120" aria-hidden="true">'+
+  '<ellipse cx="2" cy="53" rx="42" ry="7" fill="#000" opacity=".16"/>'+
+  '<circle cy="7" r="50" style="fill:var(--tr,'+pal.side+')"/>'+
+  '<circle r="50" style="fill:var(--tb,'+tint+')" stroke="#fff" stroke-width="2.4"/>'+
+  '<circle r="46" fill="none" stroke="'+pal.base+'" stroke-width="7.5"/>'+
+  '<circle r="40" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>'+
+  '<g transform="translate(0,-4)">'+chipFace(tok)+'</g>'+
+  miniPlane(pal.base)+
+  '<ellipse cx="-20" cy="-30" rx="13" ry="5.5" transform="rotate(-32 -20 -30)" fill="#fff" opacity=".4"/>'+
+  '</svg>';
+}
 
 /* ---------- 整盘 ---------- */
 function boardSVG(opt){

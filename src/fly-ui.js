@@ -14,7 +14,14 @@ function eco(){try{return GC.Gfx&&GC.Gfx.mode()==='eco'}catch(e){return false}}
 function save(){if(S)S.sv=Date.now();Store.set('fly',S)}
 function load(){var s=Store.get('fly',null);if(s&&s.players&&s.players.length){S=s;if(!S.phase)S.phase='play'}else{S=E.newState()}}
 function isl(){return !!(root&&root.classList.contains('fl-island')&&window.FLY3D)}
-function planeImg(pid){if(isl())return window.FLY3D.tokenSVG(pid);var keys=['red','yellow','blue','green'];var k=keys[pid%4];var src=(window.FL_PLANES&&window.FL_PLANES[k])||'';if(src)return '<img class="fl-plane-img" src="'+src+'" alt="" draggable="false" decoding="async">';return planeSVG(E.COLORS[pid%4])}
+function seatOf(p){return E.seatOf?E.seatOf(p):(p&&p.seat!=null?p.seat:((p&&p.id)||0))}
+function planeImg(p){
+ var seat=typeof p==='object'?seatOf(p):(p%4),tok=typeof p==='object'&&p.tok!=null?p.tok:0;
+ if(window.FLY3D&&window.FLY3D.tokenSVG)return window.FLY3D.tokenSVG(seat,tok);
+ var keys=['red','yellow','blue','green'];var k=keys[seat%4];var src=(window.FL_PLANES&&window.FL_PLANES[k])||'';
+ if(src)return '<img class="fl-plane-img" src="'+src+'" alt="" draggable="false" decoding="async">';
+ return planeSVG(E.COLORS[seat%4]);
+}
 function planeSVG(color){var gid='pg'+Math.random().toString(36).slice(2,8);return '<svg class="fl-plane" viewBox="-20 -20 40 40" aria-hidden="true"><defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".7"/><stop offset="42%" stop-color="'+color+'"/><stop offset="100%" stop-color="#000" stop-opacity=".28"/></linearGradient><filter id="'+gid+'s"><feDropShadow dx="0" dy="1" stdDeviation="0.7" flood-opacity=".3"/></filter></defs><ellipse cx="0" cy="12" rx="9" ry="2.8" fill="#00000028"/><g transform="translate(0,-1.2) rotate(18)" filter="url(#'+gid+'s)"><path d="M0-14C2.6-14 3.8-10 3.8-5.4L14 3.4V6.6L3.8 2.4V9.6L8.2 13.2V15.4L0 13.6-8.2 15.4V13.2L-3.8 9.6V2.4L-14 6.6V3.4L-3.8-5.4C-3.8-10-2.6-14 0-14Z" fill="url(#'+gid+')" stroke="#fff" stroke-width="1.9" stroke-linejoin="round"/><path d="M0-14C1.7-14 2.6-10.4 2.6-6.6V2.2" stroke="#fff" stroke-width="1.3" opacity=".5" fill="none"/><circle cy="-6.6" r="2.35" fill="#b8ecff" stroke="#fff" stroke-width="0.9"/><ellipse cx="0" cy="4" rx="2.2" ry="1.1" fill="#000" opacity=".12"/></g></svg>'}
 
 function ringPos(i){return isl()?window.FLY3D.ringPos(i):E.ringPos(i)}
@@ -504,9 +511,9 @@ function renderTokens(){
   g.forEach(function(item,ii){
    var p=item.p,pl=item.pl,pos,off;
    if(pl.where==='base'||pl.where==='done'){
-    pos=basePos(p.id,pl.id);off={dx:0,dy:0};
+    pos=basePos(seatOf(p),pl.id);off={dx:0,dy:0};
    }else{
-    pos=cellXY(pl.where,pl.idx,p.id);
+    pos=cellXY(pl.where,pl.idx,seatOf(p));
     off=stackOffset(ii,g.length);
    }
    var can=S.pending&&S.pending.mov&&S.turn===p.id&&S.pending.mov.indexOf(pl.id)>=0;
@@ -514,21 +521,23 @@ function renderTokens(){
    var pose=pl.where==='done'?' done-pose':(pl.where==='base'?' at-base':(pl.where==='track'||pl.where==='home'?' in-flight':''));
    var cls='fltok'+pose+(can?' go':'')+(lit?' takeoff-lit':'');
    var badge=pl.where==='done'?'<span class="fl-done-badge" aria-hidden="true">🏁</span>':'';
+   var halo=(can||lit)?'<i class="flglow" aria-hidden="true"></i>':'';
    var alabel=esc(p.cname)+'飞机'+(pl.id+1)+(pl.where==='done'?'已到达终点':'');
-   h+='<button type="button" class="'+cls+'" data-p="'+p.id+'" data-pl="'+pl.id+'" data-where="'+pl.where+'" style="left:'+(pos.x+off.dx)+'%;top:'+(pos.y+off.dy)+'%;--pc:'+p.color+'" aria-label="'+alabel+'">'+planeImg(p.id)+badge+'</button>';
+   h+='<button type="button" class="'+cls+'" data-p="'+p.id+'" data-pl="'+pl.id+'" data-tok="'+p.tok+'" data-seat="'+seatOf(p)+'" data-where="'+pl.where+'" style="left:'+(pos.x+off.dx)+'%;top:'+(pos.y+off.dy)+'%;--pc:'+p.color+'" aria-label="'+alabel+'">'+halo+planeImg(p)+badge+'</button>';
   });
  });
  el.innerHTML=h;
  Array.prototype.forEach.call(el.querySelectorAll('.fltok.go'),function(b){
   b.onclick=function(){pickPlane(+b.getAttribute('data-pl'))};
  });
- /* takeoff pads highlight */
+ /* takeoff pads highlight — hangar/entry 按座位色，不是加入顺序 */
+ var curSeat=S.players&&S.players[S.turn]?seatOf(S.players[S.turn]):-1;
  Array.prototype.forEach.call(root.querySelectorAll('.flbase'),function(el){
-  el.classList.toggle('lit',!!(S.roll===6&&S.turn===+el.getAttribute('data-p')));
+  el.classList.toggle('lit',!!(S.roll===6&&curSeat===+el.getAttribute('data-p')));
  });
  Array.prototype.forEach.call(root.querySelectorAll('.flc.entry'),function(el){
   var ent=E.ENTRY.indexOf(+el.getAttribute('data-i'));
-  el.classList.toggle('lit',!!(S.roll===6&&S.turn===ent));
+  el.classList.toggle('lit',!!(S.roll===6&&curSeat===ent));
  });
 }
 function renderPanel(){
@@ -572,20 +581,22 @@ function playMoveFx(r){
  r.ev.forEach(function(e){
   if(e.k==='jump'){
    var a=ringPos(e.from),b=ringPos(e.to);
-   trailAlong([a,{x:(a.x+b.x)/2,y:(a.y+b.y)/2},b],E.COLORS[e.pid]);
+   trailAlong([a,{x:(a.x+b.x)/2,y:(a.y+b.y)/2},b],(S.players[e.pid]&&S.players[e.pid].color)||E.COLORS[e.pid]);
    UI.toast('同色跳跃!',900,'star');
   }else if(e.k==='fly'){
    var a2=ringPos(e.from),b2=ringPos(e.to);
-   if(isl()){var ft=window.FLY3D.flyTrail(e.pid,8);trailAlong(ft,'#ffd23f');sparkAt(ft[4].x,ft[4].y,'flyburst',14)}
+   var dashSeat=e.seat!=null?e.seat:(S.players[e.pid]?seatOf(S.players[e.pid]):e.pid);
+   if(isl()){var ft=window.FLY3D.flyTrail(dashSeat,8);trailAlong(ft,'#ffd23f');sparkAt(ft[4].x,ft[4].y,'flyburst',14)}
    else{trailAlong([a2,{x:50,y:50},b2],'#ffd23f');sparkAt(50,50,'flyburst',14)}
-   var dash=root&&root.querySelector('#fldash'+e.pid);
+   var dash=root&&root.querySelector('#fldash'+dashSeat);
    if(dash){dash.classList.add('lit');later(function(){try{dash.classList.remove('lit')}catch(err){}},1400)}
    UI.toast('✈️ 虚线横飞 +12!',1400,'star');
   }else if(e.k==='capture'){
    var pos=ringPos(e.at!=null?e.at:0);
    sparkAt(pos.x,pos.y,'boom',12);
   }else if(e.k==='takeoff'){
-   var tp=ringPos(e.idx!=null?e.idx:E.ENTRY[e.pid]);
+   var takeSeat=e.seat!=null?e.seat:(S.players[e.pid]?seatOf(S.players[e.pid]):e.pid);
+   var tp=ringPos(e.idx!=null?e.idx:E.ENTRY[takeSeat]);
    sparkAt(tp.x,tp.y,'take',8);
   }else if(e.k==='triple6'){
    UI.toast('三连6!一架飞机回基地',1600,'warn');
@@ -601,6 +612,9 @@ function doRoll(forced){
  var v=forced!=null?forced:Dice.d6();lastDie=v;
  var die=$q('#flDie');
  if(die){
+  var light=eco()||(UI.reduce&&UI.reduce());
+  die.classList.add('rolling');
+  var wrap=die.closest('.fldie-wrap');if(wrap)wrap.classList.add('rolling');
   cancel=Dice.roll(wrapDie(die),[v],function(){
    var r=E.roll(S,v);
    busy=false;save();
@@ -616,7 +630,7 @@ function doRoll(forced){
     else if(r.v===1)sayReact(S.turn,'lowRoll',{mood:'worried',tiny:1});
    }
    if(r.mov.length===1){later(function(){pickPlane(r.mov[0])},280)}
-  });
+  },light?{ms:480,stagger:80,tail:220,tick:90,cls:'flyroll-eco'}:{ms:1250,stagger:160,tail:420,tick:70,cls:'flyroll'});
  }else{
   var r=E.roll(S,v);busy=false;save();render();
   if(r.ok&&!r.passed&&r.mov.length===1)later(function(){pickPlane(r.mov[0])},200);
@@ -665,9 +679,9 @@ function rulesModal(){
 }
 function startSelect(){
  if(selv){try{selv.remove()}catch(e){}selv=null}
- selv=Select.screen(root,{kind:'tk',min:2,max:4,title:'飞行棋 · 选角色',sub:'2–4 人 · 点角色入座 · 座位颜色=红黄蓝绿飞机',ok:'开始起飞',catchSet:'fly',theme:'fly',
+ selv=Select.screen(root,{kind:'tk',min:2,max:4,title:'飞行棋 · 选角色',sub:'2–4 人 · 点角色，再点飞机颜色（黄·蓝·红·绿）· 颜色不能重复 · 先点的人先走',ok:'开始起飞',catchSet:'fly',theme:'fly',bindSeat:true,
   onDone:function(list){
-   selv=null;S=E.newState();E.startGame(S,list.map(function(x){return{tok:x.tok,name:x.name||TKN[x.tok]}}));save();
+   selv=null;S=E.newState();E.startGame(S,list.map(function(x){return{tok:x.tok,name:x.name||TKN[x.tok],seat:x.seat}}));save();
    buildBoard();render();fit();
    var go=function(){try{GC.Intro.banner(S.players[0].tok,S.players[0].name,'先掷骰子!')}catch(e){}UI.toast(S.players[0].name+' 先掷!',1600,'star')};
    var did=false;try{did=GC.Intro.vs(S.players.map(function(p){return{tok:p.tok,name:p.name}}),go)}catch(e){}if(!did)go();
