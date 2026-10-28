@@ -5,11 +5,13 @@ var COLORS=['#e0485e','#f2c200','#4a8fe0','#4cae4c'];
 var CNAMES=['红','黄','蓝','绿'];
 var TKN=['小狗','小狮子','不不奥特曼','哎呀公主','温柔喷火龙','猪肉战神'];
 var TRACK=52, HOME=6, PLANES=4;
-var ENTRY=[0,13,26,39];
-var HOME_GATE=ENTRY.map(function(e){return (e+TRACK-1)%TRACK});
-/* 虚线起飞垫：本色格，飞 +12 到对侧同色（经典横飞） */
-var FLY_FROM=[20,33,46,7];
-var FLY_TO=FLY_FROM.map(function(f){return (f+12)%TRACK});
+/* 顺时针环：红起飞格 RING[0]=[6,14]，下格 [8,14] 向绿；黄 [0,6]→[0,8] 向红。
+   停机坪 = 本色起飞格 ENTRY；一圈后从同一格进家（HOME_GATE===ENTRY）。 */
+var ENTRY=[0,39,26,13];
+var HOME_GATE=ENTRY.slice();
+/* 虚线起飞垫：本色飞机格 → 对侧同色（物理格与旧版相同，下标随顺时针重排） */
+var FLY_FROM=[32,19,6,45];
+var FLY_TO=[20,7,46,33];
 
 /* ---- 经典 15×15 十字几何（红BL / 黄TL / 蓝TR / 绿BR） ---- */
 function rot90(pts){return pts.map(function(p){return [14-p[1],p[0]]})}
@@ -27,9 +29,12 @@ var _om=makeOmRing();
 /* 平移：找 om 中 [6,14]（红起飞，底臂 HOME[7,14] 左侧）→ RING[0] */
 var RING=[];
 (function(){
- var off=0;
+ var off=0,fwd=[],k;
  for(var i=0;i<_om.length;i++){if(_om[i][0]===6&&_om[i][1]===14){off=i;break}}
- for(var j=0;j<52;j++)RING.push(_om[(j+off)%52]);
+ for(var j=0;j<52;j++)fwd.push(_om[(j+off)%52]);
+ /* makeOmRing 是逆时针；从红起飞格起反向，棋子沿环顺时针走 */
+ RING.push(fwd[0]);
+ for(k=fwd.length-1;k>=1;k--)RING.push(fwd[k]);
 })();
 /* 终点道 5 个可见圆（引擎 home idx 0..4，第 6 步 done） */
 var HOME_CELLS=[
@@ -105,11 +110,16 @@ function donePos(pid,k){
  return basePos(pid, k!=null?k:0);
 }
 
-function cellColor(i){return ((i%TRACK)+TRACK)%TRACK%4}
+function cellColor(i){
+ i=((i%TRACK)+TRACK)%TRACK;
+ /* 格色跟物理格，不跟新下标：旧下标 0,51,50… 对应 红/绿/蓝/黄… */
+ var old=i?TRACK-i:0;
+ return old%4;
+}
 function isFlyPad(pid,idx){return FLY_FROM[pid]===idx}
 function isSafe(idx){
  if(ENTRY.indexOf(idx)>=0)return true;
- if([4,17,30,43].indexOf(idx)>=0)return true;
+ if([48,35,22,9].indexOf(idx)>=0)return true;
  return false;
 }
 function nextSameColor(idx){return (idx+4)%TRACK}
@@ -134,7 +144,7 @@ function startGame(S,list){
   }
   used[seat]=1;
   return{id:i,seat:seat,tok:p.tok,name:p.name||TKN[p.tok],color:COLORS[seat],cname:CNAMES[seat],
-   planes:[0,1,2,3].map(function(k){return{id:k,where:'base',idx:0,lap:0}})};
+   planes:[0,1,2,3].map(function(k){return{id:k,where:'base',idx:0,lap:0,padLock:false}})};
  });
  S.phase='play';S.turn=0;S.roll=null;S.pending=null;S.winner=null;S.again=false;S.sixes=0;S.hist=[];S.sv=Date.now();
  return{ok:true};
@@ -145,17 +155,22 @@ function planesAt(S,where,idx,exceptPid,exceptPl){
  S.players.forEach(function(p){
   p.planes.forEach(function(pl){
    if(exceptPid!=null&&p.id===exceptPid&&pl.id===exceptPl)return;
-   if(pl.where===where&&pl.idx===idx)out.push({pid:p.id,pl:pl.id,color:p.color});
+   var w=pl.where==='pad'?'track':pl.where;
+   if(w===where&&pl.idx===idx)out.push({pid:p.id,pl:pl.id,color:p.color});
   });
  });
  return out;
+}
+function unlockPads(S,pid){
+ var p=S.players[pid];if(!p)return;
+ p.planes.forEach(function(pl){if(pl.where==='pad')pl.padLock=false});
 }
 function captureAt(S,pid,plId,where,idx,ev,sent){
  if(where!=='track'||isSafe(idx))return;
  planesAt(S,'track',idx,pid,plId).forEach(function(o){
   if(o.pid===pid)return;
   var op=S.players[o.pid].planes[o.pl];
-  op.where='base';op.idx=0;op.lap=0;
+  op.where='base';op.idx=0;op.lap=0;op.padLock=false;
   sent.push({pid:o.pid,pl:o.pl});
   ev.push({k:'capture',pid:pid,victim:o.pid,pl:o.pl,at:idx});
  });
@@ -176,12 +191,13 @@ function movable(S,v){
  p.planes.forEach(function(pl){
   if(pl.where==='done')return;
   if(pl.where==='base'){if(v===6)out.push(pl.id);return}
+  if(pl.where==='pad'){if(pl.padLock)return}
   if(pl.where==='home'){
    var dest=pl.idx+v;
    if(dest<=HOME)out.push(pl.id);
    return;
   }
-  var idx=pl.idx,lap=pl.lap||0,ok=true;
+  var idx=pl.where==='pad'?ENTRY[seat]:pl.idx,lap=pl.where==='pad'?0:(pl.lap||0),ok=true;
   for(var s=0;s<v;s++){
    if(lap>=1&&idx===HOME_GATE[seat]){
     var rem=v-s-1;
@@ -197,7 +213,7 @@ function movable(S,v){
 }
 function pathFor(S,plId,v){
  var p=cur(S),seat=seatOf(p),pl=p.planes[plId],path=[];
- if(pl.where==='base'){path.push({where:'track',idx:ENTRY[seat],lap:0,kind:'takeoff'});return path}
+ if(pl.where==='base'){path.push({where:'pad',idx:ENTRY[seat],lap:0,kind:'takeoff'});return path}
  if(pl.where==='home'){
   for(var i=1;i<=v;i++){
    var d=pl.idx+i;
@@ -206,7 +222,7 @@ function pathFor(S,plId,v){
   }
   return path;
  }
- var idx=pl.idx,lap=pl.lap||0;
+ var idx=pl.where==='pad'?ENTRY[seat]:pl.idx,lap=pl.where==='pad'?0:(pl.lap||0);
  for(var s=0;s<v;s++){
   if(lap>=1&&idx===HOME_GATE[seat]){
    var rem=v-s;
@@ -258,7 +274,7 @@ function applyBonuses(S,p,pl,ev,sent,arrivedBy){
 function sendOwnPlaneHome(S,pid){
  var p=S.players[pid],best=null,bestScore=-1;
  p.planes.forEach(function(pl){
-  if(pl.where==='track'){
+  if(pl.where==='track'||pl.where==='pad'){
    var sc=100+(pl.lap||0)*TRACK+pl.idx;
    if(sc>bestScore){bestScore=sc;best=pl}
   }else if(pl.where==='home'){
@@ -268,7 +284,7 @@ function sendOwnPlaneHome(S,pid){
  });
  if(!best)return null;
  var was={where:best.where,idx:best.idx};
- best.where='base';best.idx=0;best.lap=0;
+ best.where='base';best.idx=0;best.lap=0;best.padLock=false;
  return{pl:best.id,was:was};
 }
 function applyMove(S,plId){
@@ -278,11 +294,12 @@ function applyMove(S,plId){
  var mov=movable(S,v);
  if(mov.indexOf(plId)<0)return{ok:false,err:'这架不能走'};
  var ev=[],sent=[],path=pathFor(S,plId,v);
- var fromBase=pl.where==='base';
+ var fromBase=pl.where==='base',fromPad=pl.where==='pad';
  if(fromBase){
-  pl.where='track';pl.idx=ENTRY[seat];pl.lap=0;
+  pl.where='pad';pl.idx=ENTRY[seat];pl.lap=0;pl.padLock=true;
   ev.push({k:'takeoff',pid:p.id,pl:plId,idx:ENTRY[seat],seat:seat});
  }else{
+  if(fromPad){pl.where='track';pl.padLock=false;ev.push({k:'launch',pid:p.id,pl:plId,idx:ENTRY[seat],seat:seat})}
   path.forEach(function(step){
    pl.where=step.where;pl.idx=step.idx;
    if(step.lap!=null)pl.lap=step.lap;
@@ -312,6 +329,7 @@ function applyMove(S,plId){
 function roll(S,forced){
  if(S.phase!=='play'||S.winner!=null)return{ok:false,err:'不能掷'};
  if(S.roll!=null)return{ok:false,err:'先走棋'};
+ if(!S.again)unlockPads(S,S.turn);
  var v=forced!=null?forced:(1+Math.floor(Math.random()*6));
  S.roll=v;
  var mov=movable(S,v);
@@ -334,12 +352,35 @@ function roll(S,forced){
 function snapshot(S){return JSON.parse(JSON.stringify(S))}
 function restore(S,snap){Object.keys(snap).forEach(function(k){S[k]=snap[k]});return S}
 
+/* 停机坪 → 一圈回到本色入口再进家：四色必须同长（顺时针 RING + HOME_GATE===ENTRY）。
+   不含同色跳/虚线飞（那些也是 +4 / +12 对四色对称）。 */
+function padFinish(seat){
+ seat=((seat%4)+4)%4;
+ var idx=ENTRY[seat],lap=0,n=0;
+ while(n<400){
+  n++;
+  if(lap>=1&&idx===HOME_GATE[seat])return{seat:seat,entry:ENTRY[seat],gate:HOME_GATE[seat],ring:n-1,home:HOME,total:n-1+HOME};
+  idx=(idx+1)%TRACK;
+  if(idx===ENTRY[seat])lap++;
+ }
+ return{seat:seat,entry:ENTRY[seat],gate:HOME_GATE[seat],ring:-1,home:HOME,total:-1};
+}
+function fairPads(){
+ var a=padFinish(0),i,b,ok=true,rows=[a];
+ for(i=1;i<4;i++){
+  b=padFinish(i);rows.push(b);
+  if(b.ring!==a.ring||b.home!==a.home||b.total!==a.total)ok=false;
+ }
+ return{ok:ok,ring:a.ring,home:a.home,total:a.total,rows:rows};
+}
+
 var API={COLORS:COLORS,CNAMES:CNAMES,TKN:TKN,TRACK:TRACK,HOME:HOME,ENTRY:ENTRY,HOME_GATE:HOME_GATE,PLANES:PLANES,
  FLY_FROM:FLY_FROM,FLY_TO:FLY_TO,RING:RING,HOME_CELLS:HOME_CELLS,BASE_SLOTS:BASE_SLOTS,BASE_RECT:BASE_RECT,HANGAR_INSET:HANGAR_INSET,LANE_NUDGE:LANE_NUDGE,TAKEOFF_CELLS:TAKEOFF_CELLS,baseSlotsFromRect:baseSlotsFromRect,ringNudge:ringNudge,homeNudge:homeNudge,takeoffCell:takeoffCell,
  gridPct:gridPct,ringPos:ringPos,homePos:homePos,basePos:basePos,donePos:donePos,takeoffPos:takeoffPos,
- cellColor:cellColor,isFlyPad:isFlyPad,nextSameColor:nextSameColor,seatOf:seatOf,
+ cellColor:cellColor,isFlyPad:isFlyPad,nextSameColor:nextSameColor,seatOf:seatOf,unlockPads:unlockPads,
  newState:newState,startGame:startGame,cur:cur,movable:movable,pathFor:pathFor,applyMove:applyMove,roll:roll,
- planesAt:planesAt,isSafe:isSafe,snapshot:snapshot,restore:restore,dashEatCells:dashEatCells};
+ planesAt:planesAt,isSafe:isSafe,snapshot:snapshot,restore:restore,dashEatCells:dashEatCells,
+ padFinish:padFinish,fairPads:fairPads};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
 root.FLYE=API;
 })(typeof window!=='undefined'?window:globalThis);

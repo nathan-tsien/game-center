@@ -59,6 +59,9 @@
 .flc.safe{box-shadow:0 0 0 2.5px #f0c840,0 4px 0 rgba(80,50,20,.14),inset 0 3px 0 #fff}
 .flc.entry{z-index:3;box-shadow:0 4px 0 rgba(80,50,20,.16),inset 0 3px 0 #fff9}
 .flc.entry.lit{box-shadow:0 0 0 2px #ffd23f88,0 0 8px #ffd23f66}
+.flpadmark{position:absolute;z-index:6;pointer-events:none;font-size:10px;font-weight:900;line-height:1;
+ color:#fff;letter-spacing:.04em;background:var(--pc,#e0485e);border:2px solid #fff;border-radius:999px;
+ padding:2px 6px;box-shadow:0 2px 0 rgba(0,0,0,.2);transform:translate(-50%,-50%);white-space:nowrap}
 .flbase.lit{box-shadow:none;animation:none}
 @keyframes fllit{50%{filter:brightness(1.12)}}
 .gq-eco .flc.entry.lit,.gq-eco .flbase.lit{animation:none}
@@ -137,35 +140,37 @@
 /* track tokens ~5.5%; base tokens ~4.5% ≈ pit diameter so they sit in X slots */
 .fltok{position:absolute;width:5.5%;height:5.5%;transform:translate(-50%,-50%);border:0;background:transparent;padding:0;cursor:pointer;pointer-events:auto;overflow:visible;
  filter:drop-shadow(0 4px 3px rgba(0,0,0,.42));transition:left .28s ease-out,top .28s ease-out,transform .2s}
-.fltok .fl-plane,.fltok .fl-plane-img{width:100%;height:100%;display:block;object-fit:contain}
-/* no PNG translate on base — avoid pushing wings past hangar white rim */
-.fltok.in-flight .fl-plane-img{transform:none}
-.fltok .fl-plane{transform:none}
+.fltok .fl-plane,.fltok .fl-plane-img,.fltok .fl3d-tok{width:100%;height:100%;display:block;object-fit:contain;
+ transform:rotate(var(--face,0deg));transform-origin:50% 50%;transition:transform .2s ease-out}
+.gq-eco .fltok .fl-plane,.gq-eco .fltok .fl-plane-img,.gq-eco .fltok .fl3d-tok{transition:none}
 /* base waiting vs finished pose — kids see 🏁 home */
 .fltok.at-base{width:3.6%;height:3.6%;z-index:4;filter:drop-shadow(0 1px 1px rgba(0,0,0,.28))}
 .fltok.in-flight{width:5.2%;height:5.2%;filter:drop-shadow(0 5px 4px rgba(0,0,0,.45))}
 .fltok.done-pose{z-index:7;width:3.8%;height:3.8%;
  filter:drop-shadow(0 0 0 #ffd23f) drop-shadow(0 0 6px #ffd23fcc) drop-shadow(0 3px 2px rgba(0,0,0,.35));
  outline:2.5px solid #ffd23f;outline-offset:1px;border-radius:50%;
- transform:translate(-50%,-50%) rotate(-18deg) scale(1.04)}
+ transform:translate(-50%,-50%) scale(1.04)}
 .fltok.done-pose .fl-plane-img,.fltok.done-pose .fl-plane{filter:saturate(1.15) brightness(1.06)}
 .fl-done-badge{position:absolute;right:-6%;top:-8%;font-size:13px;line-height:1;
  background:linear-gradient(180deg,#fffef8,#ffe9a8);border-radius:999px;padding:2px 4px;
  box-shadow:0 2px 0 rgba(120,80,20,.25),0 0 0 2px #fff;pointer-events:none;z-index:2}
-.fltok.go{z-index:8;animation:flgo 1s ease-in-out infinite;outline:3px solid #ffd23f;outline-offset:2px;border-radius:50%}
+.fltok.go{z-index:8;outline:2px solid #ffd23faa;outline-offset:1px;border-radius:50%;animation:flgosof 1.6s ease-in-out infinite}
 .fltok.takeoff-lit{z-index:6;outline:2px solid #7ef0a099;outline-offset:1px;border-radius:50%;animation:fltakeoffsoft 1.6s ease-in-out infinite}
-@keyframes flgo{50%{transform:translate(-50%,-58%) scale(1.08)}}
+.fltok.walking{z-index:12;animation:none!important;outline:0;width:5.2%;height:5.2%;
+ transition:left .26s ease-out,top .26s ease-out,width .18s ease,height .18s ease}
+@keyframes flgosof{50%{transform:translate(-50%,-53%) scale(1.03)}}
 @keyframes fltakeoffsoft{50%{transform:translate(-50%,-53%) scale(1.03)}}
-.fltok .flglow{position:absolute;left:50%;top:50%;width:210%;height:210%;margin:0;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:0;
- background:radial-gradient(circle,#fff 0 18%,#ffd23f 42%,rgba(255,210,63,0) 70%);
- box-shadow:0 0 0 3px #fff,0 0 0 8px #ffd23f,0 0 28px 12px #ffd23fcc;
- animation:flhalopulse .85s ease-in-out infinite}
-.fltok.takeoff-lit .flglow{width:132%;height:132%;
+.fltok .flglow{position:absolute;left:50%;top:50%;width:132%;height:132%;margin:0;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:0;
+ background:radial-gradient(circle,#fff 0 28%,#ffd23f66 52%,rgba(255,210,63,0) 74%);
+ box-shadow:0 0 0 2px #fff8,0 0 8px 3px #ffd23f55;animation:none;opacity:.9}
+.fltok.takeoff-lit .flglow{
  background:radial-gradient(circle,#fff 0 28%,#7ef0a066 52%,rgba(126,240,160,0) 74%);
- box-shadow:0 0 0 2px #fff8,0 0 8px 3px #7ef0a055;animation:none;opacity:.9}
+ box-shadow:0 0 0 2px #fff8,0 0 8px 3px #7ef0a055;opacity:.9}
 .fltok.go .fl-plane,.fltok.go .fl3d-tok,.fltok.takeoff-lit .fl-plane,.fltok.takeoff-lit .fl3d-tok,.fltok.go .fl-plane-img,.fltok.takeoff-lit .fl-plane-img{position:relative;z-index:1}
-@keyframes flhalopulse{0%,100%{transform:translate(-50%,-50%) scale(.88);opacity:.82}50%{transform:translate(-50%,-50%) scale(1.12);opacity:1}}
+.flc.walkhit,.flhome.walkhit{z-index:4;box-shadow:0 0 0 2px #fff8,0 0 10px #ffd23f55}
 .gq-eco .fltok.go,.gq-eco .fltok.takeoff-lit{animation:none}
+.gq-eco .fltok,.gq-eco .fltok.walking{transition:none}
+.gq-eco .gm-fly.fl-island .fltok.on-turn.in-flight{filter:drop-shadow(0 0 1px #fff) drop-shadow(0 4px 3px rgba(8,30,50,.35))}
 .flpc.turn-pop{animation:flturnpop .55s ease-out}
 @keyframes flturnpop{0%{transform:scale(.94)}55%{transform:scale(1.07)}100%{transform:scale(1.03)}}
 .gq-eco .flpc.turn-pop{animation:none}
@@ -207,7 +212,7 @@
  transition:left .5s cubic-bezier(.22,.8,.28,1),top .5s cubic-bezier(.22,.8,.28,1),transform .28s ease,opacity .28s ease}
 .fldock-c.s-tl,.fldock-c.s-tr{--ox:-50%;--oy:-100%;flex-direction:column-reverse;transform-origin:50% 100%}
 .fldock-c.s-bl,.fldock-c.s-br{--ox:-50%;--oy:0%;flex-direction:column;transform-origin:50% 0}
-.fldock-c .fldie,.fldock-c .flroll,.fldock-c .btn{pointer-events:auto}
+.fldock-c .fldie,.fldock-c .fldie-wrap,.fldock-c .flroll,.fldock-c .btn{pointer-events:auto}
 .fldock.want,.fldock-c.want{background:none;border:0;box-shadow:none;animation:none;z-index:24;isolation:isolate}
 .fldock-c.want .fldie-wrap{pointer-events:auto;z-index:25;cursor:pointer;touch-action:manipulation;position:relative}
 .fldock-c.want .fldie-wrap::after{content:'';position:absolute;inset:-18px;border-radius:50%;z-index:2;pointer-events:auto}
@@ -237,35 +242,12 @@ html.gq-eco .fldock-c,.fldock-c.no-slide{transition:none}
 .fldie.pulse{animation:dieidle 1.6s ease-in-out infinite}
 .fldie svg,.fldie .die{width:100%;height:100%}
 .fldie .ctdw{width:100%;height:100%;transform-style:preserve-3d}
-.gm-fly .fldie .die.flyroll,.gm-fly .fldie .die.roll.flyroll{
- animation:fltumble .55s linear infinite!important;transform-origin:50% 60%}
-@keyframes fltumble{
- 0%{transform:translate3d(-10px,4px,0) rotateX(12deg) rotateY(-20deg) rotateZ(0) scale(1)}
- 18%{transform:translate3d(18px,-38px,20px) rotateX(80deg) rotateY(-70deg) rotateZ(110deg) scale(1.32)}
- 36%{transform:translate3d(-20px,-8px,0) rotateX(165deg) rotateY(55deg) rotateZ(200deg) scale(.88)}
- 54%{transform:translate3d(14px,-46px,24px) rotateX(250deg) rotateY(-40deg) rotateZ(290deg) scale(1.38)}
- 72%{transform:translate3d(-16px,-14px,0) rotateX(310deg) rotateY(75deg) rotateZ(340deg) scale(1.12)}
- 100%{transform:translate3d(-10px,4px,0) rotateX(372deg) rotateY(-20deg) rotateZ(360deg) scale(1)}
-}
-.gm-fly .fldie .die.land{animation:flland .48s cubic-bezier(.2,1.5,.3,1)}
-@keyframes flland{
- 0%{transform:scale(1.55) rotate(-22deg) translateY(-18px)}
- 40%{transform:scale(.86) rotate(10deg) translateY(6px)}
- 70%{transform:scale(1.16) rotate(-6deg)}
- 100%{transform:none}
-}
-.gm-fly .fldie .die.flyroll-eco,.gm-fly .fldie .die.roll.flyroll-eco{
- animation:fltumble-eco .48s linear infinite!important}
-@keyframes fltumble-eco{
- 0%{transform:rotate(0) scale(1)}
- 50%{transform:rotate(180deg) scale(1.12)}
- 100%{transform:rotate(360deg) scale(1)}
-}
-html.gq-std .fldie .die.roll,html.gq-std .fldie .die.flyroll,html.gq-eco .fldie .die.roll,html.gq-eco .fldie .die.flyroll,html.gq-eco .fldie .die.flyroll-eco{
- animation-iteration-count:infinite!important}
+/* hangar die uses shared Monopoly `.die.roll { animation: tumble }` from head.html */
+html.gq-std .fldie .die.roll,html.gq-eco .fldie .die.roll{animation-iteration-count:infinite!important}
 @media (prefers-reduced-motion:reduce){
- .gm-fly .fldie .die.flyroll,.gm-fly .fldie .die.roll{animation:fltumble-eco .5s linear infinite!important}
- .fltok .flglow,.seatbar.need,.tkseat.wait,.fldock.want,.fldie.pulse,.fltok.poked,.fltok.poked-mad{animation:none}
+ .gm-fly .fldie .die.roll{animation:tumble .42s linear infinite}
+ .fltok .flglow,.seatbar.need,.tkseat.wait,.fldock.want,.fldie.pulse,.fltok.poked,.fltok.poked-mad,.fltok.walking{animation:none}
+ .fltok,.fltok.walking{transition:none}
 }
 .flhint{font-size:11px;font-weight:900;text-align:center;line-height:1.15;color:#5a3ea0;min-height:0;
  background:#fffef8ee;border-radius:8px;padding:1px 7px;box-shadow:0 1px 0 rgba(0,0,0,.12);white-space:nowrap}
@@ -356,6 +338,7 @@ html.gq-std .fldie .die.roll,html.gq-std .fldie .die.flyroll,html.gq-eco .fldie 
 .gm-fly.fl-island .fl3d-plate{z-index:1}
 .gm-fly.fl-island .flc,.gm-fly.fl-island .flhome{background:transparent!important;border:0!important;box-shadow:none!important;outline:none!important;border-radius:24%;pointer-events:none}
 .gm-fly.fl-island .flc.entry.lit{box-shadow:0 0 0 2px #fff,0 0 0 4px #ffd23faa,0 0 10px #ffd23f88!important;animation:none}
+.gm-fly.fl-island .flpadmark{z-index:7}
 .gm-fly.fl-island .flbase{border-radius:9%;overflow:visible}
 .gm-fly.fl-island .flbase.lit{box-shadow:none;animation:none}
 .gm-fly.fl-island .flbase .flcname{display:none}
@@ -365,17 +348,40 @@ html.gq-std .fldie .die.roll,html.gq-std .fldie .die.flyroll,html.gq-eco .fldie 
 .gm-fly.fl-island .fl3d-dash .fldash-path{opacity:0;transition:opacity .25s}
 .gm-fly.fl-island .fl3d-dash .fldash-path.lit{opacity:1}
 .gm-fly.fl-island .fltok{filter:drop-shadow(0 2px 1.5px rgba(0,40,70,.3))}
-.gm-fly.fl-island .fltok.in-flight{width:5.2%;height:5.2%}
+.gm-fly.fl-island .fltok .flstand{display:none}
+/* 在格上的棋子：托盘不跟着机头转，把玩具和同色砖分开 */
+.gm-fly.fl-island .fltok.in-flight .flstand,.gm-fly.fl-island .fltok.walking .flstand{
+ display:block;position:absolute;left:50%;top:68%;width:58%;height:26%;margin:0;
+ transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:0;
+ background:radial-gradient(ellipse,#1a335066 0 38%,rgba(16,40,64,.12) 62%,transparent 74%);
+ box-shadow:0 1px 0 #fff8}
+.gm-fly.fl-island .fltok.in-flight,.gm-fly.fl-island .fltok.walking{
+ width:6.7%;height:6.7%;z-index:9;
+ filter:drop-shadow(0 0 0.7px #fff) drop-shadow(0 1px 0 rgba(16,40,64,.5)) drop-shadow(0 5px 4px rgba(8,30,50,.4))}
 .gm-fly.fl-island .fltok.at-base{width:4.7%;height:4.7%;filter:drop-shadow(0 1.5px 1px rgba(0,0,0,.22))}
 .gm-fly.fl-island .fltok.done-pose{width:4.7%;height:4.7%;outline:0;transform:translate(-50%,-50%);--tb:#ffd23f;--tr:#c98a00;
  filter:drop-shadow(0 0 4px #ffe58acc) drop-shadow(0 1.5px 1px rgba(0,0,0,.22))}
 .gm-fly.fl-island .fl-done-badge{display:none}
 .gm-fly.fl-island .fltok.go,.gm-fly.fl-island .fltok.takeoff-lit{outline:0;border-radius:50%;overflow:visible}
-.gm-fly.fl-island .fltok.go{z-index:10;
- filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 10px #ffd23f) drop-shadow(0 0 18px #ff9a40)}
+.gm-fly.fl-island .flc.walkhit,.gm-fly.fl-island .flhome.walkhit{box-shadow:0 0 0 2px #fff,0 0 0 3px #ffd23f66!important}
+/* 当前玩家在格上的棋：略大 + 浅金托，比旧 .go 光晕克制 */
+.gm-fly.fl-island .fltok.on-turn.in-flight,.gm-fly.fl-island .fltok.on-turn.walking{
+ width:7.15%;height:7.15%;z-index:11;
+ filter:drop-shadow(0 0 1px #fff) drop-shadow(0 0 2px rgba(255,236,170,.7)) drop-shadow(0 1px 0 rgba(16,40,64,.45)) drop-shadow(0 6px 5px rgba(8,30,50,.38))}
+.gm-fly.fl-island .fltok.on-turn .flstand{
+ width:70%;height:32%;top:70%;
+ background:radial-gradient(ellipse,#fffef8 0 34%,#ffe9a8aa 52%,rgba(255,210,63,.0) 74%)}
+.gm-fly.fl-island .fltok.go{z-index:12;
+ filter:drop-shadow(0 0 1px #fff) drop-shadow(0 0 3px #ffd23f88) drop-shadow(0 6px 5px rgba(8,30,50,.38))}
 .gm-fly.fl-island .fltok.takeoff-lit{z-index:6;
  filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 5px #7ef0a099)}
 .gm-fly.fl-island .fltok.go .flglow,.gm-fly.fl-island .fltok.takeoff-lit .flglow{display:block}
-.gm-fly.fl-island .fl3d-tok{width:100%;height:100%;display:block;overflow:visible}
+.gm-fly.fl-island .fltok.go .flglow,.gm-fly.fl-island .fltok.on-turn .flglow{
+ width:112%;height:112%;opacity:.55;
+ background:radial-gradient(circle,#fff 0 22%,#ffd23f44 48%,rgba(255,210,63,0) 70%);
+ box-shadow:0 0 0 1.5px #fff6}
+.gm-fly.fl-island .fltok .fl-plane,.gm-fly.fl-island .fltok .fl3d-tok{position:relative;z-index:1}
+.gm-fly.fl-island .fl3d-tok{width:100%;height:100%;display:block;overflow:visible;
+ transform:rotate(var(--face,0deg));transform-origin:50% 50%}
 html.gq-std .fltok.go,html.gq-std .fltok.go .flglow,html.gq-std .fltok.takeoff-lit,html.gq-std .fltok.takeoff-lit .flglow{
  animation-iteration-count:infinite!important}

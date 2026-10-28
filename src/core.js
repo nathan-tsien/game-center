@@ -207,7 +207,7 @@ var Dice=GC.Dice={
   st.style.setProperty('--ds',best+'px');st.style.setProperty('--gap',gap+'px');st.style.flexDirection=col?'column':'row';
  },
  /* animate the dice in stage, settle on results; cb when all stopped.
-    opts:{ms,stagger,tail,tick,cls} — 飞行棋传更长 ms + flyroll 做出明显翻滚 */
+    opts:{ms,stagger,tail,tick,cls} — defaults match 大富翁 tumble */
  roll:function(stage,res,cb,opts){
   opts=opts||{};
   var nodes=stage.children,i,iv,tm=[];

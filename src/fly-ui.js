@@ -4,7 +4,7 @@ var FLY=(function(){
 var E=window.FLYE,Store=GC.Store,Sound=GC.Sound,UI=GC.UI,Dice=GC.Dice,Select=GC.Select;
 var TKN=E.TKN,TKC=['#2f80ed','#f2b705','#e53935','#ff4fa3','#1fae5b','#8e44ec'];
 var root,S,busy=false,selv=null,timers=[],ro=null,lastDie=6,cancel=null,fxLayer=null,plateURL=null,bubs={},faceMood={};
-var pokeN={},pokeAt={},pokeLock=0,pokeBurst=0,pokeBurstT=0,duckUntil=0,lastToastTurn=null,lastToastAt=0,flyRoundN=1;
+var pokeN={},pokeAt={},pokeLock=0,pokeBurst=0,pokeBurstT=0,duckUntil=0,lastToastTurn=null,lastToastAt=0,flyRoundN=1,walkShow=null;
 function $q(s){return root.querySelector(s)}
 function later(f,ms){var t=setTimeout(f,ms);timers.push(t);return t}
 function esc(s){return UI.esc(s)}
@@ -13,7 +13,13 @@ function persistMood(p){if(!p)return null;if(S&&S.winner===p.id)return 'proud';v
 function tkAv(tok,sz,cls,mood){var src=avSrc(tok,mood),inn=src?'<img class="tkimg" src="'+src+'" alt="" draggable="false" decoding="async">':'<svg viewBox="-24 -24 48 48"><use href="#tk'+tok+'"/></svg>';return '<span class="tkm '+(cls||'')+'"'+(mood?' data-mood="'+mood+'"':'')+' style="width:'+sz+'px;height:'+sz+'px">'+inn+'</span>'}
 function eco(){try{return GC.Gfx&&GC.Gfx.mode()==='eco'}catch(e){return false}}
 function save(){if(S)S.sv=Date.now();Store.set('fly',S)}
-function load(){var s=Store.get('fly',null);if(s&&s.players&&s.players.length){S=s;if(!S.phase)S.phase='play'}else{S=E.newState()}}
+function load(){
+ var s=Store.get('fly',null);
+ if(s&&s.players&&s.players.length){
+  S=s;if(!S.phase)S.phase='play';
+  S.players.forEach(function(p){(p.planes||[]).forEach(function(pl){if(pl.padLock==null)pl.padLock=false})});
+ }else{S=E.newState()}
+}
 function isl(){return !!(root&&root.classList.contains('fl-island')&&window.FLY3D)}
 function seatOf(p){return E.seatOf?E.seatOf(p):(p&&p.seat!=null?p.seat:((p&&p.id)||0))}
 function planeImg(p){
@@ -23,16 +29,63 @@ function planeImg(p){
  if(src)return '<img class="fl-plane-img" src="'+src+'" alt="" draggable="false" decoding="async">';
  return planeSVG(E.COLORS[seat%4]);
 }
-function planeSVG(color){var gid='pg'+Math.random().toString(36).slice(2,8);return '<svg class="fl-plane" viewBox="-20 -20 40 40" aria-hidden="true"><defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".7"/><stop offset="42%" stop-color="'+color+'"/><stop offset="100%" stop-color="#000" stop-opacity=".28"/></linearGradient><filter id="'+gid+'s"><feDropShadow dx="0" dy="1" stdDeviation="0.7" flood-opacity=".3"/></filter></defs><ellipse cx="0" cy="12" rx="9" ry="2.8" fill="#00000028"/><g transform="translate(0,-1.2) rotate(18)" filter="url(#'+gid+'s)"><path d="M0-14C2.6-14 3.8-10 3.8-5.4L14 3.4V6.6L3.8 2.4V9.6L8.2 13.2V15.4L0 13.6-8.2 15.4V13.2L-3.8 9.6V2.4L-14 6.6V3.4L-3.8-5.4C-3.8-10-2.6-14 0-14Z" fill="url(#'+gid+')" stroke="#fff" stroke-width="1.9" stroke-linejoin="round"/><path d="M0-14C1.7-14 2.6-10.4 2.6-6.6V2.2" stroke="#fff" stroke-width="1.3" opacity=".5" fill="none"/><circle cy="-6.6" r="2.35" fill="#b8ecff" stroke="#fff" stroke-width="0.9"/><ellipse cx="0" cy="4" rx="2.2" ry="1.1" fill="#000" opacity=".12"/></g></svg>'}
+function planeSVG(color){var gid='pg'+Math.random().toString(36).slice(2,8);return '<svg class="fl-plane" viewBox="-20 -20 40 40" aria-hidden="true"><defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".7"/><stop offset="42%" stop-color="'+color+'"/><stop offset="100%" stop-color="#000" stop-opacity=".28"/></linearGradient><filter id="'+gid+'s"><feDropShadow dx="0" dy="1" stdDeviation="0.7" flood-opacity=".3"/></filter></defs><ellipse cx="0" cy="12" rx="9" ry="2.8" fill="#00000028"/><g transform="translate(0,-1.2)" filter="url(#'+gid+'s)"><path d="M0-14C2.6-14 3.8-10 3.8-5.4L14 3.4V6.6L3.8 2.4V9.6L8.2 13.2V15.4L0 13.6-8.2 15.4V13.2L-3.8 9.6V2.4L-14 6.6V3.4L-3.8-5.4C-3.8-10-2.6-14 0-14Z" fill="url(#'+gid+')" stroke="#fff" stroke-width="1.9" stroke-linejoin="round"/><path d="M0-14C1.7-14 2.6-10.4 2.6-6.6V2.2" stroke="#fff" stroke-width="1.3" opacity=".5" fill="none"/><circle cy="-6.6" r="2.35" fill="#b8ecff" stroke="#fff" stroke-width="0.9"/><ellipse cx="0" cy="4" rx="2.2" ry="1.1" fill="#000" opacity=".12"/></g></svg>'}
 
 function ringPos(i){return isl()?window.FLY3D.ringPos(i):E.ringPos(i)}
 function homePos(pid,idx){return isl()?window.FLY3D.homePos(pid,idx):E.homePos(pid,idx)}
 function basePos(pid,k){return isl()?window.FLY3D.basePos(pid,k):E.basePos(pid,k)}
 function cellXY(where,idx,pid){
- if(where==='track')return ringPos(idx);
+ if(where==='track'||where==='pad')return ringPos(idx);
  if(where==='home')return homePos(pid,idx);
  if(where==='done')return isl()?basePos(pid,0):E.donePos(pid);
  return basePos(pid,idx);
+}
+/* 玩具飞机剪影机头朝 −Y，CSS rotate(0) = 朝上。朝下一格：atan2(屏幕 dy,dx)+90。
+   格心走 FLY3D（海岛）或引擎 gridPct（塑料），这样 L 弯/角与看得见的路一致。 */
+function bearingDeg(dx,dy){
+ if(!(dx*dx+dy*dy>1e-8))return 0;
+ return Math.atan2(dy,dx)*180/Math.PI+90;
+}
+function wrap360(a){a=a%360;if(a<0)a+=360;return a}
+function shortestDeg(from,to){
+ var d=wrap360(to)-wrap360(from);
+ if(d>180)d-=360;if(d<-180)d+=360;
+ return from+d;
+}
+function faceCss(deg){return (Math.round(deg*10)/10)+'deg'}
+function flyArriveDeg(seat){
+ seat=((seat%4)+4)%4;
+ if(isl()&&window.FLY3D&&window.FLY3D.flyTrail){
+  var t=window.FLY3D.flyTrail(seat,8);
+  if(t&&t.length>=2)return bearingDeg(t[t.length-1].x-t[t.length-2].x,t[t.length-1].y-t[t.length-2].y);
+ }
+ var a=ringPos(E.FLY_FROM[seat]),b=ringPos(E.FLY_TO[seat]);
+ return bearingDeg(b.x-a.x,b.y-a.y);
+}
+function leavePadDeg(seat){
+ seat=((seat%4)+4)%4;
+ var a=ringPos(E.ENTRY[seat]),b=ringPos((E.ENTRY[seat]+1)%E.TRACK);
+ return bearingDeg(b.x-a.x,b.y-a.y);
+}
+function headingDeg(where,idx,seat,opt){
+ seat=((seat%4)+4)%4;
+ opt=opt||{};
+ var a,b,i,lap=opt.lap,kind=opt.kind;
+ if(where==='base'||where==='done')return leavePadDeg(seat);
+ if(where==='home'){
+  a=homePos(seat,idx);
+  if(idx+1<(E.HOME_CELLS[seat]||[]).length)b=homePos(seat,idx+1);
+  else b={x:50,y:50};
+  return bearingDeg(b.x-a.x,b.y-a.y);
+ }
+ if(kind==='fly')return flyArriveDeg(seat);
+ i=(where==='pad')?E.ENTRY[seat]:(((idx%E.TRACK)+E.TRACK)%E.TRACK);
+ if(lap>=1&&i===E.HOME_GATE[seat]){
+  a=ringPos(i);b=homePos(seat,0);
+  return bearingDeg(b.x-a.x,b.y-a.y);
+ }
+ a=ringPos(i);b=ringPos((i+1)%E.TRACK);
+ return bearingDeg(b.x-a.x,b.y-a.y);
 }
 function gPct(c,r){return E.gridPct(c,r)}
 function cellSizePct(){if(isl())return 5.4;return (100/15)*(root&&root.classList.contains('fl-print')?0.98:1.00)}
@@ -201,6 +254,7 @@ function reactMove(r,before){
  if(k.finish){sayReact(pid,'finishPlane',{mood:'proud'});return}
  if(k.fly){sayReact(pid,'fly12',{mood:'proud',tiny:1});return}
  if(k.jump){sayReact(pid,'jump',{mood:'happy',tiny:1});return}
+ if(k.launch){sayReact(pid,'takeoff',{mood:'happy',tiny:1});return}
  if(k.takeoff){sayReact(pid,'takeoff',{mood:'happy',tiny:1});return}
  if(k.triple6){sayReact(pid,'bounce',{mood:'sad'});return}
  var entered=r.path&&r.path.some(function(s){return s.where==='home'})&&before&&before.where!=='home'&&before.where!=='done';
@@ -392,8 +446,12 @@ function buildIslandBoard(){
  for(i=0;i<E.TRACK;i++){
   var p=ringPos(i),ent=E.ENTRY.indexOf(i),flyFor=E.FLY_FROM.indexOf(i),gateFor=E.HOME_GATE.indexOf(i);
   var cls='flc c'+E.cellColor(i)+(E.isSafe(i)&&ent<0?' safe':'')+(ent>=0?' entry e'+ent:'')+(flyFor>=0?' flypad f'+flyFor:'')+(gateFor>=0?' homegate g'+gateFor:'');
-  var title=flyFor>=0?' title="落到本色飞机格 → 沿虚线横飞 +12"':(gateFor>=0?' title="拐进本色回家道"':'');
+  var title=flyFor>=0?' title="落到本色飞机格 → 沿虚线横飞 +12"':(ent>=0?' title="停机坪 · 掷6先停这里"':(gateFor>=0?' title="拐进本色回家道"':''));
   h+='<div class="'+cls+'" data-i="'+i+'"'+title+' style="left:'+p.x+'%;top:'+p.y+'%;width:'+cs+'%;height:'+cs+'%"></div>';
+  if(ent>=0){
+   var mx=(ent===1||ent===0)?-3.4:3.4, my=(ent===1||ent===2)?-3.4:3.4;
+   h+='<div class="flpadmark" data-p="'+ent+'" style="left:'+(p.x+mx)+'%;top:'+(p.y+my)+'%;--pc:'+E.COLORS[ent]+'">停</div>';
+  }
  }
  for(var hp=0;hp<4;hp++){
   for(var hi=0;hi<(E.HOME_CELLS[hp]||[]).length;hi++){
@@ -518,6 +576,10 @@ function buildBoard(){
    title=' title="落到本色虚线垫 → 横飞 +12"';
   }else label='<span class="flmark"></span>';
   h+='<div class="'+cls+'" data-i="'+i+'"'+title+' style="left:'+p.x+'%;top:'+p.y+'%;width:'+cs+'%;height:'+cs+'%">'+label+'</div>';
+  if(ent>=0){
+   var mx=(ent===1||ent===0)?-3.4:3.4, my=(ent===1||ent===2)?-3.4:3.4;
+   h+='<div class="flpadmark" data-p="'+ent+'" style="left:'+(p.x+mx)+'%;top:'+(p.y+my)+'%;--pc:'+E.COLORS[ent]+'">停</div>';
+  }
  }
  /* home stretch — 连续条，略窄于外圈以露出道间米色 */
  var hs=homeSizePct();
@@ -581,6 +643,7 @@ function renderTokens(){
    var key;
    if(pl.where==='base')key='base|'+p.id+'|'+pl.id;
    else if(pl.where==='done')key='done|'+p.id+'|'+pl.id; /* finished → back to hangar pose */
+   else if(pl.where==='pad')key='pad|'+p.id+'|'+pl.idx;
    else key=pl.where+'|'+pl.idx+'|'+p.id;
    (groups[key]=groups[key]||[]).push({p:p,pl:pl});
   });
@@ -590,22 +653,30 @@ function renderTokens(){
   var g=groups[key];
   g.forEach(function(item,ii){
    var p=item.p,pl=item.pl,pos,off;
-   if(pl.where==='base'||pl.where==='done'){
+   var showWhere=pl.where,showIdx=pl.idx;
+   if(walkShow&&walkShow.pid===p.id&&walkShow.pl===pl.id){
+    showWhere=walkShow.where;showIdx=walkShow.idx;
+   }
+   if(showWhere==='base'||showWhere==='done'){
     pos=basePos(seatOf(p),pl.id);off={dx:0,dy:0};
    }else{
-    pos=cellXY(pl.where,pl.idx,seatOf(p));
+    pos=cellXY(showWhere,showIdx,seatOf(p));
     off=stackOffset(ii,g.length);
    }
    var can=S.pending&&S.pending.mov&&S.turn===p.id&&S.pending.mov.indexOf(pl.id)>=0;
-   var onPad=pl.where==='track'||pl.where==='home';
-   var go=can&&onPad;
-   var lit=pl.where==='base'&&pl.id===waitByPid[p.id];
-   var pose=pl.where==='done'?' done-pose':(pl.where==='base'?' at-base':(onPad?' in-flight':''));
-   var cls='fltok'+pose+(go?' go':'')+(lit?' takeoff-lit':'')+(can&&pl.where==='base'?' can-pick':'');
+   var walking=walkShow&&walkShow.pid===p.id&&walkShow.pl===pl.id;
+   var onPad=showWhere==='track'||showWhere==='home'||showWhere==='pad';
+   var go=can&&onPad&&!walkShow;
+   var lit=showWhere==='base'&&pl.id===waitByPid[p.id]&&!walkShow;
+   var pose=showWhere==='done'?' done-pose':(showWhere==='base'&&!walking?' at-base':(onPad||walking?' in-flight':''))+(showWhere==='pad'?' at-pad':'');
+   var mine=S.phase==='play'&&S.turn===p.id&&(onPad||walking);
+   var cls='fltok'+pose+(go?' go':'')+(lit?' takeoff-lit':'')+(can&&pl.where==='base'?' can-pick':'')+(walking?' walking':'')+(mine?' on-turn':'');
    var badge=pl.where==='done'?'<span class="fl-done-badge" aria-hidden="true">🏁</span>':'';
+   var stand=onPad||walking?'<i class="flstand" aria-hidden="true"></i>':'';
    var halo=(go||lit)?'<i class="flglow" aria-hidden="true"></i>':'';
    var alabel=esc(p.cname)+'飞机'+(pl.id+1)+(pl.where==='done'?'已到达终点':'');
-   h+='<button type="button" class="'+cls+'" data-p="'+p.id+'" data-pl="'+pl.id+'" data-tok="'+p.tok+'" data-seat="'+seatOf(p)+'" data-where="'+pl.where+'" style="left:'+(pos.x+off.dx)+'%;top:'+(pos.y+off.dy)+'%;--pc:'+p.color+'" aria-label="'+alabel+'">'+halo+planeImg(p)+badge+'</button>';
+   var face=headingDeg(showWhere,showIdx,seatOf(p),{lap:walking?walkShow.lap:pl.lap,kind:walking?walkShow.kind:null});
+   h+='<button type="button" class="'+cls+'" data-p="'+p.id+'" data-pl="'+pl.id+'" data-tok="'+p.tok+'" data-seat="'+seatOf(p)+'" data-where="'+showWhere+'" data-face="'+Math.round(wrap360(face))+'" style="left:'+(pos.x+off.dx)+'%;top:'+(pos.y+off.dy)+'%;--pc:'+p.color+';--face:'+faceCss(wrap360(face))+'" aria-label="'+alabel+'">'+stand+halo+planeImg(p)+badge+'</button>';
   });
  });
  el.innerHTML=h;
@@ -632,7 +703,7 @@ function renderPanel(){
  var h='';
  (S.players||[]).forEach(function(p){
   var cur=S.phase==='play'&&p.id===S.turn,done=p.planes.filter(function(x){return x.where==='done'}).length;
-  var fly=p.planes.filter(function(x){return x.where==='track'||x.where==='home'}).length;
+  var fly=p.planes.filter(function(x){return x.where==='track'||x.where==='home'||x.where==='pad'}).length;
   h+='<div class="pc av1 flpc'+(cur?' cur':'')+(S.winner===p.id?' win':'')+'" data-pid="'+p.id+'" style="--pc:'+TKC[p.tok]+'">'+
    '<div class="pcm">'+tkAv(p.tok,72,'av',persistMood(p))+'<div class="pci"><div class="pn">'+esc(p.name)+(cur?'<em>▶</em>':'')+'</div>'+
    '<div class="pcb"><span class="np" title="飞机">✈️'+fly+'/4</span><span class="nw">🏁'+done+'</span>'+
@@ -669,7 +740,7 @@ function renderDock(){
  el.style.left=anc.l+'%';el.style.top=anc.t+'%';
  el.className='fldock fldock-c s-'+anc.k+(ready?' want':' idle')+(duck?' duck':'')+(S.phase==='over'?' over':'')+(noSlide?' no-slide':'');
  el.setAttribute('data-seat',seat);
- el.innerHTML='<div class="fldie-wrap'+(ready?' want':'')+'" id="flDieHit"'+(ready?' role="button" tabindex="0" aria-label="掷骰子"':'')+'><div class="fldie'+(ready?' pulse':'')+'" id="flDie">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
+ el.innerHTML='<div class="fldie-wrap'+(ready?' want':'')+'" id="flDieHit"'+(ready?' role="button" tabindex="0" aria-label="掷骰子"':'')+'><div class="fldie'+(ready?' pulse':'')+'" id="flDie" role="button" aria-label="掷骰子">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
   (ready?'<button class="btn big flroll" id="flRoll">🎲 掷骰子</button>':'')+
   (S.phase==='over'?'<button class="btn pri" id="flAgain">再来一局</button>':'')+
   (hint?'<div class="flhint" id="flHint">'+hint+'</div>':'');
@@ -677,11 +748,12 @@ function renderDock(){
   if(ev){ev.preventDefault();ev.stopPropagation()}
   if(S.phase==='play'&&S.roll==null&&!busy)doRoll();
  }
- var hit=$q('#flDieHit'),r=$q('#flRoll'),a=$q('#flAgain');
+ var hit=$q('#flDieHit'),d=$q('#flDie'),r=$q('#flRoll'),a=$q('#flAgain');
  if(hit){
   hit.onclick=tapRoll;
   hit.onkeydown=function(ev){if(ev&&(ev.key==='Enter'||ev.key===' '))tapRoll(ev)};
  }
+ if(d)d.onclick=tapRoll;
  if(r)r.onclick=tapRoll;
  if(a)a.onclick=function(){startNew()};
 }
@@ -713,6 +785,10 @@ function playMoveFx(r){
    var tp=ringPos(e.idx!=null?e.idx:E.ENTRY[takeSeat]);
    sparkAt(tp.x,tp.y,'take',8);
    duckDock(900);
+  }else if(e.k==='launch'){
+   var launchSeat=e.seat!=null?e.seat:(S.players[e.pid]?seatOf(S.players[e.pid]):e.pid);
+   var lp=ringPos(e.idx!=null?e.idx:E.ENTRY[launchSeat]);
+   sparkAt(lp.x,lp.y,'take',6);
   }else if(e.k==='triple6'){
    UI.toast('三连6!一架飞机回基地',1600,'warn');
   }
@@ -747,7 +823,7 @@ function doRoll(forced){
     else if(r.v===1)sayReact(S.turn,'lowRoll',{mood:'worried',tiny:1});
    }
    if(r.mov.length===1){later(function(){pickPlane(r.mov[0])},280)}
-  },light?{ms:480,stagger:80,tail:220,tick:90,cls:'flyroll-eco'}:{ms:1250,stagger:160,tail:420,tick:70,cls:'flyroll'});
+  },light?{ms:420,stagger:80,tail:220,tick:90}:null);
  }else{
   var r=E.roll(S,v);busy=false;save();render();
   if(r.ok&&r.passed)later(function(){noteTurnAdvance(prevTurn)},80);
@@ -755,31 +831,105 @@ function doRoll(forced){
  }
 }
 function wrapDie(die){var w=document.createElement('div');w.className='ctdw';die.innerHTML='';die.appendChild(w);var d=document.createElement('div');d.className='die';w.appendChild(d);return w}
+function walkMs(){return eco()||(UI.reduce&&UI.reduce())?40:300}
+function visSteps(r){
+ var steps=[],i,s,e,last;
+ if(r.path)for(i=0;i<r.path.length;i++){
+  s=r.path[i];
+  steps.push({where:s.where,idx:s.idx,kind:s.kind||'step',lap:s.lap});
+ }
+ if(r.ev)for(i=0;i<r.ev.length;i++){
+  e=r.ev[i];
+  if(e.k!=='jump'&&e.k!=='fly')continue;
+  last=steps.length?steps[steps.length-1]:null;
+  if(!last||last.where!=='track'||last.idx!==e.to)steps.push({where:'track',idx:e.to,kind:e.k});
+ }
+ return steps;
+}
+function clearWalkHit(){
+ if(!root)return;
+ Array.prototype.forEach.call(root.querySelectorAll('.walkhit'),function(el){el.classList.remove('walkhit')});
+}
+function hitCell(where,idx,seat){
+ clearWalkHit();
+ if(!root)return;
+ if(where==='track'||where==='pad'){
+  var c=root.querySelector('.flc[data-i="'+idx+'"]');
+  if(c)c.classList.add('walkhit');
+ }else if(where==='home'){
+  var h=root.querySelector('.flhome[data-p="'+seat+'"][data-h="'+idx+'"]');
+  if(h)h.classList.add('walkhit');
+ }
+}
+function placeWalkTok(){
+ if(!walkShow||!root)return;
+ var b=root.querySelector('.fltok[data-p="'+walkShow.pid+'"][data-pl="'+walkShow.pl+'"]');
+ if(!b)return;
+ var p=S.players[walkShow.pid],seat=seatOf(p),pos=cellXY(walkShow.where,walkShow.idx,seat);
+ var deg=headingDeg(walkShow.where,walkShow.idx,seat,{lap:walkShow.lap,kind:walkShow.kind});
+ if(walkShow.face==null)walkShow.face=deg;
+ else walkShow.face=shortestDeg(walkShow.face,deg);
+ b.classList.add('walking','in-flight','on-turn');
+ b.classList.remove('at-base','go','takeoff-lit');
+ if(!b.querySelector('.flstand')){
+  var stEl=document.createElement('i');stEl.className='flstand';stEl.setAttribute('aria-hidden','true');
+  b.insertBefore(stEl,b.firstChild);
+ }
+ b.style.left=pos.x+'%';
+ b.style.top=pos.y+'%';
+ b.style.setProperty('--face',faceCss(walkShow.face));
+ b.setAttribute('data-face',String(Math.round(wrap360(walkShow.face))));
+ b.setAttribute('data-where',walkShow.where);
+ hitCell(walkShow.where,walkShow.idx,seat);
+}
+function walkMove(pid,plId,before,r,done){
+ var steps=visSteps(r);
+ if(!steps.length){walkShow=null;done();return}
+ walkShow={pid:pid,pl:plId,where:before.where,idx:before.idx,lap:before.lap,kind:before.where==='base'?'takeoff':'step'};
+ render();
+ var i=0,ms=walkMs(),p=S.players[pid];
+ function nx(){
+  if(i>=steps.length){walkShow=null;clearWalkHit();done();return}
+  var st=steps[i++];
+  walkShow.where=st.where;walkShow.idx=st.idx;walkShow.kind=st.kind;walkShow.lap=st.lap;
+  placeWalkTok();
+  try{Sound.step()}catch(e){}
+  if(!eco()){
+   var xy=cellXY(st.where,st.idx,seatOf(p));
+   sparkAt(xy.x,xy.y,'trail',2);
+  }
+  later(nx,st.kind==='fly'?ms*2:(st.kind==='jump'||st.kind==='takeoff'?ms+60:ms));
+ }
+ if(typeof requestAnimationFrame==='function')requestAnimationFrame(function(){later(nx,eco()?16:48)});
+ else later(nx,eco()?16:48);
+}
 function pickPlane(plId){
  if(busy||S.roll==null)return;
  busy=true;
- var before=null,prevTurn=S.turn;
- try{before=S.players[S.turn].planes[plId];before={where:before.where,idx:before.idx}}catch(e){}
+ var before=null,prevTurn=S.turn,pid=S.turn;
+ try{before=S.players[S.turn].planes[plId];before={where:before.where,idx:before.idx,lap:before.lap}}catch(e){before={where:'track',idx:0,lap:0}}
  var r=E.applyMove(S,plId);
- busy=false;
- if(!r.ok){UI.toast(r.err||'不能走',1400,'warn');return}
+ if(!r.ok){busy=false;UI.toast(r.err||'不能走',1400,'warn');return}
  save();
- /* flight trail along dice path */
- if(r.path&&r.path.length&&!eco()){
-  var pid=S.hist.length?S.hist[S.hist.length-1].pid:0;
-  var pts=r.path.filter(function(s){return s.where==='track'}).map(function(s){return ringPos(s.idx)});
-  trailAlong(pts);
+ if(before&&before.where==='base')duckDock(1100);
+ function finish(){
+  walkShow=null;clearWalkHit();
+  playMoveFx(r);
+  var tookOff=r.ev&&r.ev.some(function(e){return e.k==='takeoff'});
+  var launched=r.ev&&r.ev.some(function(e){return e.k==='launch'});
+  if(r.sent&&r.sent.length){Sound.seq([[880,.06],[440,.1]]);UI.toast('叠吃!送回基地',1200,'star')}
+  else if(tookOff){Sound.seq([[523,.08],[784,.12]]);UI.toast(S.again?'先到停机坪,再掷一次!':'先到停机坪!',1400,'star')}
+  else if(launched){Sound.seq([[523,.08],[784,.12]]);if(!r.ev.some(function(e){return e.k==='jump'||e.k==='fly'}))UI.toast('正式起飞!',1100,'star')}
+  else if(r.ev&&r.ev.some(function(e){return e.k==='finish'})){Sound.hi();UI.toast('到达终点!',1400,'star')}
+  else if(!(r.ev&&r.ev.some(function(e){return e.k==='jump'||e.k==='fly'})))Sound.pop();
+  if(S.phase==='over'){var w=S.players[S.winner];try{GC.Intro.banner(w.tok,w.name,'飞到终点啦!')}catch(e){}UI.toast('🏆 '+w.name+' 飞到终点!',2500,'star')}
+  else if(S.again&&!tookOff)UI.toast('再掷一次!',1000,'info');
+  render();
+  reactMove(r,before);
+  busy=false;
+  later(function(){noteTurnAdvance(prevTurn)}, eco()||(UI.reduce&&UI.reduce())?80:280);
  }
- playMoveFx(r);
- if(r.sent&&r.sent.length){Sound.seq([[880,.06],[440,.1]]);UI.toast('叠吃!送回基地',1200,'star')}
- else if(r.ev&&r.ev.some(function(e){return e.k==='takeoff'})){Sound.seq([[523,.08],[784,.12]]);if(!r.ev.some(function(e){return e.k==='jump'||e.k==='fly'}))UI.toast('起飞!',1000,'star')}
- else if(r.ev&&r.ev.some(function(e){return e.k==='finish'})){Sound.hi();UI.toast('到达终点!',1400,'star')}
- else if(!(r.ev&&r.ev.some(function(e){return e.k==='jump'||e.k==='fly'})))Sound.pop();
- if(S.phase==='over'){var w=S.players[S.winner];try{GC.Intro.banner(w.tok,w.name,'飞到终点啦!')}catch(e){}UI.toast('🏆 '+w.name+' 飞到终点!',2500,'star')}
- else if(S.again)UI.toast('再掷一次!',1000,'info');
- render();
- reactMove(r,before);
- later(function(){noteTurnAdvance(prevTurn)}, eco()||(UI.reduce&&UI.reduce())?80:420);
+ walkMove(pid,plId,before,r,finish);
 }
 function rulesModal(){
  UI.modal('<h2>飞行棋规则</h2><p style="text-align:left;line-height:1.5">'+
@@ -787,7 +937,9 @@ function rulesModal(){
   '• 走到自己颜色的 <b>✈ 飞机格</b>（连着虚线航线）→ 沿虚线 <b>横飞 +12</b> 格<br>'+
   '• 横飞路上能 <b>撞掉</b> 别人的飞机；起飞落到格上 <b>不</b> 触发横飞<br><br>'+
   '<b>其他规则</b><br>'+
-  '• 掷到 <b>6</b> 才能起飞，并可再掷一次<br>'+
+  '• 掷到 <b>6</b>：机库飞机先到本色起飞格（<b>停机坪</b>），本回合停在那儿；<b>下一回合</b>才沿跑道<b>顺时针</b>正式起飞<br>'+
+  '• 黄·蓝·红·绿四色停机坪到终点都是 <b>一圈 52 格 + 回家 6 格</b>，一样远<br>'+
+  '• 掷到 6 还可再掷一次（刚上停机坪的那架本回合不能再走）<br>'+
   '• 落到自己颜色格子（彩色格，或中间小圆点是自己颜色）→ <b>同色跳跃</b>到下一同色格<br>'+
   '• 己方飞机可<b>叠机</b>；敌机落到叠机上 → 整叠回基地<br>'+
   '• <b>★ 星星格</b>是安全区，不能被吃<br>'+
@@ -816,6 +968,7 @@ function fit(){
 }
 var api={
  state:function(){return S},engine:E,render:function(){render()},roll:function(v){return doRoll(v)},
+ headingDeg:headingDeg,leavePadDeg:leavePadDeg,flyArriveDeg:flyArriveDeg,
  poke:function(pid,pl){pokePlane(pid,pl)},
  setPrintMode:function(on){
   if(!root)return;
@@ -836,7 +989,7 @@ return{
   if(S&&S.players&&S.players.length)flyRoundN=1+Math.floor(((S.hist&&S.hist.length)||0)/S.players.length);
   /* v14：默认 3D 卡通海岛棋盘；setBoardStyle('print'|'plastic') 可切回旧外观 */
   r.classList.add('gm-fly',window.FLY3D?'fl-island':'fl-print');
-  r.innerHTML='<div class="fllay"><div class="flbw"><div id="flb" class="flb"></div></div><div class="flside"><div class="flp" id="flp"></div><div class="flruletip" title="虚线横飞规则"><b>本色✈飞机格</b><br>= 沿虚线横飞+12<br>★星星格安全 · 同色格跳跃<br><span>掷6起飞 · 起飞不触发跳/飞</span></div></div></div>';
+  r.innerHTML='<div class="fllay"><div class="flbw"><div id="flb" class="flb"></div></div><div class="flside"><div class="flp" id="flp"></div><div class="flruletip" title="飞行棋规则"><b>本色✈飞机格</b><br>= 沿虚线横飞+12<br>★星星格安全 · 同色格跳跃<br><span>掷6先到停机坪 · 四色到终点一样远</span></div></div></div>';
   var nr=ctx.nav('list','规则',{id:'flRules'}),nn=ctx.nav('refresh','新局',{id:'flNew'}),ne=ctx.nav('star','省电',{id:'flEco'});
   ctx.slot.appendChild(nr);ctx.slot.appendChild(nn);ctx.slot.appendChild(ne);
   nr.onclick=function(){Sound.tap();rulesModal()};
@@ -849,7 +1002,7 @@ return{
   if(window.ResizeObserver){ro=new ResizeObserver(function(){fit()});ro.observe(root)}else window.addEventListener('resize',fit);
   fit();
  },
-  unmount:function(){timers.forEach(clearTimeout);timers=[];bubs={};faceMood={};pokeN={};pokeAt={};duckUntil=0;lastToastTurn=null;if(cancel)cancel();if(ro)ro.disconnect();ro=null;if(S)save();if(selv){try{selv.remove()}catch(e){}}selv=null;document.documentElement.classList.remove('fl-land');fxLayer=null;if(plateURL){try{URL.revokeObjectURL(plateURL)}catch(e){}plateURL=null}root=null},
+  unmount:function(){timers.forEach(clearTimeout);timers=[];bubs={};faceMood={};pokeN={};pokeAt={};duckUntil=0;lastToastTurn=null;walkShow=null;if(cancel)cancel();if(ro)ro.disconnect();ro=null;if(S)save();if(selv){try{selv.remove()}catch(e){}}selv=null;document.documentElement.classList.remove('fl-land');fxLayer=null;if(plateURL){try{URL.revokeObjectURL(plateURL)}catch(e){}plateURL=null}root=null},
  api:api
 };
 })();
