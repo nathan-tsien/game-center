@@ -561,6 +561,24 @@ function playZoomOut(color,icon,tile){
  var a=x.animate([{left:'0px',top:'0px',width:W+'px',height:H+'px',borderRadius:'0px',opacity:1},{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',borderRadius:'34px',opacity:1,offset:.8},{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',borderRadius:'34px',opacity:0}],{duration:420,easing:'cubic-bezier(.5,0,.2,1)',fill:'forwards'});
  a.onfinish=function(){tile.style.visibility='';tile.classList.add('popped');xfHide()};
 }
+function navInGame(){var r=document.body.getAttribute('data-route');return !!(r&&r!=='home')}
+function syncNavFold(){
+ var ingame=navInGame(),hid=ingame&&!!Store.get('navHidden',false),b=$('navFold');
+ document.body.classList.toggle('nav-hid',hid);
+ if(!b)return;
+ b.setAttribute('aria-expanded',hid?'false':'true');
+ b.setAttribute('aria-label',hid?'展开顶栏,回到首页和设置':'收起顶栏,棋盘更大');
+ b.innerHTML=hid
+  ?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg><span>菜单</span>'
+  :'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg><span>收起</span>';
+}
+function toggleNavFold(){
+ if(!navInGame())return;
+ var hid=!document.body.classList.contains('nav-hid');
+ Store.set('navHidden',hid);Sound.tap();syncNavFold();
+ UI.toast(hid?'顶栏收起来啦 · 再点上面「菜单」可以打开':'顶栏回来了',1600,'info');
+ requestAnimationFrame(function(){try{window.dispatchEvent(new Event('resize'))}catch(e){}});
+}
 function route(){
  var id=(location.hash||'').replace(/^#\/?/,''),g=null;
  if(id==='bank'){location.replace('#/china');return}
@@ -571,19 +589,21 @@ function route(){
  view.innerHTML='';$('navslot').innerHTML='';
  if(!g){
   document.body.setAttribute('data-route','home');$('nTitle').innerHTML='';document.title='游戏中心';renderHome();
-  prevId='home';
+  prevId='home';syncNavFold();
   if(fromG&&from!=='home'){var tile=view.querySelector('.tile[data-id="'+from+'"]');playZoomOut(fromG.color,fromG.icon,tile)}
   return;
  }
  document.body.setAttribute('data-route',g.id);$('nTitle').innerHTML='<span class="tic">'+g.icon+'</span>'+esc(g.name);document.title=g.name;
  var root=document.createElement('div');root.className='gm gm-'+g.id;view.appendChild(root);
  current=g;g.mount(root,buildCtx($('navslot')));
- prevId=g.id;
+ prevId=g.id;syncNavFold();
  if(zoom&&zoom.id===g.id){playZoomIn(zoom)}else if(from==='home'||from===''){if(from==='home')root.classList.add('fadein')}
  zoom=null;
 }
 window.addEventListener('hashchange',route);
 $('nHome').onclick=function(){Sound.tap();if(backFn)backFn();else location.hash='#/'};
+if($('navFold'))$('navFold').onclick=function(){toggleNavFold()};
+GC.navFold={sync:syncNavFold,toggle:toggleNavFold,hidden:function(){return document.body.classList.contains('nav-hid')}};
 function syncSnd(){var b=$('nSnd');b.innerHTML=(Sound.on?UI.ICO.snd:UI.ICO.mute)+'<span>'+(Sound.on?'声音':'静音')+'</span>';b.classList.toggle('off',!Sound.on)}
 $('nSnd').onclick=function(){Sound.cfg.sound=!Sound.on;Sound.save();if(!Sound.on&&GC.Voice)GC.Voice.cancel();syncSnd();if(Sound.on)Sound.pop();UI.toast(Sound.on?'声音已开启':'已静音',1200,Sound.on?'snd':'mute')};
 $('nSet').innerHTML=UI.ICO.gear+'<span>设置</span>';
