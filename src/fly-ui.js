@@ -74,11 +74,12 @@ function flashMoodFace(pid,kind){
  if(img){img.setAttribute('src',src);img.setAttribute('data-flash-mood',kind);
   later(function(){if(img.getAttribute('data-flash-mood')!==kind)return;var back=avSrc(p.tok,persistMood(p));if(back)img.setAttribute('src',back);img.removeAttribute('data-flash-mood')},2200)}
 }
+var FLY_PLATE={happy:'起飞啦!',proud:'冲向终点!',angry:'叠吃!',sad:'回基地了…',worried:'小心!',sleep:'休息一下…'};
 function mood(pid,kind,o){
  if(!GC.Mood)return;var p=P(pid);if(!p||!kind)return;
  try{flashMoodFace(pid,kind)}catch(e){}
  var t=moodTarget(pid);
- try{GC.Mood.play(p.tok,kind,t||document.body,Object.assign({key:'fl'+kind+pid},o||{}))}catch(x){}
+ try{GC.Mood.play(p.tok,kind,t||document.body,Object.assign({key:'fl'+kind+pid,theme:'fly',plate:FLY_PLATE[kind]||''},o||{}))}catch(x){}
 }
 function showBubble(p,txt,type){
  if(!p||!txt||!root)return;
@@ -100,7 +101,7 @@ function restoreBubs(){
 function sayReact(pid,type,o){
  o=o||{};var p=P(pid);if(!p||!type)return '';
  var txt='',LN=window.CTE_LINES;
- try{txt=(LN&&LN.pick)?LN.pick(p.tok,type,function(n){return Dice.int(n)}):''}catch(e){}
+ try{txt=(LN&&LN.pickFly)?LN.pickFly(p.tok,type,function(n){return Dice.int(n)}):''}catch(e){}
  if(txt){showBubble(p,txt,type);try{GC.Voice.say(txt,p.tok,{queue:1,prot:1})}catch(x){}}
  if(o.mood)mood(pid,o.mood,{tiny:!!o.tiny,noFs:!!o.tiny,key:o.key||('fl'+type+pid)});
  return txt;
@@ -642,7 +643,7 @@ function pickPlane(plId){
  else if(r.ev&&r.ev.some(function(e){return e.k==='takeoff'})){Sound.seq([[523,.08],[784,.12]]);if(!r.ev.some(function(e){return e.k==='jump'||e.k==='fly'}))UI.toast('起飞!',1000,'star')}
  else if(r.ev&&r.ev.some(function(e){return e.k==='finish'})){Sound.hi();UI.toast('到达终点!',1400,'star')}
  else if(!(r.ev&&r.ev.some(function(e){return e.k==='jump'||e.k==='fly'})))Sound.pop();
- if(S.phase==='over'){var w=S.players[S.winner];try{GC.Intro.banner(w.tok,w.name,'获胜啦!')}catch(e){}UI.toast('🏆 '+w.name+' 获胜!',2500,'star')}
+ if(S.phase==='over'){var w=S.players[S.winner];try{GC.Intro.banner(w.tok,w.name,'飞到终点啦!')}catch(e){}UI.toast('🏆 '+w.name+' 飞到终点!',2500,'star')}
  else if(S.again)UI.toast('再掷一次!',1000,'info');
  render();
  reactMove(r,before);
@@ -664,7 +665,7 @@ function rulesModal(){
 }
 function startSelect(){
  if(selv){try{selv.remove()}catch(e){}selv=null}
- selv=Select.screen(root,{kind:'tk',min:2,max:4,title:'飞行棋 · 选角色',sub:'2–4 人 · 点角色入座 · 座位颜色=红黄蓝绿飞机',ok:'开始起飞',
+ selv=Select.screen(root,{kind:'tk',min:2,max:4,title:'飞行棋 · 选角色',sub:'2–4 人 · 点角色入座 · 座位颜色=红黄蓝绿飞机',ok:'开始起飞',catchSet:'fly',theme:'fly',
   onDone:function(list){
    selv=null;S=E.newState();E.startGame(S,list.map(function(x){return{tok:x.tok,name:x.name||TKN[x.tok]}}));save();
    buildBoard();render();fit();

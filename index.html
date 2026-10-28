@@ -1860,7 +1860,7 @@ GC.Voice=(function(){
   var now=Date.now();if(txt===say.lt&&now-last<2500)return;say.lt=txt;if(opt.low&&busy()&&now-last<1500)return;last=now;
   /* v23: a character line (prot) is never cut by a later announcement — that one queues behind it */
   var room=(qu.length+(cur||dec?1:0)+q)<3,queue=busy()&&((opt.queue&&room)||(prot()&&room));if(!queue&&!(busy()&&prot()))stopAll();else if(!queue)return;
-  var k=clipKey(txt,tok);
+  var k=opt.tts?null:clipKey(txt,tok);
   if(k){qu.push({k:k,txt:txt,tok:tok,prot:!!opt.prot});playNext()}
   else{try{if(!queue&&ss)ss.cancel()}catch(e){}tts(txt,tok,!!opt.prot)}
  }
@@ -2077,8 +2077,11 @@ GC.Mood=(function(){
  };
  var GLY={angry:'💢',happy:'✨',worried:'💦',proud:'⭐',sad:'💧',sleep:'💤'};
  var PLATE={sad:'破财了…',happy:'发财啦!',worried:'危险!',proud:'大富豪!',sleep:'睡觉中…',angry:'生气啦!'};
+ var PLATE_FLY={sad:'回基地了…',happy:'起飞啦!',worried:'小心!',proud:'冲向终点!',sleep:'休息一下…',angry:'叠吃!'};
  var BITS={sad:['💧','💧','💸','🪙','😢'],happy:['✨','⭐','🪙','¥','🎉','💛'],worried:['💦','💦','⚠️','😰'],proud:['👑','⭐','✦','💛','🏆'],sleep:['💤','😴','Z','z','🌙']};
- function showcase(tok,kind){
+ var BITS_FLY={sad:['💧','✈','🏠','😢'],happy:['✨','⭐','✈','🎉'],worried:['💦','⚠️','😰'],proud:['⭐','✦','🏆','✈'],sleep:['💤','😴','Z','z','🌙'],angry:['💥','✈','🔥']};
+ function showcase(tok,kind,o){
+  o=o||{};
   var _prev=document.querySelector('.moodfs');if(_prev){_prev.remove();live=Math.max(0,live-1)} /* replace stale showcase */
   var el=document.createElement('div');el.className='moodfs m-'+kind+' t'+tok;el.setAttribute('data-mood',kind);
   /* v29: FULL-BODY mood portrait first (CT_ART_MOOD); chips stay for board. proud→happy body. tok4 angry→CT_ART_ANGRY */
@@ -2091,8 +2094,10 @@ GC.Mood=(function(){
    if(!port){var AV=window.CT_AV;if(AV&&AV[tok])port='<img class="mfs-port mfs-face" src="'+AV[tok]+'" alt="" draggable="false">'}
   }catch(e){}
   if(!port)port='<div class="mfs-port" style="width:160px;height:160px;border-radius:50%;background:'+(COL[tok]||'#999')+';display:flex;align-items:center;justify-content:center;font-size:64px">'+(GLY[kind]||'✨')+'</div>';
-  var bits='';(BITS[kind]||[]).forEach(function(ch,i){var a=(i/(BITS[kind].length))*Math.PI*2,dx=Math.cos(a)*(90+i*18),dy=Math.sin(a)*(70+i*12)-40;bits+='<i style="left:50%;top:55%;--dx:'+Math.round(dx)+'px;--dy:'+Math.round(dy)+'px;animation-delay:'+(i*.08)+'s;font-size:'+(22+i%3*6)+'px">'+ch+'</i>'});
-  el.innerHTML='<div class="mfs-dim"></div><div class="mfs-bits">'+bits+'</div><div class="mfs-card">'+port+'<div class="mfs-plate">'+(PLATE[kind]||'')+'</div></div>';
+  var bitSrc=(o.theme==='fly'?BITS_FLY:BITS),bitList=bitSrc[kind]||BITS[kind]||[];
+  var bits='';bitList.forEach(function(ch,i){var a=(i/(bitList.length))*Math.PI*2,dx=Math.cos(a)*(90+i*18),dy=Math.sin(a)*(70+i*12)-40;bits+='<i style="left:50%;top:55%;--dx:'+Math.round(dx)+'px;--dy:'+Math.round(dy)+'px;animation-delay:'+(i*.08)+'s;font-size:'+(22+i%3*6)+'px">'+ch+'</i>'});
+  var plateTxt=o.plate||(o.theme==='fly'?PLATE_FLY[kind]:PLATE[kind])||'';
+  el.innerHTML='<div class="mfs-dim"></div><div class="mfs-bits">'+bits+'</div><div class="mfs-card">'+port+'<div class="mfs-plate">'+plateTxt+'</div></div>';
   document.body.appendChild(el);live++;
   var life=Math.round(3200/((GC.Intro&&GC.Intro.speed)?GC.Intro.speed():1)); /* v29: longer so big body art is readable */
   el.setAttribute('data-life',life);
@@ -2107,11 +2112,11 @@ GC.Mood=(function(){
   o=o||{};if(o.off)return null;var key=(o.key!=null?o.key:tok)+'',now=Date.now();
   if(!o.force&&last[key]&&now-last[key]<2000)return null;if(live>=3)return null;last[key]=now;
   /* v24: attack/angry for 2/3/4/5 → painted VFX (canvas); the token still gets its mf- squash */
-  if(kind==='angry'&&!o.noFx&&!reduce()&&GC.FX&&GC.FX.has(tok)){var fx=null;try{fx=GC.FX.attack(tok,target,{target:target&&target.animate?target:null,shakeEl:o.shakeEl||document.querySelector('.ctb')||document.body,super:true})}catch(e){}
+  if(kind==='angry'&&!o.noFx&&!reduce()&&GC.FX&&GC.FX.has(tok)){var fx=null;try{fx=GC.FX.attack(tok,target,{target:target&&target.animate?target:null,shakeEl:o.shakeEl||document.querySelector('.ctb')||document.body,super:true,caption:o.plate||o.caption})}catch(e){}
    if(fx){if(target&&target.classList){target.classList.add('mf-angry');setTimeout(function(){target.classList.remove('mf-angry')},1200)}try{GC.Mood._log.push(tok+kind+'+fx')}catch(e){}return fx}}
   /* v27/v28: full-screen mood showcase for happy/sad/worried/proud/sleep (eco / reduced → tiny glyph path below) */
   if(!o.noFs&&!o.tiny&&(kind==='happy'||kind==='sad'||kind==='worried'||kind==='proud'||kind==='sleep'||kind==='angry')&&!reduce()&&!(GC.Gfx&&GC.Gfx.mode()==='eco')){
-   var fs=showcase(tok,kind);if(fs){if(target&&target.classList){var fcls='mf-'+kind;target.classList.add(fcls);setTimeout(function(){target.classList.remove(fcls)},1600)}try{GC.Mood._log.push(tok+kind+'+fs')}catch(e){}return fs}}
+   var fs=showcase(tok,kind,o);if(fs){if(target&&target.classList){var fcls='mf-'+kind;target.classList.add(fcls);setTimeout(function(){target.classList.remove(fcls)},1600)}try{GC.Mood._log.push(tok+kind+'+fs')}catch(e){}return fs}}
   var x,y,sz;if(target&&target.getBoundingClientRect){var r=target.getBoundingClientRect();if(!r.width){/* v29: still allow tiny glyph at viewport center when target not laid out */}else{x=r.left+r.width/2;y=r.top+r.height/2;sz=Math.max(28,Math.min(90,Math.min(r.width,r.height)))}}
   if(x==null){if(target&&target.x!=null){x=target.x;y=target.y;sz=target.s||48}else{x=window.innerWidth/2;y=window.innerHeight/2;sz=48}}
   var d=document.createElement('div'),rd=reduce()||(GC.Gfx&&GC.Gfx.mode()==='eco');d.className='mood m-'+kind+' t'+tok+(rd?' rd':'');d.style.left=x+'px';d.style.top=y+'px';d.style.setProperty('--s',sz+'px');d.style.setProperty('--mc',COL[tok]||'#999');
@@ -2392,7 +2397,7 @@ GC.FX=(function(){
   function flash(a){var f=document.createElement('div');f.className='fxflash';f.style.cssText='position:'+(full?'fixed':'absolute')+';inset:0;background:#fff;pointer-events:none;z-index:'+(full?(SUPER?81:61):'auto');host.appendChild(f);try{f.animate([{opacity:a*(SUPER?1.15:1)},{opacity:0}],{duration:SUPER?380:240,easing:'ease-out'}).onfinish=function(){f.remove()}}catch(e){f.remove()}}
   function tint(col){var f=document.createElement('div');f.style.cssText='position:fixed;inset:0;background:'+col+';pointer-events:none;z-index:'+(SUPER?79:59);document.body.appendChild(f);try{f.animate([{opacity:0},{opacity:1,offset:.18},{opacity:0}],{duration:Math.min(SUPER?1400:900,D*(SUPER?.55:.45)),easing:'ease-out'}).onfinish=function(){f.remove()}}catch(e){f.remove()}}
   function dimBoard(){var f=document.createElement('div');f.className='fxdim';f.style.cssText='position:fixed;inset:0;background:rgba(8,4,20,.55);pointer-events:none;z-index:78';document.body.appendChild(f);try{f.animate([{opacity:0},{opacity:1,offset:.12},{opacity:1,offset:.72},{opacity:0}],{duration:D,easing:'ease-in-out'}).onfinish=function(){f.remove()}}catch(e){setTimeout(function(){f.remove()},D)}
-   try{var NM=['小狗','小狮子','不不奥特曼','哎呀公主','温柔喷火龙','猪肉战神'];var plate=document.createElement('div');plate.className='fxplate';plate.textContent=(NM[tok]||'')+' · 大招!';
+   try{var NM=['小狗','小狮子','不不奥特曼','哎呀公主','温柔喷火龙','猪肉战神'];var plate=document.createElement('div');plate.className='fxplate';plate.textContent=o.caption||((NM[tok]||'')+' · 大招!');
     plate.style.cssText='position:fixed;left:4%;bottom:8%;z-index:82;pointer-events:none;font:900 clamp(18px,3.6vh,36px)/1.1 system-ui,sans-serif;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.45),0 0 18px rgba(255,180,60,.7);letter-spacing:2px';
     document.body.appendChild(plate);
     try{plate.animate([{opacity:0,transform:'translateY(18px) scale(.9)'},{opacity:1,transform:'none',offset:.15},{opacity:1,offset:.75},{opacity:0,transform:'translateY(-8px)'}],{duration:D,easing:'ease-out'}).onfinish=function(){plate.remove()}}catch(e){setTimeout(function(){plate.remove()},D)}
@@ -2416,14 +2421,17 @@ var Select=GC.Select={
  },
  /* v16: 选角色时的招牌台词 + 气泡 */
  CATCH:{"0": ["汪汪!小狗来啦,一起玩吧!", "汪!我的尾巴已经准备好摇起来啦!"], "1": ["嗷呜!本王驾到,大家准备好了吗?", "本王要当最厉害的大富翁!"], "2": ["不不不!我是最强的,出发!", "能量满满,冲冲冲!"], "3": ["哎呀~本公主来啦,好开心呀!", "哎呀呀,我要买一座粉色城堡!"], "4": ["你好呀,小龙会温柔地陪你玩。", "呼~小火苗准备好啦,我们慢慢来。"], "5": ["猪肉战神登场!", "哼!哼!猪肉战神,前来报到!", "吃饱了肉,战神天下无敌!"], "p0": ["红色飞机准备起飞,冲上云霄!"], "p1": ["黄色飞机,亮晶晶出发啦!"], "p2": ["蓝色飞机已就位,目标终点!"], "p3": ["绿色飞机呼呼呼,飞得最稳啦!"], "r0": ["粉色兔子蹦蹦跳,我来啦!"], "r1": ["紫色兔子,神秘登场!"], "r2": ["黄色兔子,胡萝卜冲呀!"], "r3": ["青色兔子跳得最高!"], "r4": ["橙色兔子,蹦跶蹦跶出发!"], "r5": ["蓝色兔子准备好啦!"]},
- cheer:function(kind,i,card){
-  var tag=kind==='tk'?String(i):(kind==='plane'?'p':'r')+i,a=Select.CATCH[tag];if(!a||!a.length)return;
+ cheer:function(kind,i,card,opt){
+  opt=opt||{};
+  var tag=kind==='tk'?String(i):(kind==='plane'?'p':'r')+i,a=null;
+  if(opt.catchSet==='fly'){try{var FL=window.CTE_LINES&&window.CTE_LINES.FLY;a=FL&&FL[i]&&FL[i].select}catch(e){}}
+  if(!a||!a.length)a=Select.CATCH[tag];if(!a||!a.length)return;
   var txt=a[Math.floor(Math.random()*a.length)];
-  try{GC.Voice.say(txt,tag)}catch(e){}
+  try{GC.Voice.say(txt,kind==='tk'?i:tag)}catch(e){}
   if(kind==='tk'){var shown=false;try{shown=GC.Intro.select(i,txt)}catch(e){}if(shown){if(card){card.classList.remove('talk');void card.offsetWidth;card.classList.add('talk');setTimeout(function(){card.classList.remove('talk')},1800)}return}}
   if(!card)return;Array.prototype.forEach.call(document.querySelectorAll('.selbub'),function(x){x.remove()});
   card.classList.remove('talk');void card.offsetWidth;card.classList.add('talk');
-  if(kind==='tk'){var av=card.querySelector('.tkav')||card;try{GC.Mood.play(i,'happy',av,{key:'sel',force:true})}catch(e){}}
+  if(kind==='tk'){var av=card.querySelector('.tkav')||card,mo={key:'sel',force:true};if(opt.theme==='fly'){mo.theme='fly';mo.plate='准备起飞!'}try{GC.Mood.play(i,'happy',av,mo)}catch(e){}}
   var b=document.createElement('div');b.className='selbub';b.textContent=txt;card.appendChild(b);
   setTimeout(function(){b.classList.add('out');setTimeout(function(){b.remove();card.classList.remove('talk')},250)},2600);
  },
@@ -2442,7 +2450,7 @@ var Select=GC.Select={
    Array.prototype.forEach.call(el.querySelectorAll('.tkb'),function(b){b.onclick=function(){
     var i=+b.getAttribute('data-i'),k=-1;sel.forEach(function(s,j){if(s.tok===i)k=j});
     if(k>=0){sel.splice(k,1);Sound.tap()}else{if(sel.length>=o.max){UI.toast('最多 '+o.max+' 位玩家',1500,'warn');return}sel.push({tok:i,name:''});Sound.pop();Sound.vib(15)}
-    draw();var nb=el.querySelector('.tkc[data-i="'+i+'"]');if(nb&&k<0){nb.classList.add('pick');Select.cheer(o.kind,i,nb)}}});
+    draw();var nb=el.querySelector('.tkc[data-i="'+i+'"]');if(nb&&k<0){nb.classList.add('pick');Select.cheer(o.kind,i,nb,o)}}});
    NameField.bind(el,function(inp,v){var i=+inp.getAttribute('data-i');sel.forEach(function(s){if(s.tok===i)s.name=v})});
    $('selOk').onclick=function(){
     if(sel.length<o.min){UI.toast('至少 '+o.min+' 位玩家',1500,'warn');return}
@@ -3872,11 +3880,12 @@ function flashMoodFace(pid,kind){
  if(img){img.setAttribute('src',src);img.setAttribute('data-flash-mood',kind);
   later(function(){if(img.getAttribute('data-flash-mood')!==kind)return;var back=avSrc(p.tok,persistMood(p));if(back)img.setAttribute('src',back);img.removeAttribute('data-flash-mood')},2200)}
 }
+var FLY_PLATE={happy:'起飞啦!',proud:'冲向终点!',angry:'叠吃!',sad:'回基地了…',worried:'小心!',sleep:'休息一下…'};
 function mood(pid,kind,o){
  if(!GC.Mood)return;var p=P(pid);if(!p||!kind)return;
  try{flashMoodFace(pid,kind)}catch(e){}
  var t=moodTarget(pid);
- try{GC.Mood.play(p.tok,kind,t||document.body,Object.assign({key:'fl'+kind+pid},o||{}))}catch(x){}
+ try{GC.Mood.play(p.tok,kind,t||document.body,Object.assign({key:'fl'+kind+pid,theme:'fly',plate:FLY_PLATE[kind]||''},o||{}))}catch(x){}
 }
 function showBubble(p,txt,type){
  if(!p||!txt||!root)return;
@@ -3898,7 +3907,7 @@ function restoreBubs(){
 function sayReact(pid,type,o){
  o=o||{};var p=P(pid);if(!p||!type)return '';
  var txt='',LN=window.CTE_LINES;
- try{txt=(LN&&LN.pick)?LN.pick(p.tok,type,function(n){return Dice.int(n)}):''}catch(e){}
+ try{txt=(LN&&LN.pickFly)?LN.pickFly(p.tok,type,function(n){return Dice.int(n)}):''}catch(e){}
  if(txt){showBubble(p,txt,type);try{GC.Voice.say(txt,p.tok,{queue:1,prot:1})}catch(x){}}
  if(o.mood)mood(pid,o.mood,{tiny:!!o.tiny,noFs:!!o.tiny,key:o.key||('fl'+type+pid)});
  return txt;
@@ -4440,7 +4449,7 @@ function pickPlane(plId){
  else if(r.ev&&r.ev.some(function(e){return e.k==='takeoff'})){Sound.seq([[523,.08],[784,.12]]);if(!r.ev.some(function(e){return e.k==='jump'||e.k==='fly'}))UI.toast('起飞!',1000,'star')}
  else if(r.ev&&r.ev.some(function(e){return e.k==='finish'})){Sound.hi();UI.toast('到达终点!',1400,'star')}
  else if(!(r.ev&&r.ev.some(function(e){return e.k==='jump'||e.k==='fly'})))Sound.pop();
- if(S.phase==='over'){var w=S.players[S.winner];try{GC.Intro.banner(w.tok,w.name,'获胜啦!')}catch(e){}UI.toast('🏆 '+w.name+' 获胜!',2500,'star')}
+ if(S.phase==='over'){var w=S.players[S.winner];try{GC.Intro.banner(w.tok,w.name,'飞到终点啦!')}catch(e){}UI.toast('🏆 '+w.name+' 飞到终点!',2500,'star')}
  else if(S.again)UI.toast('再掷一次!',1000,'info');
  render();
  reactMove(r,before);
@@ -4462,7 +4471,7 @@ function rulesModal(){
 }
 function startSelect(){
  if(selv){try{selv.remove()}catch(e){}selv=null}
- selv=Select.screen(root,{kind:'tk',min:2,max:4,title:'飞行棋 · 选角色',sub:'2–4 人 · 点角色入座 · 座位颜色=红黄蓝绿飞机',ok:'开始起飞',
+ selv=Select.screen(root,{kind:'tk',min:2,max:4,title:'飞行棋 · 选角色',sub:'2–4 人 · 点角色入座 · 座位颜色=红黄蓝绿飞机',ok:'开始起飞',catchSet:'fly',theme:'fly',
   onDone:function(list){
    selv=null;S=E.newState();E.startGame(S,list.map(function(x){return{tok:x.tok,name:x.name||TKN[x.tok]}}));save();
    buildBoard();render();fit();
@@ -5767,73 +5776,97 @@ var BK={0:['没关系,汪!下次我还要一起玩!','汪!谢谢你,我会好好
 Object.keys(BK).forEach(function(k){L[k].bustComfort=[BK[k][0]];L[k].bustKind=[BK[k][1]]});
 EVENTS.push('bustComfort','bustKind');
 
-/* ---- 飞行棋关键时刻: 复用角色口吻; 能对上已录音的句子优先放进表里 ---- */
-var FLYL={
-0:{
- takeoff:['六!六!我要飞起来啦!','汪汪!小狗起飞啦!','汪!冲上跑道!'],
- jump:['汪!同色格子,蹦一下!','嘿嘿,白住一晚!','汪汪,跳到前面去!'],
- fly12:['汪汪汪,我要飞起来啦!','汪!横飞十二格,尾巴当螺旋桨!','咻——小狗滑过去啦!'],
- eat:['汪!把你送回基地休息!','这块地让我赚到啦!','汪汪,叠吃成功!'],
- eaten:['汪呜…被送回家了…','呜…尾巴都垂下来了','汪…下次我一定躲开!'],
- enterHome:['汪!拐进回家道啦!','回到自己的跑道,摇尾巴~','汪汪,快到家了!'],
- finishPlane:['汪汪汪!我翻身啦!','一架飞机到家啦,汪!','汪!终点骨头到手!'],
- bounce:['汪呜!三连六,一架要回家…','呜…飞太猛了,掉回去了','汪…下次轻轻掷!']
+/* ---- 飞行棋台词(独立表, 不覆盖大富翁)。短句给 TTS 念; 只有碰巧和已录音完全相同、又适合飞行的才走 dayi 夹 ---- */
+var FLY={
+0:{ /* 小狗 */
+ select:['汪汪!小狗来开飞机啦!','汪!我要第一个飞到终点!'],
+ roll6:['汪!六点,可以起飞啦!','汪汪汪,六点好运气!'],
+ lowRoll:['才一点点,汪呜,慢慢走。','一小步也要飞,汪!'],
+ takeoff:['汪!起飞喽!','小狗冲上跑道啦!'],
+ jump:['汪!同色格子,蹦过去!','跳一下,跑到前面去!'],
+ fly12:['汪!横飞十二格,尾巴当螺旋桨!','咻,小狗滑过去啦!'],
+ eat:['汪!把你送回基地休息!','叠吃成功,汪汪!'],
+ eaten:['汪呜,被送回基地了。','呜,下次我一定躲开!'],
+ enterHome:['汪!拐进回家跑道啦!','快到家了,摇尾巴!'],
+ finishPlane:['汪!一架飞机到终点啦!','汪汪,到家啦!'],
+ win:['汪汪汪!小狗飞到终点第一名!','我赢啦,大家都来摸摸我!'],
+ bounce:['汪呜,三连六,一架要回家。','飞太猛了,掉回基地了。']
 },
-1:{
- takeoff:['吼!六点!王者气势!','本王起飞!嗷呜!','嗷!跑道属于本王!'],
- jump:['哼,算他们识相!','本王同色跳跃,谁敢拦!','嗷!再跳一格!'],
- fly12:['嗷呜——本王横飞十二格!','哈哈哈,骰子也怕本王!','本王滑翔,谁也追不上!'],
- eat:['嗷!交了钱才能过我的领地!','哼,送你回基地反省!','本王叠吃,天经地义!'],
- eaten:['嗷…本王被送回家了…','哼…本王只是暂时落魄…','鬃毛都蔫了…下次吼回去!'],
- enterHome:['本王巡视,拐进王道!','嗷~回家加冕的路!','哼,终点在向本王招手!'],
- finishPlane:['嗷呜!本王王者归来!','一架王机抵达!嗷!','本王的飞机到家啦!'],
- bounce:['嗷!三连六,太猛了…','骰子不听话!哼!','本王先回基地蓄力…']
+1:{ /* 小狮子 */
+ select:['嗷呜!本王来开飞机!','本王要第一个飞到终点!'],
+ roll6:['吼!六点!本王起飞!','本王一出手就是起飞六!'],
+ lowRoll:['哼,才一点,本王优雅地慢慢走。','小意思,本王不着急。'],
+ takeoff:['本王起飞!嗷呜!','嗷!跑道属于本王!'],
+ jump:['本王同色跳跃,谁敢拦!','嗷!再跳一格!'],
+ fly12:['嗷呜,本王横飞十二格!','本王滑翔,谁也追不上!'],
+ eat:['哼,送你回基地反省!','本王叠吃,天经地义!'],
+ eaten:['嗷,本王被送回基地了。','哼,本王只是暂时回炉。'],
+ enterHome:['本王拐进回家跑道!','嗷,终点在向本王招手!'],
+ finishPlane:['嗷呜!一架王机到终点!','本王的飞机到家啦!'],
+ win:['嗷呜!本王第一个飞到终点!','森林之王,飞行冠军!'],
+ bounce:['嗷!三连六,太猛了。','本王先回基地蓄力。']
 },
-2:{
- takeoff:['变身成功!跑得好快!','六点!光线全开!咻咻咻','不不不!起飞起飞起飞!'],
- jump:['咻!悄悄溜过去~','不不不,是跳跳跳!','同色跳跃,能量推进!'],
- fly12:['咻——横飞十二格!光线全开!','超级富翁奥特曼,出击!','不不不,这是超级飞!'],
- eat:['咻——收租光线命中!','怪兽!回家休息!咻!','叠吃光线,命中!'],
- eaten:['不不不…能量全没了…咻…','呜…变身解除…下次再战…','不不不,被送回基地了…'],
- enterHome:['咻——回到基地,领钱!','回家道!能量站到啦!','不不不,是回家回家!'],
- finishPlane:['赢啦!地球靠我了!','好好好!逆转成功,光线全开!','一架奥特飞机到达终点!'],
- bounce:['不不不!飞太猛掉回去了!','能量过载…先回基地…','警报!三连六!']
+2:{ /* 不不奥特曼 */
+ select:['不不不!奥特曼来开飞机!','能量满满,冲向终点!'],
+ roll6:['六点!光线全开,可以起飞!','不不不,这是起飞超级六!'],
+ lowRoll:['才一点,不不不,慢慢走。','能量不够,先走一小步。'],
+ takeoff:['变身起飞!冲冲冲!','不不不,起飞起飞起飞!'],
+ jump:['咻,同色格子,跳过去!','不不不,是跳跳跳!'],
+ fly12:['咻,横飞十二格,光线全开!','不不不,这是超级飞!'],
+ eat:['咻,叠吃光线命中,回基地休息!','怪兽,回基地去!'],
+ eaten:['不不不,被送回基地了。','能量不够,下次再飞!'],
+ enterHome:['咻,拐进回家跑道!','不不不,是回家回家!'],
+ finishPlane:['一架奥特飞机到达终点!','好好好,到家啦!'],
+ win:['不不不,是赢赢赢!我飞到终点啦!','地球靠我,飞行冠军!'],
+ bounce:['不不不,飞太猛掉回去了!','警报,三连六,先回基地。']
 },
-3:{ /* 冰雪公主: 软软的哎呀,开心用闪光,不喷火 */
- takeoff:['哎呀!六点,好幸运!','哎呀,本公主的飞机起飞咯~','六!人家要跳舞啦!'],
- jump:['哎呀嘿嘿,偷偷溜过去~','哎呀,同色格子,跳一下嘛~','咯咯,人家溜到前面啦!'],
- fly12:['哎呀呀,本公主滑翔过去啦!','哎呀~横飞十二格,冰雪闪光!','人家乘着雪花飞过去咯~'],
- eat:['哎呀,把你送回家喝下午茶~','哼!人家不开心了啦!','哎呀~冰一下,回家休息吧!'],
- eaten:['哎呀,公主要哭了啦…','哎呀…人家被送回家了…','呜…皇冠都歪了…哎呀…'],
- enterHome:['哎呀,人家要回家啦~','公主拐进粉色回家道!','哎呀~快到城堡终点咯!'],
- finishPlane:['哎呀!人家翻身啦!好开心~','一架公主飞机到家啦!','哎呀呀,终点闪闪发光!'],
- bounce:['哎呀!掷太高兴,掉回去了…','哎呀呀,三连六好晕…','哼,人家先回家休息嘛']
+3:{ /* 哎呀公主: 冰雪闪光,不喷火 */
+ select:['哎呀,本公主来开飞机咯!','哎呀呀,人家要闪闪亮亮飞到终点!'],
+ roll6:['哎呀!六点,好幸运,可以起飞!','哎呀呀,本公主起飞运气真好!'],
+ lowRoll:['哎呀,才一点,人家慢慢走嘛。','一点点也好吧,哼。'],
+ takeoff:['哎呀,本公主的飞机起飞咯!','六!人家要跳舞起飞啦!'],
+ jump:['哎呀嘿嘿,同色格子跳一下嘛!','咯咯,人家溜到前面啦!'],
+ fly12:['哎呀呀,本公主横飞十二格!','人家乘着雪花滑过去咯!'],
+ eat:['哎呀,把你送回基地喝下午茶。','哎呀,冰一下,回家休息吧!'],
+ eaten:['哎呀,人家被送回基地了。','呜,皇冠都歪了,哎呀。'],
+ enterHome:['哎呀,人家拐进回家跑道啦!','哎呀,快到闪闪终点咯!'],
+ finishPlane:['哎呀,一架公主飞机到家啦!','哎呀呀,终点闪闪发光!'],
+ win:['哎呀!人家第一个飞到终点啦!','公主加冕,飞行冠军!'],
+ bounce:['哎呀,掷太高兴,掉回基地了。','哎呀呀,三连六好晕,先回家。']
 },
-4:{ /* 温柔喷火龙: 日常轻声; 喷火台词只放在生气的叠吃 */
- takeoff:['轻轻起飞,六步啦~','太好啦,今天是幸运日','呼~小龙轻轻飞起来啦'],
- jump:['轻轻地走,不打扰~','呼~同色格子,跳一小步','暖暖的,溜到前面啦~'],
- fly12:['呼~小龙顺着风滑过去~','太好了,可以悄悄走过去~','横飞十二格,轻轻的~'],
- eat:['温柔的龙也会生气哦!呼!','怎么又要罚我款…呼——(喷火)','呼!送你回基地,小火苗生气了'],
- eaten:['小火苗有点委屈…给你吧','呼…被送回家了,好难过','哎…火苗都变小了,好担心'],
- enterHome:['小龙有自己的家啦','呼~拐进暖暖的回家道','快到家了,轻轻走~'],
- finishPlane:['谢谢大家,小龙翻身啦~','一架小龙飞机到家啦~','呼~暖暖的,到终点了'],
- bounce:['呼…飞太猛,掉回去了…','三连六…小龙先歇一歇','没关系的,龙宝宝慢慢来~']
+4:{ /* 温柔喷火龙: 日常轻声; 喷火只在叠吃 */
+ select:['呼,小龙来陪你开飞机。','你好呀,小龙会温柔地飞。'],
+ roll6:['哇,六点,可以轻轻起飞啦!','太好啦,今天适合起飞。'],
+ lowRoll:['才一点点,慢慢来吧。','小脚步慢慢走,也很可爱。'],
+ takeoff:['呼,小龙轻轻飞起来啦。','轻轻起飞,出发咯。'],
+ jump:['呼,同色格子,跳一小步。','轻轻地溜到前面啦。'],
+ fly12:['呼,小龙顺着风横飞十二格。','横飞十二格,轻轻的。'],
+ eat:['呼!小龙生气了,送你回基地!','温柔的龙也会叠吃哦!'],
+ eaten:['呼,被送回基地了,好难过。','小火苗有点委屈。'],
+ enterHome:['呼,拐进暖暖的回家跑道。','快到家了,轻轻走。'],
+ finishPlane:['一架小龙飞机到家啦。','呼,暖暖的,到终点了。'],
+ win:['哇,小龙飞到终点啦,谢谢大家。','最温暖的龙是飞行冠军!'],
+ bounce:['呼,飞太猛,掉回基地了。','三连六,小龙先歇一歇。']
 },
-5:{ /* 猪肉战神: 人类厨神; 猪只出现在菜名/道具里 */
- takeoff:['六点!战神出征!冲啊!','猪肉战神登场!','哈哈!六!本战神无敌!'],
- jump:['嘿嘿,厨神免费通行!','同色跳跃,稳扎稳打!','哈!跳到前面,先尝一口!'],
- fly12:['战神出征!冲啊!横飞十二格!','六六大顺,来一盘红烧肉!','哈哈!厨神滑翔,所向披靡!'],
- eat:['哼!谁敢罚厨神的款!','叠吃!回厨房排队去!','战神收租,谁敢不给?'],
- eaten:['哼…战神…居然输了…','我的肉…我的钱…','被送回厨房了…先吃口酱肘子'],
- enterHome:['嘿嘿,发工资买食材!','拐进回家道,开宴席的路!','厨神巡厨,终点快到啦!'],
- finishPlane:['哈哈哈!战神回来了!','一架战神飞机到家!开宴!','赢啦!今晚宴席管够!'],
- bounce:['哼!三连六,战神先回炉…','飞太猛了,回厨房重整!','本战神…需要休整一下…']
+5:{ /* 猪肉战神: 人类厨神; 「猪肉战神登场!」已有录音且适合出场 */
+ select:['猪肉战神登场!','哼!哼!厨神来开飞机!'],
+ roll6:['六点!战神出征,可以起飞!','哈哈,六点,厨神冲跑道!'],
+ lowRoll:['哼,才一点,战神在蓄力。','小步滑行,稳扎稳打!'],
+ takeoff:['战神起飞,冲啊!','哈哈,厨神冲上云霄!'],
+ jump:['同色跳跃,稳扎稳打!','哈,跳到前面去!'],
+ fly12:['战神横飞十二格,冲啊!','哈哈,厨神滑翔过去!'],
+ eat:['叠吃!回厨房排队去!','哼,送你回基地重新排队!'],
+ eaten:['哼,被送回基地了。','先回炉重整,再飞!'],
+ enterHome:['拐进回家跑道,终点快到啦!','厨神巡航,回家道!'],
+ finishPlane:['一架战神飞机到家,开宴!','哈哈哈,战神飞机到终点!'],
+ win:['哈哈哈!厨神飞到终点第一名!','百味战神,飞行冠军!'],
+ bounce:['哼,三连六,先回炉。','飞太猛了,回基地重整!']
 }
 };
-Object.keys(FLYL).forEach(function(k){Object.keys(FLYL[k]).forEach(function(t){L[k][t]=FLYL[k][t]})});
-EVENTS.push('takeoff','jump','fly12','eat','eaten','enterHome','finishPlane','bounce');
+var FLY_EVENTS=['select','roll6','lowRoll','takeoff','jump','fly12','eat','eaten','enterHome','finishPlane','win','bounce'];
 function pick(tok,type,rnd){var a=(L[tok]||L[0])[type];if(!a||!a.length)return '';var r=rnd?rnd(a.length):Math.floor(Math.random()*a.length);return a[r]}
-var API={LINES:L,EVENTS:EVENTS,pick:pick};
+function pickFly(tok,type,rnd){var a=(FLY[tok]||FLY[0])[type];if(!a||!a.length)return '';var r=rnd?rnd(a.length):Math.floor(Math.random()*a.length);return a[r]}
+var API={LINES:L,EVENTS:EVENTS,FLY:FLY,FLY_EVENTS:FLY_EVENTS,pick:pick,pickFly:pickFly};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;else root.CTE_LINES=API;
 })(typeof window!=='undefined'?window:globalThis);
 

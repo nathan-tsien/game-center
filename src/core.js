@@ -73,7 +73,7 @@ GC.Voice=(function(){
   var now=Date.now();if(txt===say.lt&&now-last<2500)return;say.lt=txt;if(opt.low&&busy()&&now-last<1500)return;last=now;
   /* v23: a character line (prot) is never cut by a later announcement — that one queues behind it */
   var room=(qu.length+(cur||dec?1:0)+q)<3,queue=busy()&&((opt.queue&&room)||(prot()&&room));if(!queue&&!(busy()&&prot()))stopAll();else if(!queue)return;
-  var k=clipKey(txt,tok);
+  var k=opt.tts?null:clipKey(txt,tok);
   if(k){qu.push({k:k,txt:txt,tok:tok,prot:!!opt.prot});playNext()}
   else{try{if(!queue&&ss)ss.cancel()}catch(e){}tts(txt,tok,!!opt.prot)}
  }
@@ -290,8 +290,11 @@ GC.Mood=(function(){
  };
  var GLY={angry:'💢',happy:'✨',worried:'💦',proud:'⭐',sad:'💧',sleep:'💤'};
  var PLATE={sad:'破财了…',happy:'发财啦!',worried:'危险!',proud:'大富豪!',sleep:'睡觉中…',angry:'生气啦!'};
+ var PLATE_FLY={sad:'回基地了…',happy:'起飞啦!',worried:'小心!',proud:'冲向终点!',sleep:'休息一下…',angry:'叠吃!'};
  var BITS={sad:['💧','💧','💸','🪙','😢'],happy:['✨','⭐','🪙','¥','🎉','💛'],worried:['💦','💦','⚠️','😰'],proud:['👑','⭐','✦','💛','🏆'],sleep:['💤','😴','Z','z','🌙']};
- function showcase(tok,kind){
+ var BITS_FLY={sad:['💧','✈','🏠','😢'],happy:['✨','⭐','✈','🎉'],worried:['💦','⚠️','😰'],proud:['⭐','✦','🏆','✈'],sleep:['💤','😴','Z','z','🌙'],angry:['💥','✈','🔥']};
+ function showcase(tok,kind,o){
+  o=o||{};
   var _prev=document.querySelector('.moodfs');if(_prev){_prev.remove();live=Math.max(0,live-1)} /* replace stale showcase */
   var el=document.createElement('div');el.className='moodfs m-'+kind+' t'+tok;el.setAttribute('data-mood',kind);
   /* v29: FULL-BODY mood portrait first (CT_ART_MOOD); chips stay for board. proud→happy body. tok4 angry→CT_ART_ANGRY */
@@ -304,8 +307,10 @@ GC.Mood=(function(){
    if(!port){var AV=window.CT_AV;if(AV&&AV[tok])port='<img class="mfs-port mfs-face" src="'+AV[tok]+'" alt="" draggable="false">'}
   }catch(e){}
   if(!port)port='<div class="mfs-port" style="width:160px;height:160px;border-radius:50%;background:'+(COL[tok]||'#999')+';display:flex;align-items:center;justify-content:center;font-size:64px">'+(GLY[kind]||'✨')+'</div>';
-  var bits='';(BITS[kind]||[]).forEach(function(ch,i){var a=(i/(BITS[kind].length))*Math.PI*2,dx=Math.cos(a)*(90+i*18),dy=Math.sin(a)*(70+i*12)-40;bits+='<i style="left:50%;top:55%;--dx:'+Math.round(dx)+'px;--dy:'+Math.round(dy)+'px;animation-delay:'+(i*.08)+'s;font-size:'+(22+i%3*6)+'px">'+ch+'</i>'});
-  el.innerHTML='<div class="mfs-dim"></div><div class="mfs-bits">'+bits+'</div><div class="mfs-card">'+port+'<div class="mfs-plate">'+(PLATE[kind]||'')+'</div></div>';
+  var bitSrc=(o.theme==='fly'?BITS_FLY:BITS),bitList=bitSrc[kind]||BITS[kind]||[];
+  var bits='';bitList.forEach(function(ch,i){var a=(i/(bitList.length))*Math.PI*2,dx=Math.cos(a)*(90+i*18),dy=Math.sin(a)*(70+i*12)-40;bits+='<i style="left:50%;top:55%;--dx:'+Math.round(dx)+'px;--dy:'+Math.round(dy)+'px;animation-delay:'+(i*.08)+'s;font-size:'+(22+i%3*6)+'px">'+ch+'</i>'});
+  var plateTxt=o.plate||(o.theme==='fly'?PLATE_FLY[kind]:PLATE[kind])||'';
+  el.innerHTML='<div class="mfs-dim"></div><div class="mfs-bits">'+bits+'</div><div class="mfs-card">'+port+'<div class="mfs-plate">'+plateTxt+'</div></div>';
   document.body.appendChild(el);live++;
   var life=Math.round(3200/((GC.Intro&&GC.Intro.speed)?GC.Intro.speed():1)); /* v29: longer so big body art is readable */
   el.setAttribute('data-life',life);
@@ -320,11 +325,11 @@ GC.Mood=(function(){
   o=o||{};if(o.off)return null;var key=(o.key!=null?o.key:tok)+'',now=Date.now();
   if(!o.force&&last[key]&&now-last[key]<2000)return null;if(live>=3)return null;last[key]=now;
   /* v24: attack/angry for 2/3/4/5 → painted VFX (canvas); the token still gets its mf- squash */
-  if(kind==='angry'&&!o.noFx&&!reduce()&&GC.FX&&GC.FX.has(tok)){var fx=null;try{fx=GC.FX.attack(tok,target,{target:target&&target.animate?target:null,shakeEl:o.shakeEl||document.querySelector('.ctb')||document.body,super:true})}catch(e){}
+  if(kind==='angry'&&!o.noFx&&!reduce()&&GC.FX&&GC.FX.has(tok)){var fx=null;try{fx=GC.FX.attack(tok,target,{target:target&&target.animate?target:null,shakeEl:o.shakeEl||document.querySelector('.ctb')||document.body,super:true,caption:o.plate||o.caption})}catch(e){}
    if(fx){if(target&&target.classList){target.classList.add('mf-angry');setTimeout(function(){target.classList.remove('mf-angry')},1200)}try{GC.Mood._log.push(tok+kind+'+fx')}catch(e){}return fx}}
   /* v27/v28: full-screen mood showcase for happy/sad/worried/proud/sleep (eco / reduced → tiny glyph path below) */
   if(!o.noFs&&!o.tiny&&(kind==='happy'||kind==='sad'||kind==='worried'||kind==='proud'||kind==='sleep'||kind==='angry')&&!reduce()&&!(GC.Gfx&&GC.Gfx.mode()==='eco')){
-   var fs=showcase(tok,kind);if(fs){if(target&&target.classList){var fcls='mf-'+kind;target.classList.add(fcls);setTimeout(function(){target.classList.remove(fcls)},1600)}try{GC.Mood._log.push(tok+kind+'+fs')}catch(e){}return fs}}
+   var fs=showcase(tok,kind,o);if(fs){if(target&&target.classList){var fcls='mf-'+kind;target.classList.add(fcls);setTimeout(function(){target.classList.remove(fcls)},1600)}try{GC.Mood._log.push(tok+kind+'+fs')}catch(e){}return fs}}
   var x,y,sz;if(target&&target.getBoundingClientRect){var r=target.getBoundingClientRect();if(!r.width){/* v29: still allow tiny glyph at viewport center when target not laid out */}else{x=r.left+r.width/2;y=r.top+r.height/2;sz=Math.max(28,Math.min(90,Math.min(r.width,r.height)))}}
   if(x==null){if(target&&target.x!=null){x=target.x;y=target.y;sz=target.s||48}else{x=window.innerWidth/2;y=window.innerHeight/2;sz=48}}
   var d=document.createElement('div'),rd=reduce()||(GC.Gfx&&GC.Gfx.mode()==='eco');d.className='mood m-'+kind+' t'+tok+(rd?' rd':'');d.style.left=x+'px';d.style.top=y+'px';d.style.setProperty('--s',sz+'px');d.style.setProperty('--mc',COL[tok]||'#999');
@@ -350,14 +355,17 @@ var Select=GC.Select={
  },
  /* v16: 选角色时的招牌台词 + 气泡 */
  CATCH:{"0": ["汪汪!小狗来啦,一起玩吧!", "汪!我的尾巴已经准备好摇起来啦!"], "1": ["嗷呜!本王驾到,大家准备好了吗?", "本王要当最厉害的大富翁!"], "2": ["不不不!我是最强的,出发!", "能量满满,冲冲冲!"], "3": ["哎呀~本公主来啦,好开心呀!", "哎呀呀,我要买一座粉色城堡!"], "4": ["你好呀,小龙会温柔地陪你玩。", "呼~小火苗准备好啦,我们慢慢来。"], "5": ["猪肉战神登场!", "哼!哼!猪肉战神,前来报到!", "吃饱了肉,战神天下无敌!"], "p0": ["红色飞机准备起飞,冲上云霄!"], "p1": ["黄色飞机,亮晶晶出发啦!"], "p2": ["蓝色飞机已就位,目标终点!"], "p3": ["绿色飞机呼呼呼,飞得最稳啦!"], "r0": ["粉色兔子蹦蹦跳,我来啦!"], "r1": ["紫色兔子,神秘登场!"], "r2": ["黄色兔子,胡萝卜冲呀!"], "r3": ["青色兔子跳得最高!"], "r4": ["橙色兔子,蹦跶蹦跶出发!"], "r5": ["蓝色兔子准备好啦!"]},
- cheer:function(kind,i,card){
-  var tag=kind==='tk'?String(i):(kind==='plane'?'p':'r')+i,a=Select.CATCH[tag];if(!a||!a.length)return;
+ cheer:function(kind,i,card,opt){
+  opt=opt||{};
+  var tag=kind==='tk'?String(i):(kind==='plane'?'p':'r')+i,a=null;
+  if(opt.catchSet==='fly'){try{var FL=window.CTE_LINES&&window.CTE_LINES.FLY;a=FL&&FL[i]&&FL[i].select}catch(e){}}
+  if(!a||!a.length)a=Select.CATCH[tag];if(!a||!a.length)return;
   var txt=a[Math.floor(Math.random()*a.length)];
-  try{GC.Voice.say(txt,tag)}catch(e){}
+  try{GC.Voice.say(txt,kind==='tk'?i:tag)}catch(e){}
   if(kind==='tk'){var shown=false;try{shown=GC.Intro.select(i,txt)}catch(e){}if(shown){if(card){card.classList.remove('talk');void card.offsetWidth;card.classList.add('talk');setTimeout(function(){card.classList.remove('talk')},1800)}return}}
   if(!card)return;Array.prototype.forEach.call(document.querySelectorAll('.selbub'),function(x){x.remove()});
   card.classList.remove('talk');void card.offsetWidth;card.classList.add('talk');
-  if(kind==='tk'){var av=card.querySelector('.tkav')||card;try{GC.Mood.play(i,'happy',av,{key:'sel',force:true})}catch(e){}}
+  if(kind==='tk'){var av=card.querySelector('.tkav')||card,mo={key:'sel',force:true};if(opt.theme==='fly'){mo.theme='fly';mo.plate='准备起飞!'}try{GC.Mood.play(i,'happy',av,mo)}catch(e){}}
   var b=document.createElement('div');b.className='selbub';b.textContent=txt;card.appendChild(b);
   setTimeout(function(){b.classList.add('out');setTimeout(function(){b.remove();card.classList.remove('talk')},250)},2600);
  },
@@ -376,7 +384,7 @@ var Select=GC.Select={
    Array.prototype.forEach.call(el.querySelectorAll('.tkb'),function(b){b.onclick=function(){
     var i=+b.getAttribute('data-i'),k=-1;sel.forEach(function(s,j){if(s.tok===i)k=j});
     if(k>=0){sel.splice(k,1);Sound.tap()}else{if(sel.length>=o.max){UI.toast('最多 '+o.max+' 位玩家',1500,'warn');return}sel.push({tok:i,name:''});Sound.pop();Sound.vib(15)}
-    draw();var nb=el.querySelector('.tkc[data-i="'+i+'"]');if(nb&&k<0){nb.classList.add('pick');Select.cheer(o.kind,i,nb)}}});
+    draw();var nb=el.querySelector('.tkc[data-i="'+i+'"]');if(nb&&k<0){nb.classList.add('pick');Select.cheer(o.kind,i,nb,o)}}});
    NameField.bind(el,function(inp,v){var i=+inp.getAttribute('data-i');sel.forEach(function(s){if(s.tok===i)s.name=v})});
    $('selOk').onclick=function(){
     if(sel.length<o.min){UI.toast('至少 '+o.min+' 位玩家',1500,'warn');return}
