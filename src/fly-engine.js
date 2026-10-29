@@ -124,8 +124,35 @@ function isSafe(idx){
 }
 function nextSameColor(idx){return (idx+4)%TRACK}
 
+function defMaxRerolls(){
+ try{if(typeof window!=='undefined'&&window.CTE&&window.CTE.DEF_CFG&&window.CTE.DEF_CFG.maxRerolls!=null)return +window.CTE.DEF_CFG.maxRerolls}catch(e){}
+ return 3;
+}
+function defCfg(){return{maxRerolls:defMaxRerolls()}}
+function rerollsLeft(S){
+ var m=S&&S.cfg&&S.cfg.maxRerolls!=null?+S.cfg.maxRerolls:defMaxRerolls();
+ if(m<0)return -1;
+ return Math.max(0,m-(S.rr||0));
+}
+function canReroll(S){
+ if(!S||S.phase!=='play'||S.winner!=null)return false;
+ if(S.tp!=='rolled'||S.roll==null)return false;
+ if(S.pending&&S.pending.locked)return false;
+ var l=rerollsLeft(S);return l<0||l>0;
+}
+function normalize(S){
+ if(!S||typeof S!=='object')return S;
+ if(!S.cfg||typeof S.cfg!=='object')S.cfg=defCfg();
+ if(S.cfg.maxRerolls==null)S.cfg.maxRerolls=defMaxRerolls();
+ if(typeof S.rr!=='number')S.rr=0;
+ if(!S.tp){
+  if(S.roll!=null&&S.pending){S.tp='move';S.pending.locked=true}
+  else S.tp='roll';
+ }else if(S.tp==='move'&&S.pending)S.pending.locked=true;
+ return S;
+}
 function newState(){
- return{phase:'setup',players:[],turn:0,roll:null,pending:null,winner:null,hist:[],again:false,sixes:0,sv:0};
+ return{phase:'setup',players:[],turn:0,roll:null,pending:null,winner:null,hist:[],again:false,sixes:0,sv:0,tp:'roll',rr:0,cfg:defCfg()};
 }
 function seatOf(p){
  if(!p)return 0;
@@ -147,6 +174,9 @@ function startGame(S,list){
    planes:[0,1,2,3].map(function(k){return{id:k,where:'base',idx:0,lap:0,padLock:false}})};
  });
  S.phase='play';S.turn=0;S.roll=null;S.pending=null;S.winner=null;S.again=false;S.sixes=0;S.hist=[];S.sv=Date.now();
+ S.tp='roll';S.rr=0;
+ if(!S.cfg||typeof S.cfg!=='object')S.cfg=defCfg();
+ if(S.cfg.maxRerolls==null)S.cfg.maxRerolls=defMaxRerolls();
  return{ok:true};
 }
 function cur(S){return S.players[S.turn]}
@@ -287,8 +317,28 @@ function sendOwnPlaneHome(S,pid){
  best.where='base';best.idx=0;best.lap=0;best.padLock=false;
  return{pl:best.id,was:was};
 }
+function resetRollBudget(S){S.tp='roll';S.rr=0;S.roll=null;S.pending=null}
+function passTurn(S){
+ S.turn=(S.turn+1)%S.players.length;S.sixes=0;S.again=false;resetRollBudget(S);
+}
+function applyEmptyRoll(S,v){
+ var again=v===6;
+ if(again){
+  S.again=true;S.sixes=(S.sixes||0)+1;
+  if(S.sixes>=3){
+   var bounced=sendOwnPlaneHome(S,S.turn);
+   S.turn=(S.turn+1)%S.players.length;S.sixes=0;S.again=false;resetRollBudget(S);
+   return{ok:true,v:v,mov:[],passed:true,again:false,triple6:true,bounced:bounced};
+  }
+  resetRollBudget(S);S.again=true;
+  return{ok:true,v:v,mov:[],passed:true,again:true};
+ }
+ passTurn(S);
+ return{ok:true,v:v,mov:[],passed:true,again:false};
+}
 function applyMove(S,plId){
  if(S.phase!=='play'||S.winner!=null||S.roll==null)return{ok:false,err:'还不能走'};
+ if(S.tp==='rolled')return{ok:false,err:'先确认点数'};
  var v=S.roll,p=cur(S),seat=seatOf(p),pl=p.planes[plId];
  if(!pl)return{ok:false,err:'没有这架飞机'};
  var mov=movable(S,v);
@@ -313,40 +363,48 @@ function applyMove(S,plId){
  S.hist.push({pid:p.id,pl:plId,v:v,path:path,sent:sent,ev:ev.slice()});
  var again=(v===6&&!allDone);
  S.roll=null;S.pending=null;
- if(!again&&!allDone){S.turn=(S.turn+1)%S.players.length;S.sixes=0;S.again=false}
- else if(again){
+ if(allDone){S.again=false;S.sixes=0;S.tp='roll';S.rr=0}
+ else if(!again){passTurn(S)}
+ else{
   S.again=true;S.sixes=(S.sixes||0)+1;
   if(S.sixes>=3){
    var bounced=sendOwnPlaneHome(S,p.id);
    if(bounced)ev.push({k:'triple6',pid:p.id,pl:bounced.pl,was:bounced.was});
    else ev.push({k:'triple6',pid:p.id});
-   S.turn=(S.turn+1)%S.players.length;S.sixes=0;S.again=false;again=false;
-  }
- }else{S.again=false;S.sixes=0}
+   passTurn(S);again=false;
+  }else resetRollBudget(S);
+ }
  S.sv=Date.now();
  return{ok:true,ev:ev,path:path,again:again&&S.again,sent:sent};
 }
 function roll(S,forced){
  if(S.phase!=='play'||S.winner!=null)return{ok:false,err:'不能掷'};
- if(S.roll!=null)return{ok:false,err:'先走棋'};
+ if(S.tp==='rolled'||S.tp==='move'||S.roll!=null)return{ok:false,err:'先走棋'};
  if(!S.again)unlockPads(S,S.turn);
  var v=forced!=null?forced:(1+Math.floor(Math.random()*6));
- S.roll=v;
+ S.roll=v;S.tp='rolled';
  var mov=movable(S,v);
- S.pending={mov:mov,takeoff:v===6};
- if(!mov.length){
-  var again=v===6;
-  S.roll=null;S.pending=null;
-  if(again){
-   S.again=true;S.sixes=(S.sixes||0)+1;
-   if(S.sixes>=3){
-    var bounced=sendOwnPlaneHome(S,S.turn);
-    S.turn=(S.turn+1)%S.players.length;S.sixes=0;S.again=false;
-    return{ok:true,v:v,mov:[],passed:true,again:false,triple6:true,bounced:bounced};
-   }
-  }else{S.turn=(S.turn+1)%S.players.length;S.sixes=0;S.again=false}
-  return{ok:true,v:v,mov:[],passed:true,again:again&&S.again};
- }
+ S.pending={mov:mov,takeoff:v===6,locked:false};
+ return{ok:true,v:v,mov:mov,passed:false,takeoff:v===6,left:rerollsLeft(S)};
+}
+function reroll(S,forced){
+ if(S.phase!=='play'||S.winner!=null)return{ok:false,err:'不能掷'};
+ if(S.tp!=='rolled'||S.roll==null)return{ok:false,err:'现在不能重掷'};
+ if(S.pending&&S.pending.locked)return{ok:false,err:'已经出发了'};
+ if(!canReroll(S))return{ok:false,err:'这回合的重掷机会用完啦'};
+ var rv=forced!=null?forced:(1+Math.floor(Math.random()*6));
+ S.rr=(S.rr||0)+1;S.roll=rv;S.tp='rolled';
+ var mov=movable(S,rv);
+ S.pending={mov:mov,takeoff:rv===6,locked:false};
+ return{ok:true,v:rv,mov:mov,passed:false,takeoff:rv===6,left:rerollsLeft(S)};
+}
+function confirmRoll(S){
+ if(S.phase!=='play'||S.winner!=null)return{ok:false,err:'不能走'};
+ if(S.tp!=='rolled'||S.roll==null)return{ok:false,err:'现在不能出发'};
+ var v=S.roll,mov=movable(S,v);
+ if(!mov.length)return applyEmptyRoll(S,v);
+ S.pending={mov:mov,takeoff:v===6,locked:true};
+ S.tp='move';
  return{ok:true,v:v,mov:mov,passed:false,takeoff:v===6};
 }
 function snapshot(S){return JSON.parse(JSON.stringify(S))}
@@ -379,6 +437,7 @@ var API={COLORS:COLORS,CNAMES:CNAMES,TKN:TKN,TRACK:TRACK,HOME:HOME,ENTRY:ENTRY,H
  gridPct:gridPct,ringPos:ringPos,homePos:homePos,basePos:basePos,donePos:donePos,takeoffPos:takeoffPos,
  cellColor:cellColor,isFlyPad:isFlyPad,nextSameColor:nextSameColor,seatOf:seatOf,unlockPads:unlockPads,
  newState:newState,startGame:startGame,cur:cur,movable:movable,pathFor:pathFor,applyMove:applyMove,roll:roll,
+ reroll:reroll,confirmRoll:confirmRoll,canReroll:canReroll,rerollsLeft:rerollsLeft,normalize:normalize,defCfg:defCfg,
  planesAt:planesAt,isSafe:isSafe,snapshot:snapshot,restore:restore,dashEatCells:dashEatCells,
  padFinish:padFinish,fairPads:fairPads};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;

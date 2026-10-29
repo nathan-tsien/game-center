@@ -1607,7 +1607,7 @@ html.gq-eco .moodfs{display:none!important}
 .fltok{position:absolute;width:5.5%;height:5.5%;transform:translate(-50%,-50%);border:0;background:transparent;padding:0;cursor:pointer;pointer-events:auto;overflow:visible;
  filter:drop-shadow(0 4px 3px rgba(0,0,0,.42));transition:left .28s ease-out,top .28s ease-out,transform .2s}
 .fltok .fl-plane,.fltok .fl-plane-img,.fltok .fl3d-tok{width:100%;height:100%;display:block;object-fit:contain;
- transform:rotate(var(--face,0deg));transform-origin:50% 50%;transition:transform .2s ease-out}
+ transform:rotate(var(--face,0deg));transform-origin:50% 50%;transition:transform .16s ease-out}
 .gq-eco .fltok .fl-plane,.gq-eco .fltok .fl-plane-img,.gq-eco .fltok .fl3d-tok{transition:none}
 /* base waiting vs finished pose — kids see 🏁 home */
 .fltok.at-base{width:3.6%;height:3.6%;z-index:4;filter:drop-shadow(0 1px 1px rgba(0,0,0,.28))}
@@ -1623,7 +1623,14 @@ html.gq-eco .moodfs{display:none!important}
 .fltok.go{z-index:8;outline:2px solid #ffd23faa;outline-offset:1px;border-radius:50%;animation:flgosof 1.6s ease-in-out infinite}
 .fltok.takeoff-lit{z-index:6;outline:2px solid #7ef0a099;outline-offset:1px;border-radius:50%;animation:fltakeoffsoft 1.6s ease-in-out infinite}
 .fltok.walking{z-index:12;animation:none!important;outline:0;width:5.2%;height:5.2%;
- transition:left .26s ease-out,top .26s ease-out,width .18s ease,height .18s ease}
+ transition:left var(--walk-ms,.18s) cubic-bezier(.22,.82,.22,1),top var(--walk-ms,.18s) cubic-bezier(.22,.82,.22,1),width .18s ease,height .18s ease}
+.fltok.walking.step-land .fl-plane,.fltok.walking.step-land .fl-plane-img,.fltok.walking.step-land .fl3d-tok{
+ animation:flplaneland .22s ease-out}
+@keyframes flplaneland{
+ 0%{transform:rotate(var(--face,0deg)) translateY(-22%) scale(1.08)}
+ 58%{transform:rotate(var(--face,0deg)) translateY(5%) scale(.97)}
+ 100%{transform:rotate(var(--face,0deg)) translateY(0) scale(1)}
+}
 @keyframes flgosof{50%{transform:translate(-50%,-53%) scale(1.03)}}
 @keyframes fltakeoffsoft{50%{transform:translate(-50%,-53%) scale(1.03)}}
 .fltok .flglow{position:absolute;left:50%;top:50%;width:132%;height:132%;margin:0;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:0;
@@ -1633,9 +1640,15 @@ html.gq-eco .moodfs{display:none!important}
  background:radial-gradient(circle,#fff 0 28%,#7ef0a066 52%,rgba(126,240,160,0) 74%);
  box-shadow:0 0 0 2px #fff8,0 0 8px 3px #7ef0a055;opacity:.9}
 .fltok.go .fl-plane,.fltok.go .fl3d-tok,.fltok.takeoff-lit .fl-plane,.fltok.takeoff-lit .fl3d-tok,.fltok.go .fl-plane-img,.fltok.takeoff-lit .fl-plane-img{position:relative;z-index:1}
-.flc.walkhit,.flhome.walkhit{z-index:4;box-shadow:0 0 0 2px #fff8,0 0 10px #ffd23f55}
+.flc.walkhit,.flhome.walkhit{z-index:4;box-shadow:0 0 0 2px #fff8,0 0 10px #ffd23f55;animation:flcellhit .34s ease-out}
+@keyframes flcellhit{
+ 0%{box-shadow:0 0 0 4px #fff,0 0 16px #ffd23fcc}
+ 100%{box-shadow:0 0 0 2px #fff8,0 0 10px #ffd23f55}
+}
 .gq-eco .fltok.go,.gq-eco .fltok.takeoff-lit{animation:none}
 .gq-eco .fltok,.gq-eco .fltok.walking{transition:none}
+.gq-eco .fltok.walking.step-land .fl-plane,.gq-eco .fltok.walking.step-land .fl-plane-img,.gq-eco .fltok.walking.step-land .fl3d-tok,
+.gq-eco .flc.walkhit,.gq-eco .flhome.walkhit{animation:none}
 .gq-eco .gm-fly.fl-island .fltok.on-turn.in-flight{filter:drop-shadow(0 0 1px #fff) drop-shadow(0 4px 3px rgba(8,30,50,.35))}
 .flpc.turn-pop{animation:flturnpop .55s ease-out}
 @keyframes flturnpop{0%{transform:scale(.94)}55%{transform:scale(1.07)}100%{transform:scale(1.03)}}
@@ -1697,7 +1710,24 @@ html.gq-eco .moodfs{display:none!important}
 .fldock-c.wait-move .fldie-wrap,.fldock-c.wait-move .fldie{pointer-events:auto;cursor:pointer}
 .fldock-c.wait-move .flhint{display:block;pointer-events:none}
 .fldock-c.over{z-index:12;opacity:1;transform:translate(var(--ox),var(--oy));pointer-events:auto}
-.fldock-c.rolling .flroll,.fldock-c.rolling .flhint{visibility:hidden}
+.fldock-c.rolling .flroll,.fldock-c.rolling .flhint,.fldock-c.rolling .flrollbtns{visibility:hidden}
+.fldock-c.rolled,.fldock-c.want.rolled{pointer-events:auto;opacity:1;z-index:30;isolation:isolate;
+ transform:translate(var(--ox),var(--oy));animation:none}
+.fldock-c.idle.rolled{pointer-events:auto;opacity:1;transform:translate(var(--ox),var(--oy));z-index:30}
+.fldock-c.rolled .fldie-wrap,.fldock-c.rolled .fldie,.fldock-c.rolled .flrollbtns,.fldock-c.rolled .btn{pointer-events:auto}
+.fldock-c.rolled .flhint{display:block;pointer-events:none;white-space:normal;max-width:160px}
+.flrollbtns{display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:auto;z-index:25}
+.flrollbtns .btn.go{min-height:30px;font-size:13px;padding:3px 12px;border-radius:999px;width:auto}
+.flrollbtns .btn.rr{min-height:26px;font-size:12px;padding:2px 10px;border-radius:999px;width:auto;
+ background:linear-gradient(#ffb457,#ff8a1f);color:#fff;box-shadow:0 3px 0 #c4600a;display:inline-flex;align-items:center;gap:4px}
+.flrollbtns .btn.rr svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.flrollbtns .btn.rr:disabled{background:#c9c4d6;box-shadow:0 3px 0 #9d97ad;color:#fff;opacity:.9}
+.gm-fly .rrd{display:inline-flex;align-items:center;gap:3px;background:#fffef8ee;border-radius:999px;padding:2px 8px;
+ font-weight:900;font-size:10px;color:#a35a00;box-shadow:0 1px 0 rgba(0,0,0,.12)}
+.gm-fly .rrd i{width:8px;height:8px;border-radius:50%;border:2px solid #ff8a1f;background:#fff}
+.gm-fly .rrd i.on{background:#ff8a1f}
+.fldie.wig{animation:fldiewig .38s ease-in-out}
+@keyframes fldiewig{0%,100%{transform:rotate(0)}30%{transform:rotate(-14deg)}70%{transform:rotate(12deg)}}
 html.gq-eco .fldock-c,.fldock-c.no-slide{transition:none}
 @media (prefers-reduced-motion:reduce){.fldock-c{transition:none}}
 .fldie-wrap{position:relative;width:58px;height:58px;display:flex;align-items:center;justify-content:center;perspective:520px;overflow:visible}
@@ -1719,11 +1749,14 @@ html.gq-eco .fldock-c,.fldock-c.no-slide{transition:none}
 html.gq-std .fldie .die.roll,html.gq-eco .fldie .die.roll{animation-iteration-count:infinite!important}
 @media (prefers-reduced-motion:reduce){
  .gm-fly .fldie .die.roll{animation:tumble .42s linear infinite}
- .fltok .flglow,.seatbar.need,.tkseat.wait,.fldock.want,.fldie.pulse,.fltok.poked,.fltok.poked-mad,.fltok.walking{animation:none}
+ .fltok .flglow,.seatbar.need,.tkseat.wait,.fldock.want,.fldie.pulse,.fltok.poked,.fltok.poked-mad,.fltok.walking,.flc.walkhit,.flhome.walkhit{animation:none}
+ .fltok.walking.step-land .fl-plane,.fltok.walking.step-land .fl-plane-img,.fltok.walking.step-land .fl3d-tok{animation:none}
  .fltok,.fltok.walking{transition:none}
 }
 .flhint{font-size:11px;font-weight:900;text-align:center;line-height:1.15;color:#5a3ea0;min-height:0;
  background:#fffef8ee;border-radius:8px;padding:1px 7px;box-shadow:0 1px 0 rgba(0,0,0,.12);white-space:nowrap}
+.flhint small{display:block;font-size:10px;font-weight:700;color:#8a6ab0;margin-top:1px}
+.fldock-c.rolled .flhint{white-space:normal}
 .fldock .btn.big,.fldock .btn.flroll{min-height:28px;font-size:13px;padding:2px 12px;width:auto;max-width:none;letter-spacing:.04em;border-radius:999px}
 .gq-eco .fldie.pulse,.gq-eco .fldock.want,.gq-eco .fldie-wrap.want::before{animation:none}
 @media (prefers-reduced-motion:reduce){.fldock.want,.fldie.pulse,.fldie-wrap.want::before{animation:none}}
@@ -1836,7 +1869,7 @@ html.gq-std .fldie .die.roll,html.gq-eco .fldie .die.roll{animation-iteration-co
  filter:drop-shadow(0 0 4px #ffe58acc) drop-shadow(0 1.5px 1px rgba(0,0,0,.22))}
 .gm-fly.fl-island .fl-done-badge{display:none}
 .gm-fly.fl-island .fltok.go,.gm-fly.fl-island .fltok.takeoff-lit{outline:0;border-radius:50%;overflow:visible}
-.gm-fly.fl-island .flc.walkhit,.gm-fly.fl-island .flhome.walkhit{box-shadow:0 0 0 2px #fff,0 0 0 3px #ffd23f66!important}
+.gm-fly.fl-island .flc.walkhit,.gm-fly.fl-island .flhome.walkhit{box-shadow:0 0 0 2px #fff,0 0 0 3px #ffd23f66}
 /* 当前玩家在格上的棋：略大 + 浅金托，比旧 .go 光晕克制 */
 .gm-fly.fl-island .fltok.on-turn.in-flight,.gm-fly.fl-island .fltok.on-turn.walking{
  width:7.15%;height:7.15%;z-index:11;
@@ -3345,8 +3378,35 @@ function isSafe(idx){
 }
 function nextSameColor(idx){return (idx+4)%TRACK}
 
+function defMaxRerolls(){
+ try{if(typeof window!=='undefined'&&window.CTE&&window.CTE.DEF_CFG&&window.CTE.DEF_CFG.maxRerolls!=null)return +window.CTE.DEF_CFG.maxRerolls}catch(e){}
+ return 3;
+}
+function defCfg(){return{maxRerolls:defMaxRerolls()}}
+function rerollsLeft(S){
+ var m=S&&S.cfg&&S.cfg.maxRerolls!=null?+S.cfg.maxRerolls:defMaxRerolls();
+ if(m<0)return -1;
+ return Math.max(0,m-(S.rr||0));
+}
+function canReroll(S){
+ if(!S||S.phase!=='play'||S.winner!=null)return false;
+ if(S.tp!=='rolled'||S.roll==null)return false;
+ if(S.pending&&S.pending.locked)return false;
+ var l=rerollsLeft(S);return l<0||l>0;
+}
+function normalize(S){
+ if(!S||typeof S!=='object')return S;
+ if(!S.cfg||typeof S.cfg!=='object')S.cfg=defCfg();
+ if(S.cfg.maxRerolls==null)S.cfg.maxRerolls=defMaxRerolls();
+ if(typeof S.rr!=='number')S.rr=0;
+ if(!S.tp){
+  if(S.roll!=null&&S.pending){S.tp='move';S.pending.locked=true}
+  else S.tp='roll';
+ }else if(S.tp==='move'&&S.pending)S.pending.locked=true;
+ return S;
+}
 function newState(){
- return{phase:'setup',players:[],turn:0,roll:null,pending:null,winner:null,hist:[],again:false,sixes:0,sv:0};
+ return{phase:'setup',players:[],turn:0,roll:null,pending:null,winner:null,hist:[],again:false,sixes:0,sv:0,tp:'roll',rr:0,cfg:defCfg()};
 }
 function seatOf(p){
  if(!p)return 0;
@@ -3368,6 +3428,9 @@ function startGame(S,list){
    planes:[0,1,2,3].map(function(k){return{id:k,where:'base',idx:0,lap:0,padLock:false}})};
  });
  S.phase='play';S.turn=0;S.roll=null;S.pending=null;S.winner=null;S.again=false;S.sixes=0;S.hist=[];S.sv=Date.now();
+ S.tp='roll';S.rr=0;
+ if(!S.cfg||typeof S.cfg!=='object')S.cfg=defCfg();
+ if(S.cfg.maxRerolls==null)S.cfg.maxRerolls=defMaxRerolls();
  return{ok:true};
 }
 function cur(S){return S.players[S.turn]}
@@ -3508,8 +3571,28 @@ function sendOwnPlaneHome(S,pid){
  best.where='base';best.idx=0;best.lap=0;best.padLock=false;
  return{pl:best.id,was:was};
 }
+function resetRollBudget(S){S.tp='roll';S.rr=0;S.roll=null;S.pending=null}
+function passTurn(S){
+ S.turn=(S.turn+1)%S.players.length;S.sixes=0;S.again=false;resetRollBudget(S);
+}
+function applyEmptyRoll(S,v){
+ var again=v===6;
+ if(again){
+  S.again=true;S.sixes=(S.sixes||0)+1;
+  if(S.sixes>=3){
+   var bounced=sendOwnPlaneHome(S,S.turn);
+   S.turn=(S.turn+1)%S.players.length;S.sixes=0;S.again=false;resetRollBudget(S);
+   return{ok:true,v:v,mov:[],passed:true,again:false,triple6:true,bounced:bounced};
+  }
+  resetRollBudget(S);S.again=true;
+  return{ok:true,v:v,mov:[],passed:true,again:true};
+ }
+ passTurn(S);
+ return{ok:true,v:v,mov:[],passed:true,again:false};
+}
 function applyMove(S,plId){
  if(S.phase!=='play'||S.winner!=null||S.roll==null)return{ok:false,err:'还不能走'};
+ if(S.tp==='rolled')return{ok:false,err:'先确认点数'};
  var v=S.roll,p=cur(S),seat=seatOf(p),pl=p.planes[plId];
  if(!pl)return{ok:false,err:'没有这架飞机'};
  var mov=movable(S,v);
@@ -3534,40 +3617,48 @@ function applyMove(S,plId){
  S.hist.push({pid:p.id,pl:plId,v:v,path:path,sent:sent,ev:ev.slice()});
  var again=(v===6&&!allDone);
  S.roll=null;S.pending=null;
- if(!again&&!allDone){S.turn=(S.turn+1)%S.players.length;S.sixes=0;S.again=false}
- else if(again){
+ if(allDone){S.again=false;S.sixes=0;S.tp='roll';S.rr=0}
+ else if(!again){passTurn(S)}
+ else{
   S.again=true;S.sixes=(S.sixes||0)+1;
   if(S.sixes>=3){
    var bounced=sendOwnPlaneHome(S,p.id);
    if(bounced)ev.push({k:'triple6',pid:p.id,pl:bounced.pl,was:bounced.was});
    else ev.push({k:'triple6',pid:p.id});
-   S.turn=(S.turn+1)%S.players.length;S.sixes=0;S.again=false;again=false;
-  }
- }else{S.again=false;S.sixes=0}
+   passTurn(S);again=false;
+  }else resetRollBudget(S);
+ }
  S.sv=Date.now();
  return{ok:true,ev:ev,path:path,again:again&&S.again,sent:sent};
 }
 function roll(S,forced){
  if(S.phase!=='play'||S.winner!=null)return{ok:false,err:'不能掷'};
- if(S.roll!=null)return{ok:false,err:'先走棋'};
+ if(S.tp==='rolled'||S.tp==='move'||S.roll!=null)return{ok:false,err:'先走棋'};
  if(!S.again)unlockPads(S,S.turn);
  var v=forced!=null?forced:(1+Math.floor(Math.random()*6));
- S.roll=v;
+ S.roll=v;S.tp='rolled';
  var mov=movable(S,v);
- S.pending={mov:mov,takeoff:v===6};
- if(!mov.length){
-  var again=v===6;
-  S.roll=null;S.pending=null;
-  if(again){
-   S.again=true;S.sixes=(S.sixes||0)+1;
-   if(S.sixes>=3){
-    var bounced=sendOwnPlaneHome(S,S.turn);
-    S.turn=(S.turn+1)%S.players.length;S.sixes=0;S.again=false;
-    return{ok:true,v:v,mov:[],passed:true,again:false,triple6:true,bounced:bounced};
-   }
-  }else{S.turn=(S.turn+1)%S.players.length;S.sixes=0;S.again=false}
-  return{ok:true,v:v,mov:[],passed:true,again:again&&S.again};
- }
+ S.pending={mov:mov,takeoff:v===6,locked:false};
+ return{ok:true,v:v,mov:mov,passed:false,takeoff:v===6,left:rerollsLeft(S)};
+}
+function reroll(S,forced){
+ if(S.phase!=='play'||S.winner!=null)return{ok:false,err:'不能掷'};
+ if(S.tp!=='rolled'||S.roll==null)return{ok:false,err:'现在不能重掷'};
+ if(S.pending&&S.pending.locked)return{ok:false,err:'已经出发了'};
+ if(!canReroll(S))return{ok:false,err:'这回合的重掷机会用完啦'};
+ var rv=forced!=null?forced:(1+Math.floor(Math.random()*6));
+ S.rr=(S.rr||0)+1;S.roll=rv;S.tp='rolled';
+ var mov=movable(S,rv);
+ S.pending={mov:mov,takeoff:rv===6,locked:false};
+ return{ok:true,v:rv,mov:mov,passed:false,takeoff:rv===6,left:rerollsLeft(S)};
+}
+function confirmRoll(S){
+ if(S.phase!=='play'||S.winner!=null)return{ok:false,err:'不能走'};
+ if(S.tp!=='rolled'||S.roll==null)return{ok:false,err:'现在不能出发'};
+ var v=S.roll,mov=movable(S,v);
+ if(!mov.length)return applyEmptyRoll(S,v);
+ S.pending={mov:mov,takeoff:v===6,locked:true};
+ S.tp='move';
  return{ok:true,v:v,mov:mov,passed:false,takeoff:v===6};
 }
 function snapshot(S){return JSON.parse(JSON.stringify(S))}
@@ -3600,6 +3691,7 @@ var API={COLORS:COLORS,CNAMES:CNAMES,TKN:TKN,TRACK:TRACK,HOME:HOME,ENTRY:ENTRY,H
  gridPct:gridPct,ringPos:ringPos,homePos:homePos,basePos:basePos,donePos:donePos,takeoffPos:takeoffPos,
  cellColor:cellColor,isFlyPad:isFlyPad,nextSameColor:nextSameColor,seatOf:seatOf,unlockPads:unlockPads,
  newState:newState,startGame:startGame,cur:cur,movable:movable,pathFor:pathFor,applyMove:applyMove,roll:roll,
+ reroll:reroll,confirmRoll:confirmRoll,canReroll:canReroll,rerollsLeft:rerollsLeft,normalize:normalize,defCfg:defCfg,
  planesAt:planesAt,isSafe:isSafe,snapshot:snapshot,restore:restore,dashEatCells:dashEatCells,
  padFinish:padFinish,fairPads:fairPads};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
@@ -4169,8 +4261,16 @@ function load(){
  if(s&&s.players&&s.players.length){
   S=s;if(!S.phase)S.phase='play';
   S.players.forEach(function(p){(p.planes||[]).forEach(function(pl){if(pl.padLock==null)pl.padLock=false})});
+  try{E.normalize(S)}catch(e){}
  }else{S=E.newState()}
 }
+function cfgPref(){
+ var d=E.defCfg?E.defCfg():{maxRerolls:3};
+ var saved=Store.get('fly.cfg',null);
+ if(saved&&saved.maxRerolls!=null)d.maxRerolls=+saved.maxRerolls;
+ return d;
+}
+function saveCfg(){if(S&&S.cfg)Store.set('fly.cfg',{maxRerolls:S.cfg.maxRerolls})}
 function isl(){return !!(root&&root.classList.contains('fl-island')&&window.FLY3D)}
 function seatOf(p){return E.seatOf?E.seatOf(p):(p&&p.seat!=null?p.seat:((p&&p.id)||0))}
 function planeImg(p){
@@ -4325,7 +4425,7 @@ function playerAtSeat(seat){
 }
 function bannerOn(){try{return GC.Intro.mode()!=='off'&&!(GC.Gfx&&GC.Gfx.mode()==='eco')}catch(e){return false}}
 function takeoffWaitId(p){
- if(!S||!S.pending||!S.pending.mov||!p||S.turn!==p.id)return -1;
+ if(!S||S.tp!=='move'||!S.pending||!S.pending.locked||!S.pending.mov||!p||S.turn!==p.id)return -1;
  var mov=S.pending.mov,best=-1,i,pl;
  for(i=0;i<p.planes.length;i++){
   pl=p.planes[i];
@@ -4792,7 +4892,8 @@ function renderTokens(){
  S.players.forEach(function(p){
   p.planes.forEach(function(pl){
    var key;
-   if(pl.where==='base')key='base|'+p.id+'|'+pl.id;
+   if(walkShow&&walkShow.pid===p.id&&walkShow.pl===pl.id)key='walk|'+p.id+'|'+pl.id;
+   else if(pl.where==='base')key='base|'+p.id+'|'+pl.id;
    else if(pl.where==='done')key='done|'+p.id+'|'+pl.id; /* finished → back to hangar pose */
    else if(pl.where==='pad')key='pad|'+p.id+'|'+pl.idx;
    else key=pl.where+'|'+pl.idx+'|'+p.id;
@@ -4814,7 +4915,7 @@ function renderTokens(){
     pos=cellXY(showWhere,showIdx,seatOf(p));
     off=stackOffset(ii,g.length);
    }
-   var can=S.pending&&S.pending.mov&&S.turn===p.id&&S.pending.mov.indexOf(pl.id)>=0;
+   var can=S.tp==='move'&&S.pending&&S.pending.locked&&S.pending.mov&&S.turn===p.id&&S.pending.mov.indexOf(pl.id)>=0;
    var walking=walkShow&&walkShow.pid===p.id&&walkShow.pl===pl.id;
    var onPad=showWhere==='track'||showWhere==='home'||showWhere==='pad';
    var go=can&&onPad&&!walkShow;
@@ -4834,7 +4935,7 @@ function renderTokens(){
  Array.prototype.forEach.call(el.querySelectorAll('.fltok'),function(b){
   b.onclick=function(){
    var pid=+b.getAttribute('data-p'),plId=+b.getAttribute('data-pl');
-   var can=S.pending&&S.pending.mov&&S.turn===pid&&S.pending.mov.indexOf(plId)>=0;
+   var can=S.tp==='move'&&S.pending&&S.pending.locked&&S.pending.mov&&S.turn===pid&&S.pending.mov.indexOf(plId)>=0;
    if(can)pickPlane(plId);else pokePlane(pid,plId);
   };
  });
@@ -4880,40 +4981,72 @@ function duckDock(ms){
  var el=$q('#fldock');if(el)el.classList.add('duck');
  later(function(){if(Date.now()>=duckUntil-40)try{renderDock()}catch(e){}},(ms||1100)+40);
 }
+function rerollDots(){
+ var mx=S&&S.cfg?+S.cfg.maxRerolls:3,left=E.rerollsLeft(S),dots='';
+ if(mx<0)dots='<span class="rrd inf">重掷机会 ∞ 不限</span>';
+ else if(mx>0){
+  dots='<span class="rrd" aria-label="还剩 '+left+' 次重掷">重掷机会 ';
+  for(var di=0;di<Math.min(mx,8);di++)dots+='<i class="'+(di<left?'on':'')+'"></i>';
+  dots+=' <b>剩 '+left+' 次</b></span>';
+ }else dots='<span class="rrd">这局不能重掷</span>';
+ return dots;
+}
+function wigDie(){
+ var d=$q('#flDie');if(!d)return;
+ d.classList.remove('wig');void d.offsetWidth;d.classList.add('wig');
+ later(function(){try{d.classList.remove('wig')}catch(e){}},420);
+}
 function renderDock(){
  var el=$q('#fldock');if(!el)return;
  if(busyStuck())clearBusyLock();
- var ready=S.phase==='play'&&S.roll==null&&!busy;
- var waitMove=S.phase==='play'&&S.roll!=null&&!busy;
- var duck=!ready&&Date.now()<duckUntil;
+ var ready=S.phase==='play'&&(S.tp==='roll'||!S.tp)&&S.roll==null&&!busy;
+ var rolled=S.phase==='play'&&S.tp==='rolled'&&S.roll!=null&&!busy;
+ var waitMove=S.phase==='play'&&S.tp==='move'&&S.roll!=null&&!busy;
+ var duck=!ready&&!rolled&&Date.now()<duckUntil;
  var seat=activeSeat(),anc=dockAnchor(seat);
  var noSlide=eco()||(UI.reduce&&UI.reduce());
- var hint='';
+ var hint='',extra='';
+ var canR=rolled&&E.canReroll(S),mx=S&&S.cfg?+S.cfg.maxRerolls:3;
  if(S.phase==='over'){var w=S.players[S.winner];hint='🏆 '+esc(w.name)+' 获胜!';}
+ else if(rolled){
+  hint='掷出 <b>'+S.roll+'</b>!'+(S.again?'<small>再掷</small>':'');
+  extra='<div class="flrollbtns">'+
+   '<button class="btn big go flgo" id="flGo">就这个,出发 ▶</button>'+
+   '<button class="btn rr flre" id="flRe"'+(canR?'':' disabled')+'>'+(UI.ICO&&UI.ICO.dice?UI.ICO.dice:'🎲')+(canR?'再掷一次':(mx===0?'不能重掷':'机会用完啦'))+'</button>'+
+   rerollDots()+'</div>';
+ }
  else if(waitMove){hint='点你的飞机走格子'}
  else if(ready&&S.again){hint='再掷一次!'}
- else if(ready){hint='轮到 <b style="color:'+TKC[E.cur(S).tok]+'">'+esc(E.cur(S).name)+'</b>'}
+ else if(ready){
+  hint='轮到 <b style="color:'+TKC[E.cur(S).tok]+'">'+esc(E.cur(S).name)+'</b>';
+  if(mx!==0)hint+='<small>不满意可以重掷'+(mx<0?'(不限次)':'最多 '+mx+' 次')+'</small>';
+ }
  el.style.left=anc.l+'%';el.style.top=anc.t+'%';
- el.className='fldock fldock-c s-'+anc.k+(ready?' want':' idle')+(waitMove?' wait-move':'')+(duck?' duck':'')+(S.phase==='over'?' over':'')+(noSlide?' no-slide':'');
+ el.className='fldock fldock-c s-'+anc.k+((ready||rolled)?' want':' idle')+(rolled?' rolled':'')+(waitMove?' wait-move':'')+(duck?' duck':'')+(S.phase==='over'?' over':'')+(noSlide?' no-slide':'');
  el.setAttribute('data-seat',seat);
- el.innerHTML='<div class="fldie-wrap'+(ready?' want':'')+'" id="flDieHit"'+(ready||waitMove?' role="button" tabindex="0" aria-label="'+(waitMove?'点飞机走格子':'掷骰子')+'"':'')+'><div class="fldie'+(ready?' pulse':'')+'" id="flDie" role="button" aria-label="'+(waitMove?'点飞机走格子':'掷骰子')+'">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
+ var dieAria=waitMove?'点飞机走格子':(rolled?'已掷出 '+S.roll:'掷骰子');
+ el.innerHTML='<div class="fldie-wrap'+(ready?' want':'')+(rolled?' rolled':'')+'" id="flDieHit"'+(ready||waitMove||rolled?' role="button" tabindex="0" aria-label="'+dieAria+'"':'')+'><div class="fldie'+(ready?' pulse':'')+(rolled?' rolled':'')+'" id="flDie" role="button" aria-label="'+dieAria+'">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
   (ready?'<button class="btn big flroll" id="flRoll">🎲 掷骰子</button>':'')+
+  extra+
   (S.phase==='over'?'<button class="btn pri" id="flAgain">再来一局</button>':'')+
   (hint?'<div class="flhint" id="flHint">'+hint+'</div>':'');
  function tapRoll(ev){
   if(ev){ev.preventDefault();ev.stopPropagation()}
   if(busyStuck()){clearBusyLock();try{renderDock()}catch(e){}}
-  if(S.phase==='play'&&S.roll!=null&&!busy){UI.toast('点你的飞机走格子',1500,'info');return}
-  if(S.phase==='play'&&S.roll==null&&!busy)doRoll();
+  if(S.phase==='play'&&S.tp==='rolled'&&!busy){wigDie();return}
+  if(S.phase==='play'&&S.tp==='move'&&S.roll!=null&&!busy){UI.toast('点你的飞机走格子',1500,'info');return}
+  if(S.phase==='play'&&(S.tp==='roll'||!S.tp)&&S.roll==null&&!busy)doRoll();
  }
- var hit=$q('#flDieHit'),d=$q('#flDie'),r=$q('#flRoll'),a=$q('#flAgain');
+ var hit=$q('#flDieHit'),d=$q('#flDie'),r=$q('#flRoll'),a=$q('#flAgain'),g=$q('#flGo'),re=$q('#flRe');
  if(hit){
   hit.onclick=tapRoll;
   hit.onkeydown=function(ev){if(ev&&(ev.key==='Enter'||ev.key===' '))tapRoll(ev)};
  }
  if(d)d.onclick=tapRoll;
  if(r)r.onclick=tapRoll;
- if(el)el.onclick=function(ev){if(ready||waitMove)tapRoll(ev)};
+ if(g)g.onclick=function(ev){if(ev){ev.preventDefault();ev.stopPropagation()}doGo()};
+ if(re)re.onclick=function(ev){if(ev){ev.preventDefault();ev.stopPropagation()}doReroll()};
+ if(el)el.onclick=function(ev){if(ev.target.closest&&ev.target.closest('#flGo,#flRe,.flrollbtns'))return;if(ready||waitMove||rolled)tapRoll(ev)};
  if(a)a.onclick=function(){startNew()};
 }
 function render(){
@@ -4956,48 +5089,101 @@ function playMoveFx(r){
   sparkAt(50,50,'boom',10);
  }
 }
+function afterRollResult(r,prevTurn,opt){
+ opt=opt||{};
+ if(!r||!r.ok){UI.toast((r&&r.err)||'不能掷',1400,'warn');render();return}
+ lastDie=r.v;
+ if(r.v===6)Sound.seq([[523,.08],[659,.08],[784,.15]]);
+ else Sound.beep(300,.1);
+ if(r.triple6){UI.toast('三连6!一架飞机回基地',1600,'warn');render();sayReact((S.turn-1+S.players.length)%S.players.length,'bounce',{mood:'sad'});later(function(){noteTurnAdvance(prevTurn)},280);return}
+ if(r.passed){UI.toast(r.v===6?'没飞机可飞,再掷':'没飞机可飞,换下一位',1400,'info');render();later(function(){noteTurnAdvance(prevTurn)},200);return}
+ render();
+ if(!opt.quiet){
+  if(r.v===6)sayReact(S.turn,'roll6',{mood:'happy',tiny:1});
+  else if(r.v===1)sayReact(S.turn,'lowRoll',{mood:'worried',tiny:1});
+ }
+}
+function tumbleDie(v,then){
+ var die=$q('#flDie');
+ if(!die){then();return}
+ var light=eco()||(UI.reduce&&UI.reduce());
+ die.classList.add('rolling');
+ var wrap=die.closest('.fldie-wrap');if(wrap)wrap.classList.add('rolling');
+ var dock=$q('#fldock');if(dock)dock.classList.add('rolling');
+ var settled=false,my=++rollGen;
+ function settle(){if(settled||my!==rollGen)return;settled=true;cancel=null;then()}
+ var raw=Dice.roll(wrapDie(die),[v],function(){settle()},light?{ms:420,stagger:80,tail:220,tick:90}:null);
+ cancel=function(){try{raw&&raw()}catch(e){}};
+ later(function(){if(!settled&&my===rollGen)settle()},light?1400:2200);
+}
 function doRoll(forced){
  if(busyStuck())clearBusyLock();
- if(busy||S.phase!=='play'||S.roll!=null)return;
+ if(busy||S.phase!=='play')return;
+ if(S.tp==='rolled'){wigDie();return}
+ if(S.tp==='move'&&S.roll!=null){UI.toast('点你的飞机走格子',1500,'info');return}
+ if(S.roll!=null)return;
  lockBusy();
  if(cancel){try{cancel()}catch(e){}}cancel=null;
  var prevTurn=S.turn;
  var v=forced!=null?forced:Dice.d6();lastDie=v;
- var die=$q('#flDie');
  function applyRoll(){
   if(!root||!S){unlockBusy();return}
   var r;
   try{r=E.roll(S,v)}catch(e){unlockBusy();try{render()}catch(x){}return}
   unlockBusy();save();
-  if(!r||!r.ok){UI.toast((r&&r.err)||'不能掷',1400,'warn');render();return}
-  if(r.v===6){Sound.seq([[523,.08],[659,.08],[784,.15]])}
-  else Sound.beep(300,.1);
-  if(r.triple6){UI.toast('三连6!一架飞机回基地',1600,'warn');render();sayReact((S.turn-1+S.players.length)%S.players.length,'bounce',{mood:'sad'});later(function(){noteTurnAdvance(prevTurn)},280);return}
-  if(r.passed){UI.toast(r.v===6?'没飞机可飞,再掷':'没飞机可飞,换下一位',1400,'info');render();later(function(){noteTurnAdvance(prevTurn)},200);return}
-  S.pending={mov:r.mov};render();
-  /* 只有一架可走时马上自动走，把台词留给起飞/跳/飞/吃，避免连说两句 */
-  if(r.mov && r.mov.length!==1){
-   if(r.v===6)sayReact(S.turn,'roll6',{mood:'happy',tiny:1});
-   else if(r.v===1)sayReact(S.turn,'lowRoll',{mood:'worried',tiny:1});
-  }
-  if(r.mov.length===1){later(function(){pickPlane(r.mov[0])},280)}
+  afterRollResult(r,prevTurn);
  }
- if(die){
-  var light=eco()||(UI.reduce&&UI.reduce());
-  die.classList.add('rolling');
-  var wrap=die.closest('.fldie-wrap');if(wrap)wrap.classList.add('rolling');
-  var dock=$q('#fldock');if(dock)dock.classList.add('rolling');
-  var settled=false,my=++rollGen;
-  function settle(){if(settled||my!==rollGen)return;settled=true;cancel=null;applyRoll()}
-  var raw=Dice.roll(wrapDie(die),[v],function(){settle()},light?{ms:420,stagger:80,tail:220,tick:90}:null);
-  cancel=function(){try{raw&&raw()}catch(e){}};
-  later(function(){if(!settled&&my===rollGen)settle()},light?1400:2200);
- }else{
-  applyRoll();
+ tumbleDie(v,applyRoll);
+}
+function doReroll(forced){
+ if(busyStuck())clearBusyLock();
+ if(busy||S.phase!=='play'||S.tp!=='rolled')return;
+ if(!E.canReroll(S)){UI.toast('机会用完啦,点「就这个,出发」',1600,'info');return}
+ lockBusy();
+ if(cancel){try{cancel()}catch(e){}}cancel=null;
+ var prevTurn=S.turn;
+ var v=forced!=null?forced:Dice.d6();lastDie=v;
+ function applyReroll(){
+  if(!root||!S){unlockBusy();return}
+  var r;
+  try{r=E.reroll(S,v)}catch(e){unlockBusy();try{render()}catch(x){}return}
+  unlockBusy();save();
+  afterRollResult(r,prevTurn);
  }
+ tumbleDie(v,applyReroll);
+}
+function afterConfirm(r,prevTurn){
+ if(!r||!r.ok){UI.toast((r&&r.err)||'不能走',1400,'warn');render();return}
+ if(r.triple6){UI.toast('三连6!一架飞机回基地',1600,'warn');render();sayReact((S.turn-1+S.players.length)%S.players.length,'bounce',{mood:'sad'});later(function(){noteTurnAdvance(prevTurn)},280);return}
+ if(r.passed){UI.toast(r.v===6?'没飞机可飞,再掷':'没飞机可飞,换下一位',1400,'info');render();later(function(){noteTurnAdvance(prevTurn)},200);return}
+ render();
+ /* 只有一架可走时马上自动走，把台词留给起飞/跳/飞/吃，避免连说两句 */
+ if(r.mov&&r.mov.length===1)later(function(){pickPlane(r.mov[0])},280);
+}
+function doGo(){
+ if(busyStuck())clearBusyLock();
+ if(busy||S.phase!=='play'||S.tp!=='rolled'||S.roll==null)return;
+ lockBusy();
+ var prevTurn=S.turn,r;
+ try{r=E.confirmRoll(S)}catch(e){unlockBusy();try{render()}catch(x){}return}
+ unlockBusy();save();
+ afterConfirm(r,prevTurn);
 }
 function wrapDie(die){var w=document.createElement('div');w.className='ctdw';die.innerHTML='';die.appendChild(w);var d=document.createElement('div');d.className='die';w.appendChild(d);return w}
-function walkMs(){return eco()||(UI.reduce&&UI.reduce())?40:300}
+function quietWalk(){return eco()||(UI.reduce&&UI.reduce())}
+function travelMs(kind){
+ if(quietWalk())return 0;
+ if(kind==='fly')return 360;
+ if(kind==='jump'||kind==='takeoff')return 220;
+ return 180;
+}
+function settleMs(kind){
+ if(quietWalk())return 16;
+ if(kind==='fly')return 180;
+ if(kind==='jump'||kind==='takeoff')return 150;
+ return 160;
+}
+function hopMs(kind){return travelMs(kind)+settleMs(kind)}
 function visSteps(r){
  var steps=[],i,s,e,last;
  if(r.path)for(i=0;i<r.path.length;i++){
@@ -5019,66 +5205,94 @@ function clearWalkHit(){
 function hitCell(where,idx,seat){
  clearWalkHit();
  if(!root)return;
- if(where==='track'||where==='pad'){
-  var c=root.querySelector('.flc[data-i="'+idx+'"]');
-  if(c)c.classList.add('walkhit');
- }else if(where==='home'){
-  var h=root.querySelector('.flhome[data-p="'+seat+'"][data-h="'+idx+'"]');
-  if(h)h.classList.add('walkhit');
- }
+ var el=null;
+ if(where==='track'||where==='pad')el=root.querySelector('.flc[data-i="'+idx+'"]');
+ else if(where==='home')el=root.querySelector('.flhome[data-p="'+seat+'"][data-h="'+idx+'"]');
+ if(!el)return;
+ el.classList.remove('walkhit');void el.offsetWidth;el.classList.add('walkhit');
+}
+function hopFace(from,to,seat){
+ if(!to)return 0;
+ if(to.kind==='fly')return flyArriveDeg(seat);
+ if(!from)return headingDeg(to.where,to.idx,seat,{lap:to.lap,kind:to.kind});
+ var a=cellXY(from.where,from.idx,seat),b=cellXY(to.where,to.idx,seat);
+ var dx=b.x-a.x,dy=b.y-a.y;
+ if(!(dx*dx+dy*dy>1e-8))return headingDeg(to.where,to.idx,seat,{lap:to.lap,kind:to.kind});
+ return bearingDeg(dx,dy);
 }
 function placeWalkTok(){
  if(!walkShow||!root)return;
  var b=root.querySelector('.fltok[data-p="'+walkShow.pid+'"][data-pl="'+walkShow.pl+'"]');
  if(!b)return;
  var p=S.players[walkShow.pid],seat=seatOf(p),pos=cellXY(walkShow.where,walkShow.idx,seat);
- var deg=headingDeg(walkShow.where,walkShow.idx,seat,{lap:walkShow.lap,kind:walkShow.kind});
+ var deg=walkShow.hop!=null?walkShow.hop:headingDeg(walkShow.where,walkShow.idx,seat,{lap:walkShow.lap,kind:walkShow.kind});
  if(walkShow.face==null)walkShow.face=deg;
  else walkShow.face=shortestDeg(walkShow.face,deg);
  b.classList.add('walking','in-flight','on-turn');
- b.classList.remove('at-base','go','takeoff-lit');
+ b.classList.remove('at-base','go','takeoff-lit','step-land');
  if(!b.querySelector('.flstand')){
   var stEl=document.createElement('i');stEl.className='flstand';stEl.setAttribute('aria-hidden','true');
   b.insertBefore(stEl,b.firstChild);
  }
+ var ms=travelMs(walkShow.kind);
+ b.style.setProperty('--walk-ms',quietWalk()?'0ms':ms+'ms');
  b.style.left=pos.x+'%';
  b.style.top=pos.y+'%';
  b.style.setProperty('--face',faceCss(walkShow.face));
  b.setAttribute('data-face',String(Math.round(wrap360(walkShow.face))));
  b.setAttribute('data-where',walkShow.where);
  hitCell(walkShow.where,walkShow.idx,seat);
+ if(!quietWalk()){
+  later(function(){
+   if(!walkShow||!root)return;
+   var tok=root.querySelector('.fltok[data-p="'+walkShow.pid+'"][data-pl="'+walkShow.pl+'"]');
+   if(!tok)return;
+   tok.classList.remove('step-land');void tok.offsetWidth;tok.classList.add('step-land');
+  },ms);
+ }
 }
 function walkMove(pid,plId,before,r,done){
  var steps=visSteps(r);
  if(!steps.length){walkShow=null;done();return}
- walkShow={pid:pid,pl:plId,where:before.where,idx:before.idx,lap:before.lap,kind:before.where==='base'?'takeoff':'step'};
+ var start={where:before.where,idx:before.idx,lap:before.lap,kind:before.where==='base'?'takeoff':'step'};
+ walkShow={pid:pid,pl:plId,where:start.where,idx:start.idx,lap:start.lap,kind:start.kind};
  render();
- var i=0,ms=walkMs(),p=S.players[pid];
+ var i=0,p=S.players[pid],prev=start;
  function nx(){
   try{
-   if(i>=steps.length){walkShow=null;clearWalkHit();done();return}
+   if(i>=steps.length){
+    if(!quietWalk()){
+     later(function(){walkShow=null;clearWalkHit();done()},180);
+     return;
+    }
+    walkShow=null;clearWalkHit();done();return;
+   }
    var st=steps[i++];
    walkShow.where=st.where;walkShow.idx=st.idx;walkShow.kind=st.kind;walkShow.lap=st.lap;
+   walkShow.hop=hopFace(prev,st,seatOf(p));
    placeWalkTok();
    try{Sound.step()}catch(e){}
    if(!eco()){
     var xy=cellXY(st.where,st.idx,seatOf(p));
     sparkAt(xy.x,xy.y,'trail',2);
    }
+   prev={where:st.where,idx:st.idx,lap:st.lap,kind:st.kind};
   }catch(e){walkShow=null;clearWalkHit();done();return}
-  later(nx,st.kind==='fly'?ms*2:(st.kind==='jump'||st.kind==='takeoff'?ms+60:ms));
+  later(nx,hopMs(st.kind));
  }
- if(typeof requestAnimationFrame==='function')requestAnimationFrame(function(){later(nx,eco()?16:48)});
- else later(nx,eco()?16:48);
+ if(typeof requestAnimationFrame==='function')requestAnimationFrame(function(){later(nx,quietWalk()?16:60)});
+ else later(nx,quietWalk()?16:60);
 }
 function pickPlane(plId){
  if(busyStuck())clearBusyLock();
  if(busy||S.roll==null)return;
+ if(S.tp==='rolled'){doGo();return}
+ if(S.tp&&S.tp!=='move')return;
  lockBusy();
  var before=null,prevTurn=S.turn,pid=S.turn;
- try{before=S.players[S.turn].planes[plId];before={where:before.where,idx:before.idx,lap:before.lap}}catch(e){before={where:'track',idx:0,lap:0}}
+ try{before=S.players[S.turn].planes[plId];before={where:before.where,idx:before.where==='base'?plId:before.idx,lap:before.lap}}catch(e){before={where:'track',idx:0,lap:0}}
  var r=E.applyMove(S,plId);
- if(!r.ok){unlockBusy();UI.toast(r.err||'不能走',1400,'warn');return}
+ if(!r.ok){unlockBusy();UI.toast(r.err||'不能走',1400,'warn');try{render()}catch(e){}return}
  save();
  if(before&&before.where==='base'&&!(S&&S.again))duckDock(1100);
  var finished=false;
@@ -5100,14 +5314,21 @@ function pickPlane(plId){
   /* 必须先解开 busy 再画骰子，否则 dock 会停在 idle（pointer-events:none），掷6再掷时点了没反应 */
   unlockBusy();
   try{render();reactMove(r,before)}catch(e){try{renderDock()}catch(x){}}
-  later(function(){noteTurnAdvance(prevTurn)}, eco()||(UI.reduce&&UI.reduce())?80:280);
+  later(function(){noteTurnAdvance(prevTurn)}, quietWalk()?80:280);
  }
- var nSteps=visSteps(r).length||1;
- later(function(){if(!finished)finish()},Math.max(5200,nSteps*walkMs()*6+1600));
+ var steps=visSteps(r),nSteps=steps.length||1,guard=180;
+ steps.forEach(function(st){guard+=hopMs(st.kind)+40});
+ later(function(){if(!finished)finish()},Math.max(5200,guard+900));
  walkMove(pid,plId,before,r,finish);
 }
 function rulesModal(){
- UI.modal('<h2>飞行棋规则</h2><p style="text-align:left;line-height:1.5">'+
+ if(S&&(!S.cfg||S.cfg.maxRerolls==null)){if(!S.cfg)S.cfg={};S.cfg.maxRerolls=cfgPref().maxRerolls}
+ var mx=S&&S.cfg?+S.cfg.maxRerolls:3;
+ var rrOpts=[[0,'不能重掷'],[1,'1 次'],[3,'3 次'],[5,'5 次'],[-1,'不限']];
+ var rrSeg='<div class="seg" id="flRrSeg">'+rrOpts.map(function(o){return '<button class="btn'+(mx===o[0]?' on':'')+'" data-v="'+o[0]+'">'+o[1]+'</button>'}).join('')+'</div>';
+ UI.modal('<h2>飞行棋规则</h2>'+
+  '<div class="sec"><h3>每回合可重掷</h3>'+rrSeg+'<small>掷完骰子后可以选「再掷一次」,每回合最多几次(给小朋友多几次机会,和大富翁一样,默认 3 次)</small></div>'+
+  '<p style="text-align:left;line-height:1.5">'+
   '<b style="color:#5a3ea0">✈ 虚线横飞（最重要）</b><br>'+
   '• 走到自己颜色的 <b>✈ 飞机格</b>（连着虚线航线）→ 沿虚线 <b>横飞 +12</b> 格<br>'+
   '• 横飞路上能 <b>撞掉</b> 别人的飞机；起飞落到格上 <b>不</b> 触发横飞<br><br>'+
@@ -5121,20 +5342,29 @@ function rulesModal(){
   '• 精确步数沿本色终点道进中心<br>'+
   '• 连掷三次 6 → 自家一架飞机回基地并换人</p>'+
   '<div class="row"><button class="btn pri" id="flRk">知道了</button></div>');
+ var seg=document.getElementById('flRrSeg');
+ if(seg)seg.onclick=function(e){
+  var t=e.target.closest('.btn');if(!t||!S)return;
+  if(!S.cfg)S.cfg={};S.cfg.maxRerolls=+t.getAttribute('data-v');save();saveCfg();
+  Array.prototype.forEach.call(seg.children,function(c){c.classList.toggle('on',c===t)});
+  Sound.tap();try{renderDock()}catch(x){}
+ };
  document.getElementById('flRk').onclick=UI.close;
 }
 function startSelect(){
  if(selv){try{selv.remove()}catch(e){}selv=null}
  selv=Select.screen(root,{kind:'tk',min:2,max:4,title:'飞行棋 · 选角色',sub:'2–4 人 · 点角色自动分到一种飞机颜色（黄·蓝·红·绿）· 同色只能一人，点已选颜色会换过来 · 先点的人先走',ok:'开始起飞',catchSet:'fly',theme:'fly',bindSeat:true,
   onDone:function(list){
-   selv=null;S=E.newState();E.startGame(S,list.map(function(x){return{tok:x.tok,name:x.name||TKN[x.tok],seat:x.seat}}));save();
+   selv=null;S=E.newState();S.cfg=cfgPref();
+   E.startGame(S,list.map(function(x){return{tok:x.tok,name:x.name||TKN[x.tok],seat:x.seat}}));
+   if(!S.cfg)S.cfg=cfgPref();save();
    lastToastTurn=S.turn;flyRoundN=1;
    buildBoard();render();fit();
    var go=function(){try{GC.Intro.banner(S.players[0].tok,S.players[0].name,'先掷骰子!')}catch(e){}UI.toast(S.players[0].name+' 先掷!',1600,'star')};
    var did=false;try{did=GC.Intro.vs(S.players.map(function(p){return{tok:p.tok,name:p.name}}),go)}catch(e){}if(!did)go();
   }});
 }
-function startNew(){UI.confirm({title:'开始新的一局?',text:'当前进度会清空,再选一次角色。',yes:'新局',danger:true,icon:'refresh'}).then(function(ok){if(!ok)return;S=E.newState();save();startSelect()})}
+function startNew(){UI.confirm({title:'开始新的一局?',text:'当前进度会清空,再选一次角色。',yes:'新局',danger:true,icon:'refresh'}).then(function(ok){if(!ok)return;var cfg=cfgPref();S=E.newState();S.cfg=cfg;save();startSelect()})}
 function fit(){
  if(!root)return;
  var land=root.clientWidth>root.clientHeight;
@@ -5142,7 +5372,7 @@ function fit(){
  document.documentElement.classList.toggle('fl-land',land);
 }
 var api={
- state:function(){return S},engine:E,render:function(){render()},roll:function(v){return doRoll(v)},
+ state:function(){return S},engine:E,render:function(){render()},roll:function(v){return doRoll(v)},reroll:function(v){return doReroll(v)},go:function(){return doGo()},
  headingDeg:headingDeg,leavePadDeg:leavePadDeg,flyArriveDeg:flyArriveDeg,
  poke:function(pid,pl){pokePlane(pid,pl)},
  setPrintMode:function(on){
@@ -6487,18 +6717,18 @@ var FLY={
  poke2:['哼,计时器要响了。','不要戳光线开关啦!'],
  pokeAngry:['不不不!奥特曼生气了!','再戳就光线全开了!']
 },
-3:{ /* 哎呀公主: 冰雪闪光,不喷火 */
- select:['哎呀,本公主来开飞机咯!','哎呀呀,人家要闪闪亮亮飞到终点!'],
- roll6:['哎呀!六点,好幸运,可以起飞!','哎呀呀,本公主起飞运气真好!'],
- lowRoll:['哎呀,才一点,人家慢慢走嘛。','一点点也好吧,哼。'],
- takeoff:['哎呀,本公主的飞机起飞咯!','六!人家要跳舞起飞啦!'],
+3:{ /* 哎呀公主: 冰雪闪光,不喷火。roll6/lowRoll/takeoff/win 用大富翁同句,走同一条 dayi 夹 + TTS pitch 1.85/rate 1.05 */
+ select:['哎呀,本公主来开飞机咯!','哎呀~本公主来啦,好开心呀!'],
+ roll6:['哎呀!六点,好幸运!','哎呀呀,本公主运气真好~','六!人家要跳舞啦!'],
+ lowRoll:['哎呀…才一点,人家不要嘛','哎呀,走好慢,脚好累…','一点点…也好吧,哼~'],
+ takeoff:['六!人家要跳舞啦!','哎呀!六点,好幸运!'],
  jump:['哎呀嘿嘿,同色格子跳一下嘛!','咯咯,人家溜到前面啦!'],
  fly12:['哎呀呀,本公主横飞十二格!','人家乘着雪花滑过去咯!'],
  eat:['哎呀,把你送回基地喝下午茶。','哎呀,冰一下,回家休息吧!'],
  eaten:['哎呀,人家被送回基地了。','呜,皇冠都歪了,哎呀。'],
  enterHome:['哎呀,人家拐进回家跑道啦!','哎呀,快到闪闪终点咯!'],
  finishPlane:['哎呀,一架公主飞机到家啦!','哎呀呀,终点闪闪发光!'],
- win:['哎呀!人家第一个飞到终点啦!','公主加冕,飞行冠军!'],
+ win:['公主加冕!大家快鼓掌~','哎呀呀,第一名居然是我!'],
  bounce:['哎呀,掷太高兴,掉回基地了。','哎呀呀,三连六好晕,先回家。'],
  poke:['哎呀,这是公主专机呀。','轻轻碰一下雪花漆嘛。'],
  poke2:['哎呀,皇冠要歪了。','不要一直戳人家的飞机!'],
