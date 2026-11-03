@@ -138,7 +138,7 @@
 #fltok{position:absolute;inset:0;z-index:8;pointer-events:none;overflow:visible}
 #fltok .fltok{pointer-events:auto}
 /* track tokens ~5.5%; base tokens ~4.5% ≈ pit diameter so they sit in X slots */
-.fltok{position:absolute;width:5.5%;height:5.5%;transform:translate(-50%,-50%);border:0;background:transparent;padding:0;cursor:pointer;pointer-events:auto;overflow:visible;
+.fltok{position:absolute;width:5.5%;height:5.5%;transform:translate(-50%,-50%);border:0;background:transparent;padding:0;cursor:pointer;pointer-events:auto;overflow:visible;border-radius:50%;
  filter:drop-shadow(0 4px 3px rgba(0,0,0,.42));transition:left .28s ease-out,top .28s ease-out,transform .2s}
 .fltok .fl-plane,.fltok .fl-plane-img,.fltok .fl3d-tok{width:100%;height:100%;display:block;object-fit:contain;
  transform:rotate(var(--face,0deg));transform-origin:50% 50%;transition:transform .16s ease-out}
@@ -209,8 +209,9 @@
 @keyframes flsp{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
 .gq-eco .flfx{display:none}
 
-.flp{flex:1;min-height:0;overflow-y:auto;overflow-x:visible;display:flex;flex-direction:column;gap:6px;padding:2px}
+.flp{flex:1;min-height:0;overflow:visible;display:flex;flex-direction:column;gap:6px;padding:8px 4px 8px 10px}
 .flpc.pc.av1{padding:6px 8px;overflow:visible}
+.gm-fly .flpc.cur{transform-origin:left center}
 .flpc .tkm.av{width:72px!important;height:72px!important}
 .flpc .pbub{font-size:11px;padding:4px 6px;bottom:4px;z-index:6}
 .gm-fly.fl-island .flpc .pbub{background:#fffef8}
@@ -218,17 +219,24 @@
 /* Compact floating die — follows the active hangar; no card, center star stays clear */
 .fldock{display:flex;flex-direction:column-reverse;align-items:center;gap:3px;padding:0;
  background:none;border:0;box-shadow:none;overflow:visible;pointer-events:none}
-.fldock-c{position:absolute;left:28%;top:20%;z-index:12;
+.fldock-c{position:absolute;left:31%;top:31%;z-index:12;
  width:auto;min-width:0;max-width:none;box-sizing:border-box;margin:0;
- --ox:-50%;--oy:-100%;
- transform:translate(var(--ox),var(--oy));transform-origin:50% 100%;
+ --ox:0%;--oy:0%;
+ transform:translate(var(--ox),var(--oy));transform-origin:0 0;
  transition:left .5s cubic-bezier(.22,.8,.28,1),top .5s cubic-bezier(.22,.8,.28,1),transform .28s ease,opacity .28s ease}
-.fldock-c.s-tl,.fldock-c.s-tr{--ox:-50%;--oy:-100%;flex-direction:column-reverse;transform-origin:50% 100%}
-.fldock-c.s-bl,.fldock-c.s-br{--ox:-50%;--oy:0%;flex-direction:column;transform-origin:50% 0}
+.fldock-c.s-tl{--ox:0%;--oy:0%;flex-direction:column;align-items:flex-start;transform-origin:0 0}
+.fldock-c.s-tr{--ox:-100%;--oy:0%;flex-direction:column;align-items:flex-end;transform-origin:100% 0}
+.fldock-c.s-bl{--ox:0%;--oy:-100%;flex-direction:column-reverse;align-items:flex-start;transform-origin:0 100%}
+.fldock-c.s-br{--ox:-100%;--oy:-100%;flex-direction:column-reverse;align-items:flex-end;transform-origin:100% 100%}
+.fldock-c.s-tl.rolled,.fldock-c.s-bl.rolled{flex-direction:row;align-items:center}
+.fldock-c.s-tr.rolled,.fldock-c.s-br.rolled{flex-direction:row-reverse;align-items:center}
+.fldock-actions{display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none;z-index:26}
+.fldock-actions .btn,.fldock-actions .flrollbtns,.fldock-actions .flhint{pointer-events:auto}
 .fldock-c .fldie,.fldock-c .fldie-wrap,.fldock-c .flroll,.fldock-c .btn{pointer-events:auto}
 .fldock.want,.fldock-c.want{background:none;border:0;box-shadow:none;animation:none;z-index:30;isolation:isolate;pointer-events:auto}
 .fldock-c.want .fldie-wrap{pointer-events:auto;z-index:25;cursor:pointer;touch-action:manipulation;position:relative}
 .fldock-c.want .fldie-wrap::after{content:'';position:absolute;inset:-28px;border-radius:50%;z-index:2;pointer-events:auto}
+.fldock-c.rolled .fldie-wrap::after{inset:-6px}
 .fldock-c.want .fldie{pointer-events:auto;z-index:3;touch-action:manipulation}
 .fldock-c.want .flroll,.fldock-c.want .btn{pointer-events:auto;z-index:25;touch-action:manipulation;position:relative}
 .fldock-c.idle{opacity:.88;transform:translate(var(--ox),var(--oy)) scale(.9);pointer-events:none;z-index:8;

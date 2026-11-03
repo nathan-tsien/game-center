@@ -156,6 +156,7 @@ var ICO={
 var UI=GC.UI={
  ICO:ICO,reduce:reduce,
  toast:function(m,ms,kind){var e=$('toast');e.className='';e.innerHTML=(kind&&ICO[kind]?'<i class="ti '+kind+'">'+ICO[kind]+'</i>':'')+'<span>'+esc0(m)+'</span>';void e.offsetWidth;e.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){e.classList.remove('show')},ms||1800)},
+ hideToast:function(){var e=$('toast');if(e)e.classList.remove('show');clearTimeout(tt);tt=null},
  modal:function(html,o){var m=$('modal'),b=$('box'),was=m.classList.contains('show'),cls=(o&&o.cls)||'',soft=/\b(sticky|deedm)\b/.test(cls);b.innerHTML=html;b.className=cls+(was?'':' mpopin');m.classList.remove('closing','msoft');if(!was){m.classList.add('show');m.classList.add('mfadein');if(soft)m.classList.add('msoft');if(m._mf)clearTimeout(m._mf);m._mf=setTimeout(function(){m.classList.remove('mfadein','msoft')},240)}else{m.classList.add('show')}if(b._mp)clearTimeout(b._mp);if(!was)b._mp=setTimeout(function(){b.classList.remove('mpopin')},360);b.scrollTop=0;return b},
  close:function(){var m=$('modal');if(!m.classList.contains('show'))return;m.classList.remove('show');$('box').innerHTML=''},
  confirm:function(o){return new Promise(function(res){
