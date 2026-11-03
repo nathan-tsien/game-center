@@ -214,6 +214,7 @@ function announceTurn(pid,o){
 function noteTurnAdvance(prev){
  if(!S||S.phase!=='play'||S.again||S.turn===prev)return;
  if(S.turn<prev)flyRoundN++;
+ try{if(UI.hideToast)UI.hideToast()}catch(e){}
  announceTurn(S.turn);
 }
 function renderHangars(){
@@ -646,7 +647,29 @@ function buildBoard(){
 function stackOffset(listIdx,total){
  if(total<=1)return{dx:0,dy:0};
  var ang=(listIdx/total)*Math.PI*2;
- return{dx:Math.cos(ang)*1.6,dy:Math.sin(ang)*1.8};
+ /* ~1 token-width apart for 2-stacks so each crescent is tappable */
+ return{dx:Math.cos(ang)*2.5,dy:Math.sin(ang)*2.7};
+}
+function tokFromEvent(ev,scope){
+ var src=(ev.changedTouches&&ev.changedTouches[0])||(ev.touches&&ev.touches[0])||ev;
+ var x=src.clientX,y=src.clientY;
+ var nodes,i,t,k,seen={},toks=[],r,cx,cy,d,best=null,bestD=1e9;
+ if(x==null||y==null)return ev.target&&ev.target.closest?ev.target.closest('.fltok'):null;
+ nodes=document.elementsFromPoint?document.elementsFromPoint(x,y):[ev.target];
+ for(i=0;i<nodes.length;i++){
+  t=nodes[i]&&nodes[i].closest?nodes[i].closest('.fltok'):null;
+  if(!t||(scope&&!scope.contains(t)))continue;
+  k=t.getAttribute('data-p')+'|'+t.getAttribute('data-pl');
+  if(seen[k])continue;seen[k]=1;toks.push(t);
+ }
+ if(!toks.length)return ev.target&&ev.target.closest?ev.target.closest('.fltok'):null;
+ for(i=0;i<toks.length;i++){
+  t=toks[i];r=t.getBoundingClientRect();
+  cx=r.left+r.width/2;cy=r.top+r.height/2;
+  d=(cx-x)*(cx-x)+(cy-y)*(cy-y);
+  if(d<bestD){bestD=d;best=t}
+ }
+ return best;
 }
 function renderTokens(){
  var el=$q('#fltok');if(!el||!S.players)return;
@@ -693,13 +716,15 @@ function renderTokens(){
    var halo=(go||lit)?'<i class="flglow" aria-hidden="true"></i>':'';
    var alabel=esc(p.cname)+'飞机'+(pl.id+1)+(pl.where==='done'?'已到达终点':'');
    var face=headingDeg(showWhere,showIdx,seatOf(p),{lap:walking?walkShow.lap:pl.lap,kind:walking?walkShow.kind:null});
-   h+='<button type="button" class="'+cls+'" data-p="'+p.id+'" data-pl="'+pl.id+'" data-tok="'+p.tok+'" data-seat="'+seatOf(p)+'" data-where="'+showWhere+'" data-face="'+Math.round(wrap360(face))+'" style="left:'+(pos.x+off.dx)+'%;top:'+(pos.y+off.dy)+'%;--pc:'+p.color+';--face:'+faceCss(wrap360(face))+'" aria-label="'+alabel+'">'+stand+halo+planeImg(p)+badge+'</button>';
+   var z=(go?18:8)+ii;
+   h+='<button type="button" class="'+cls+'" data-p="'+p.id+'" data-pl="'+pl.id+'" data-tok="'+p.tok+'" data-seat="'+seatOf(p)+'" data-where="'+showWhere+'" data-face="'+Math.round(wrap360(face))+'" style="left:'+(pos.x+off.dx)+'%;top:'+(pos.y+off.dy)+'%;z-index:'+z+';--pc:'+p.color+';--face:'+faceCss(wrap360(face))+'" aria-label="'+alabel+'">'+stand+halo+planeImg(p)+badge+'</button>';
   });
  });
  el.innerHTML=h;
  Array.prototype.forEach.call(el.querySelectorAll('.fltok'),function(b){
-  b.onclick=function(){
-   var pid=+b.getAttribute('data-p'),plId=+b.getAttribute('data-pl');
+  b.onclick=function(ev){
+   var hit=tokFromEvent(ev,el)||b;
+   var pid=+hit.getAttribute('data-p'),plId=+hit.getAttribute('data-pl');
    var can=S.tp==='move'&&S.pending&&S.pending.locked&&S.pending.mov&&S.turn===pid&&S.pending.mov.indexOf(plId)>=0;
    if(can)pickPlane(plId);else pokePlane(pid,plId);
   };
@@ -735,8 +760,8 @@ function activeSeat(){
  return p?seatOf(p):1;
 }
 function dockAnchor(seat){
- /* inner flank of each hangar — beside pits, not on avatar / not on the star */
- var m={1:{l:28,t:20,k:'tl'},2:{l:72,t:20,k:'tr'},0:{l:28,t:80,k:'bl'},3:{l:72,t:80,k:'br'}};
+ /* inner corner of hangar, toward board center — not on pits */
+ var m={1:{l:31,t:31,k:'tl'},2:{l:69,t:31,k:'tr'},0:{l:31,t:69,k:'bl'},3:{l:69,t:69,k:'br'}};
  return m[seat]||m[1];
 }
 function duckDock(ms){
@@ -791,10 +816,12 @@ function renderDock(){
  el.setAttribute('data-seat',seat);
  var dieAria=waitMove?'点飞机走格子':(rolled?'已掷出 '+S.roll:'掷骰子');
  el.innerHTML='<div class="fldie-wrap'+(ready?' want':'')+(rolled?' rolled':'')+'" id="flDieHit"'+(ready||waitMove||rolled?' role="button" tabindex="0" aria-label="'+dieAria+'"':'')+'><div class="fldie'+(ready?' pulse':'')+(rolled?' rolled':'')+'" id="flDie" role="button" aria-label="'+dieAria+'">'+Dice.svg(S.roll||lastDie)+'</div></div>'+
+  '<div class="fldock-actions">'+
   (ready?'<button class="btn big flroll" id="flRoll">🎲 掷骰子</button>':'')+
   extra+
   (S.phase==='over'?'<button class="btn pri" id="flAgain">再来一局</button>':'')+
-  (hint?'<div class="flhint" id="flHint">'+hint+'</div>':'');
+  (hint?'<div class="flhint" id="flHint">'+hint+'</div>':'')+
+  '</div>';
  function tapRoll(ev){
   if(ev){ev.preventDefault();ev.stopPropagation()}
   if(busyStuck()){clearBusyLock();try{renderDock()}catch(e){}}
@@ -1071,9 +1098,9 @@ function pickPlane(plId){
    if(r.sent&&r.sent.length){Sound.seq([[880,.06],[440,.1]]);UI.toast('叠吃!送回基地',1200,'star')}
    else if(tookOff){Sound.seq([[523,.08],[784,.12]]);UI.toast(S.again?'先到停机坪,再掷一次!':'先到停机坪!',1400,'star')}
    else if(launched){Sound.seq([[523,.08],[784,.12]]);if(!r.ev.some(function(e){return e.k==='jump'||e.k==='fly'}))UI.toast('正式起飞!',1100,'star')}
-   else if(r.ev&&r.ev.some(function(e){return e.k==='finish'})){Sound.hi();UI.toast('到达终点!',1400,'star')}
+   else if(r.ev&&r.ev.some(function(e){return e.k==='finish'})){Sound.hi();UI.toast(S.phase==='over'?'四架都到齐,获胜!':'进家一架!',1400,'star')}
    else if(!(r.ev&&r.ev.some(function(e){return e.k==='jump'||e.k==='fly'})))Sound.pop();
-   if(S.phase==='over'){var w=S.players[S.winner];try{GC.Intro.banner(w.tok,w.name,'飞到终点啦!')}catch(e){}UI.toast('🏆 '+w.name+' 飞到终点!',2500,'star')}
+   if(S.phase==='over'){var w=S.players[S.winner];try{GC.Intro.banner(w.tok,w.name,'四架都回家啦!')}catch(e){}UI.toast('🏆 '+w.name+' 四架飞机全部到齐!',2500,'star')}
    else if(S.again&&!tookOff)UI.toast('再掷一次!',1000,'info');
   }catch(e){}
   /* 必须先解开 busy 再画骰子，否则 dock 会停在 idle（pointer-events:none），掷6再掷时点了没反应 */
@@ -1105,6 +1132,7 @@ function rulesModal(){
   '• 己方飞机可<b>叠机</b>；敌机落到叠机上 → 整叠回基地<br>'+
   '• <b>★ 星星格</b>是安全区，不能被吃<br>'+
   '• 精确步数沿本色终点道进中心<br>'+
+  '• <b>获胜</b>：本色 <b>4 架飞机全部</b>飞到中心终点才算赢；单架到达只算进家进度<br>'+
   '• 连掷三次 6 → 自家一架飞机回基地并换人</p>'+
   '<div class="row"><button class="btn pri" id="flRk">知道了</button></div>');
  var seg=document.getElementById('flRrSeg');
@@ -1159,7 +1187,7 @@ return{
   if(S&&S.players&&S.players.length)flyRoundN=1+Math.floor(((S.hist&&S.hist.length)||0)/S.players.length);
   /* v14：默认 3D 卡通海岛棋盘；setBoardStyle('print'|'plastic') 可切回旧外观 */
   r.classList.add('gm-fly',window.FLY3D?'fl-island':'fl-print');
-  r.innerHTML='<div class="fllay"><div class="flbw"><div id="flb" class="flb"></div></div><div class="flside"><div class="flp" id="flp"></div><div class="flruletip" title="飞行棋规则"><b>本色✈飞机格</b><br>= 沿虚线横飞+12<br>★星星格安全 · 同色格跳跃<br><span>掷6先到停机坪 · 四色到终点一样远</span></div></div></div>';
+  r.innerHTML='<div class="fllay"><div class="flbw"><div id="flb" class="flb"></div></div><div class="flside"><div class="flp" id="flp"></div><div class="flruletip" title="飞行棋规则"><b>本色✈飞机格</b><br>= 沿虚线横飞+12<br>★星星格安全 · 同色格跳跃<br><span>掷6先到停机坪 · 四架全到中心才算赢</span></div></div></div>';
   var nr=ctx.nav('list','规则',{id:'flRules'}),nn=ctx.nav('refresh','新局',{id:'flNew'}),ne=ctx.nav('star','省电',{id:'flEco'});
   ctx.slot.appendChild(nr);ctx.slot.appendChild(nn);ctx.slot.appendChild(ne);
   nr.onclick=function(){Sound.tap();rulesModal()};

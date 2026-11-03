@@ -35,7 +35,7 @@ body.nav-hid #nav{height:0;min-height:0;padding:0!important;margin:0;border:0;ov
 body.nav-hid #nav>:not(.navfold){display:none}
 body.nav-hid .navfold{top:0;bottom:auto;transform:translate(-50%,0);border-radius:0 0 20px 20px}
 body.nav-hid .navfold:active{transform:translate(-50%,4px) scale(.96)}
-body.nav-hid #toast{top:calc(env(safe-area-inset-top) + 52px)}
+body.nav-hid #toast{top:calc(env(safe-area-inset-top) + 88px)}
 @media (prefers-reduced-motion:reduce){.navfold{transition:none}}
 #nav .ttl{flex:1;min-width:0;font-weight:900;font-size:21px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:8px}
 #nav .ttl .tic{width:30px;height:30px;flex:none;display:inline-block;filter:drop-shadow(0 2px 0 rgba(0,0,0,.15))}
@@ -68,7 +68,7 @@ body[data-route=home] #nHome{visibility:hidden}
 .pl.plane svg,.pl.disc svg{width:40px;height:40px}
 .hs{width:17px;height:17px;vertical-align:-3px}.ht{width:24px;height:24px;vertical-align:-5px}
 /* toast + modal */
-#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 78px);transform:translate(-50%,-24px) scale(.92);background:var(--ink);color:#fff;padding:12px 20px;border-radius:22px;font-size:19px;font-weight:800;opacity:0;pointer-events:none;transition:transform .32s cubic-bezier(.3,1.5,.5,1),opacity .25s;z-index:60;text-align:center;max-width:90vw;display:flex;align-items:center;gap:10px;box-shadow:0 8px 0 rgba(0,0,0,.18),0 12px 24px rgba(0,0,0,.25);border:3px solid #fff}
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 96px);transform:translate(-50%,-24px) scale(.92);background:var(--ink);color:#fff;padding:12px 20px;border-radius:22px;font-size:19px;font-weight:800;opacity:0;pointer-events:none;transition:transform .32s cubic-bezier(.3,1.5,.5,1),opacity .25s;z-index:60;text-align:center;max-width:90vw;display:flex;align-items:center;gap:10px;box-shadow:0 8px 0 rgba(0,0,0,.18),0 12px 24px rgba(0,0,0,.25);border:3px solid #fff}
 #toast.show{opacity:1;transform:translate(-50%,0) scale(1)}
 #toast .ti{width:28px;height:28px;flex:none;border-radius:50%;background:#ffb703;color:#fff;display:inline-flex;align-items:center;justify-content:center}
 #toast .ti svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
